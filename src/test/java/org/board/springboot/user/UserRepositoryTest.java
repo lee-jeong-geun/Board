@@ -37,4 +37,23 @@ public class UserRepositoryTest {
         assertThat(user.getEmail()).isEqualTo(email);
         assertThat(user.getPassword()).isEqualTo(password);
     }
+
+    @Test
+    public void 유저삭제_성공() {
+        //given
+        String name = "jk";
+        String email = "jk@jk.com";
+        String password = "jkjk";
+        userRepository.save(User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .build());
+
+        //when
+        userRepository.deleteById(1l);
+
+        //then
+        assertThat(userRepository.findAll().size()).isEqualTo(0);
+    }
 }
