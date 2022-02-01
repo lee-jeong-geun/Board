@@ -5,13 +5,13 @@ import org.board.springboot.user.domain.UserRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DataJpaTest
 @RunWith(SpringRunner.class)
-@SpringBootTest
 public class UserRepositoryTest {
 
     @Autowired
@@ -55,5 +55,26 @@ public class UserRepositoryTest {
 
         //then
         assertThat(userRepository.findAll().size()).isEqualTo(0);
+    }
+
+    @Test
+    public void 유저수정_성공() {
+        //given
+        String name = "jk";
+        String email = "jk@jk.com";
+        String password = "jkjk";
+        String modifyName = "jk2";
+        User user = userRepository.save(User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .build());
+
+        //when
+        user.update(modifyName, email, password);
+        user = userRepository.findById(user.getId()).get();
+
+        //then
+        assertThat(user.getName()).isEqualTo(modifyName);
     }
 }
