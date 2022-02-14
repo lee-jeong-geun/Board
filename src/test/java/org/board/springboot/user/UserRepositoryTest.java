@@ -2,6 +2,7 @@ package org.board.springboot.user;
 
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,12 @@ public class UserRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
+
+    @After
+    public void clean() {
+        userRepository.deleteAll();
+    }
+
 
     @Test
     public void 유저저장_성공() {
@@ -51,7 +58,7 @@ public class UserRepositoryTest {
                 .build());
 
         //when
-        userRepository.deleteById(1l);
+        userRepository.delete(userRepository.findAll().get(0));
 
         //then
         assertThat(userRepository.findAll().size()).isEqualTo(0);
@@ -76,5 +83,25 @@ public class UserRepositoryTest {
 
         //then
         assertThat(user.getName()).isEqualTo(modifyName);
+    }
+
+    @Test
+    public void 유저조회_이메일_비밀번호_성공() {
+        //given
+        String name = "jk";
+        String email = "jk@jk.com";
+        String password = "jkjk";
+        userRepository.save(User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .build());
+
+        //when
+        User user = userRepository.findByEmailAndPassword(email, password).get();
+
+        //then
+        assertThat(user.getEmail()).isEqualTo(email);
+        assertThat(user.getPassword()).isEqualTo(password);
     }
 }
