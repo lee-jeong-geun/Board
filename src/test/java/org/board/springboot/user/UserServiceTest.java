@@ -58,4 +58,19 @@ public class UserServiceTest {
         //then
         then(userRepository).should().findByEmailAndPassword(email, password);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void 유저탐색_호출_에러() {
+        //given
+        String email = "jk@jk.com";
+        String password = "jkjk";
+        UserFindRequestDto userFindRequestDto = UserFindRequestDto.builder()
+                .email(email)
+                .password(password)
+                .build();
+        given(userRepository.findByEmailAndPassword(email, password)).willReturn(Optional.empty());
+
+        //when
+        userService.find(userFindRequestDto);
+    }
 }
