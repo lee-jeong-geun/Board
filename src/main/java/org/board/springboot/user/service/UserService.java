@@ -23,7 +23,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserFindResponseDto find(UserFindRequestDto userFindRequestDto) {
         User user = userRepository.findByEmailAndPassword(userFindRequestDto.getEmail(), userFindRequestDto.getPassword())
-                .orElseThrow(() -> new IllegalArgumentException("ÇØ´ç À¯Àú°¡ ¾ø½À´Ï´Ù."));
+                .orElseThrow(() -> new IllegalArgumentException("í•´ë‹¹ ìœ ì €ê°€ ì—†ìŠµë‹ˆë‹¤."));
         return new UserFindResponseDto(user);
     }
 }
