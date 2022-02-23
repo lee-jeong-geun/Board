@@ -1,10 +1,10 @@
 package org.board.springboot.auth;
 
 import org.board.springboot.auth.dto.LoginRequestDto;
+import org.board.springboot.auth.dto.LoginResponseDto;
 import org.board.springboot.auth.dto.LoginUserResponseDto;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.user.domain.User;
-import org.board.springboot.user.dto.UserFindRequestDto;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
@@ -18,7 +18,6 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthServiceTest {
@@ -73,5 +72,26 @@ public class AuthServiceTest {
 
         //then
         BDDMockito.then(userService).should(times(1)).find(any());
+    }
+
+    @Test
+    public void login_올바른값_반환() {
+        //given
+        String name = "jk";
+        String email = "jk@jk.com";
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
+        UserFindResponseDto userFindResponseDto = new UserFindResponseDto(User.builder()
+                .name(name)
+                .email(email)
+                .build());
+        given(userService.find(any())).willReturn(userFindResponseDto);
+
+        //when
+        LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
+
+        //then
+        then(loginResponseDto.isSuccess()).isEqualTo(true);
+        then(loginResponseDto.getUser().getName()).isEqualTo(name);
+        then(loginResponseDto.getUser().getEmail()).isEqualTo(email);
     }
 }
