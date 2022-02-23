@@ -50,10 +50,9 @@ public class AuthServiceTest {
     @Test
     public void getLoginUserResponseDto_호출_null값_반환() {
         //given
-        UserFindResponseDto userFindResponseDto = null;
 
         //when
-        LoginUserResponseDto loginUserResponseDto = authService.getLoginUserResponseDto(userFindResponseDto);
+        LoginUserResponseDto loginUserResponseDto = authService.getLoginUserResponseDto(null);
 
         //then
         then(loginUserResponseDto).isNull();
@@ -93,5 +92,19 @@ public class AuthServiceTest {
         then(loginResponseDto.isSuccess()).isEqualTo(true);
         then(loginResponseDto.getUser().getName()).isEqualTo(name);
         then(loginResponseDto.getUser().getEmail()).isEqualTo(email);
+    }
+
+    @Test
+    public void login_조회_실패_값_반환() {
+        //given
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
+        given(userService.find(any())).willReturn(null);
+
+        //when
+        LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
+
+        //then
+        then(loginResponseDto.isSuccess()).isFalse();
+        then(loginResponseDto.getUser()).isNull();
     }
 }
