@@ -40,4 +40,16 @@ public class AuthServiceTest {
         then(loginUserResponseDto.getName()).isEqualTo(name);
         then(loginUserResponseDto.getEmail()).isEqualTo(email);
     }
+
+    @Test
+    public void getLoginUserResponseDto_호출_null값_반환() {
+        //given
+        UserFindResponseDto userFindResponseDto = null;
+
+        //when
+        LoginUserResponseDto loginUserResponseDto = authService.getLoginUserResponseDto(userFindResponseDto);
+
+        //then
+        then(loginUserResponseDto).isNull();
+    }
 }
