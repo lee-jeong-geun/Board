@@ -1,7 +1,7 @@
 package org.board.springboot.auth;
 
 import org.board.springboot.auth.dto.LoginRequestDto;
-import org.board.springboot.auth.dto.LoginResponseDto;
+import org.board.springboot.auth.dto.LoginUserResponseDto;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.dto.UserFindResponseDto;
@@ -55,25 +55,20 @@ public class AuthServiceTest {
         given(userService.find(any())).willReturn(userFindResponseDto);
 
         //when
-        LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
+        LoginUserResponseDto loginUserResponseDto = authService.login(loginRequestDto);
 
         //then
-        then(loginResponseDto.isSuccess()).isEqualTo(true);
-        then(loginResponseDto.getUser().getName()).isEqualTo(name);
-        then(loginResponseDto.getUser().getEmail()).isEqualTo(email);
+        then(loginUserResponseDto.getName()).isEqualTo(name);
+        then(loginUserResponseDto.getEmail()).isEqualTo(email);
     }
 
-    @Test
-    public void login_조회_실패_값_반환() {
+    @Test(expected = IllegalArgumentException.class)
+    public void login_조회_실패_에러() {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
-        given(userService.find(any())).willReturn(null);
+        given(userService.find(any())).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
 
         //when
-        LoginResponseDto loginResponseDto = authService.login(loginRequestDto);
-
-        //then
-        then(loginResponseDto.isSuccess()).isFalse();
-        then(loginResponseDto.getUser()).isNull();
+        authService.login(loginRequestDto);
     }
 }
