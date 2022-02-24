@@ -2,7 +2,11 @@ package org.board.springboot.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.board.springboot.auth.controller.AuthApiController;
+import org.board.springboot.auth.dto.LoginRequestDto;
+import org.board.springboot.auth.dto.LoginResponseDto;
+import org.board.springboot.auth.dto.LoginUserResponseDto;
 import org.board.springboot.auth.dto.RegisterRequestDto;
+import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +29,9 @@ public class AuthApiControllerTest {
 
     @MockBean
     UserService userService;
+
+    @MockBean
+    AuthService authService;
 
     @Autowired
     MockMvc mockMvc;
@@ -52,5 +59,37 @@ public class AuthApiControllerTest {
         //then
         result.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("1"));
+    }
+
+    @Test
+    public void 로그인_호출_성공() throws Exception {
+        //given
+        String name = "jk";
+        String email = "jk@jk.com";
+        String password = "jkjk";
+
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(email)
+                .password(password)
+                .build();
+        LoginUserResponseDto loginUserResponseDto = LoginUserResponseDto.builder()
+                .name(name)
+                .email(email)
+                .build();
+        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+                .success(true)
+                .user(loginUserResponseDto)
+                .build();
+        String url = "http://localhost:8080/api/v1/auth/login";
+        given(authService.login(any())).willReturn(loginUserResponseDto);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(new ObjectMapper().writeValueAsString(loginRequestDto)));
+
+        //then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(loginResponseDto)));
     }
 }
