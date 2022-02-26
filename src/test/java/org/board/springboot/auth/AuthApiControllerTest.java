@@ -1,11 +1,9 @@
 package org.board.springboot.auth;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.board.springboot.auth.controller.AuthApiController;
-import org.board.springboot.auth.dto.LoginRequestDto;
-import org.board.springboot.auth.dto.LoginResponseDto;
-import org.board.springboot.auth.dto.LoginUserResponseDto;
-import org.board.springboot.auth.dto.RegisterRequestDto;
+import org.board.springboot.auth.dto.*;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
@@ -91,5 +89,33 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(loginResponseDto)));
+    }
+
+    @Test
+    public void 로그인_호출_실패_에러처리() throws Exception {
+        //given
+        String email = "jk@jk.com";
+        String password = "jkjk";
+        String message = "해당 유저가 없습니다.";
+        boolean success = false;
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(email)
+                .password(password)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(success)
+                .message(message)
+                .build();
+        String url = "http://localhost:8080/api/v1/auth/login";
+        given(authService.login(any())).willThrow(new IllegalArgumentException(message));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(new ObjectMapper().writeValueAsString(loginRequestDto)));
+
+        //then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(exceptionResponse)));
     }
 }
