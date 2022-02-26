@@ -16,7 +16,6 @@ import java.lang.reflect.Field;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -51,6 +50,17 @@ public class UserServiceTest {
         then(userRepository).should().findByEmail(email);
         then(userRepository).should().save(any());
         assertThat(id).isEqualTo(1l);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void 유저저장_호출_에러() {
+        //given
+        String email = "jk@jk.com";
+        UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder().email(email).build();
+        given(userRepository.findByEmail(userSaveRequestDto.getEmail())).willReturn(Optional.of(User.builder().build()));
+
+        //when
+        userService.save(userSaveRequestDto);
     }
 
     @Test
