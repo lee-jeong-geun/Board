@@ -3,6 +3,7 @@ package org.board.springboot.user;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
 import org.board.springboot.user.dto.UserFindRequestDto;
+import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import java.lang.reflect.Field;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -54,6 +56,7 @@ public class UserServiceTest {
     @Test
     public void 유저탐색_호출_성공() {
         //given
+        String name = "jk";
         String email = "jk@jk.com";
         String password = "jkjk";
         UserFindRequestDto userFindRequestDto = UserFindRequestDto.builder()
@@ -61,13 +64,18 @@ public class UserServiceTest {
                 .password(password)
                 .build();
         given(userRepository.findByEmailAndPassword(email, password))
-                .willReturn(Optional.of(User.builder().build()));
+                .willReturn(Optional.of(User.builder()
+                        .name(name)
+                        .email(email)
+                        .build()));
 
         //when
-        userService.find(userFindRequestDto);
+        UserFindResponseDto userFindResponseDto = userService.find(userFindRequestDto);
 
         //then
         then(userRepository).should().findByEmailAndPassword(email, password);
+        assertThat(userFindResponseDto.getName()).isEqualTo(name);
+        assertThat(userFindResponseDto.getEmail()).isEqualTo(email);
     }
 
     @Test(expected = IllegalArgumentException.class)
