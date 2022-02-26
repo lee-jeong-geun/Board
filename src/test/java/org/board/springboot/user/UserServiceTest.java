@@ -11,8 +11,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.lang.reflect.Field;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -28,16 +30,25 @@ public class UserServiceTest {
     private UserService userService;
 
     @Test
-    public void 유저저장_호출_성공() {
+    public void 유저저장_호출_성공() throws Exception {
         //given
-        UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder().build();
-        given(userRepository.save(any())).willReturn(userSaveRequestDto.toEntity());
+        String email = "jk@jk.com";
+        User user = User.builder().build();
+        Field field = user.getClass().getDeclaredField("id");
+        field.setAccessible(true);
+        field.set(user, 1l);
+
+        UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder().email(email).build();
+        given(userRepository.findByEmail(userSaveRequestDto.getEmail())).willReturn(Optional.empty());
+        given(userRepository.save(any())).willReturn(user);
 
         //when
-        userService.save(userSaveRequestDto);
+        Long id = userService.save(userSaveRequestDto);
 
         //then
+        then(userRepository).should().findByEmail(email);
         then(userRepository).should().save(any());
+        assertThat(id).isEqualTo(1l);
     }
 
     @Test
