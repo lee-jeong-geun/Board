@@ -104,4 +104,23 @@ public class UserRepositoryTest {
         assertThat(user.getEmail()).isEqualTo(email);
         assertThat(user.getPassword()).isEqualTo(password);
     }
+
+    @Test
+    public void 유저조회_이메일_성공() {
+        //given
+        String name = "jk";
+        String email = "jk@jk.com";
+        String password = "jkjk";
+        userRepository.save(User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .build());
+
+        //when
+        User user = userRepository.findByEmail(email).get();
+
+        //then
+        assertThat(user.getEmail()).isEqualTo(email);
+    }
 }
