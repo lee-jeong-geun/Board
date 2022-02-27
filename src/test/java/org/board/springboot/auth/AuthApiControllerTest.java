@@ -1,6 +1,5 @@
 package org.board.springboot.auth;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.board.springboot.auth.controller.AuthApiController;
 import org.board.springboot.auth.dto.*;
@@ -40,14 +39,19 @@ public class AuthApiControllerTest {
         String name = "jk";
         String email = "jk@jk.com";
         String password = "jkjk";
+        boolean success = true;
+        Long id = 1l;
         RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
                 .name(name)
                 .email(email)
                 .password(password)
                 .build();
-
+        RegisterResponseDto registerResponseDto = RegisterResponseDto.builder()
+                .success(success)
+                .id(id)
+                .build();
         String url = "http://localhost:8080/api/v1/auth/register";
-        given(userService.save(any())).willReturn(1l);
+        given(userService.save(any())).willReturn(id);
 
         //when
         ResultActions result = mockMvc.perform(post(url)
@@ -56,7 +60,7 @@ public class AuthApiControllerTest {
 
         //then
         result.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string("1"));
+                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(registerResponseDto)));
     }
 
     @Test
