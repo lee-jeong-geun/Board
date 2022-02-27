@@ -18,14 +18,18 @@ public class AuthApiController {
     private final AuthService authService;
 
     @PostMapping("/api/v1/auth/register")
-    public Long register(@RequestBody RegisterRequestDto requestDto) {
+    public RegisterResponseDto register(@RequestBody RegisterRequestDto requestDto) {
         UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder()
                 .name(requestDto.getName())
                 .email(requestDto.getEmail())
                 .password(requestDto.getPassword())
                 .build();
 
-        return userService.save(userSaveRequestDto);
+        Long id = userService.save(userSaveRequestDto);
+        return RegisterResponseDto.builder()
+                .success(true)
+                .id(id)
+                .build();
     }
 
     @PostMapping("/api/v1/auth/login")
