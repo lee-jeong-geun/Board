@@ -9,6 +9,8 @@ import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @RequiredArgsConstructor
 @Service
 public class UserService {
@@ -17,6 +19,11 @@ public class UserService {
 
     @Transactional
     public Long save(UserSaveRequestDto userSaveRequestDto) {
+        Optional<User> optionalUser = userRepository.findByEmail(userSaveRequestDto.getEmail());
+        if (optionalUser.isPresent()) {
+            throw new IllegalArgumentException("해당 유저가 이미 존재합니다.");
+        }
+
         return userRepository.save(userSaveRequestDto.toEntity()).getId();
     }
 
