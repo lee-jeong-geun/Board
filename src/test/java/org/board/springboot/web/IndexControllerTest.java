@@ -31,4 +31,17 @@ public class IndexControllerTest {
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("게시판")));
     }
+
+    @Test
+    public void 회원가입화면_로딩_성공() throws Exception {
+        //given
+        String url = "http://localhost:8080/auth/register";
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get(url));
+
+        //then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("회원가입")));
+    }
 }
