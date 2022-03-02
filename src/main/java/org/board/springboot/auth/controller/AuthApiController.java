@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 @RequiredArgsConstructor
 @RestController
 public class AuthApiController {
 
     private final UserService userService;
     private final AuthService authService;
+    private final HttpServletRequest httpServletRequest;
 
     @PostMapping("/api/v1/auth/register")
     public RegisterResponseDto register(@RequestBody RegisterRequestDto requestDto) {
@@ -35,6 +39,10 @@ public class AuthApiController {
     @PostMapping("/api/v1/auth/login")
     public LoginResponseDto login(@RequestBody LoginRequestDto requestDto) {
         LoginUserResponseDto loginUserResponseDto = authService.login(requestDto);
+
+        HttpSession httpSession = httpServletRequest.getSession();
+        httpSession.setAttribute("login", true);
+
         return LoginResponseDto.builder()
                 .success(true)
                 .user(loginUserResponseDto)
