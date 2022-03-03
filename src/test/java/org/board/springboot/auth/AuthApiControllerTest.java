@@ -7,6 +7,7 @@ import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -15,6 +16,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -29,6 +32,9 @@ public class AuthApiControllerTest {
 
     @MockBean
     AuthService authService;
+
+    @Mock
+    HttpServletRequest httpServletRequest;
 
     @Autowired
     MockMvc mockMvc;
@@ -121,5 +127,22 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(exceptionResponse)));
+    }
+
+    @Test
+    public void logout_호출_성공() throws Exception {
+        //given
+        LogoutResponseDto logoutResponseDto = LogoutResponseDto.builder()
+                .success(true)
+                .build();
+        String url = "http://localhost:8080/api/v1/auth/logout";
+        given(authService.logout(httpServletRequest.getSession())).willReturn(true);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url));
+
+        //then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(logoutResponseDto)));
     }
 }
