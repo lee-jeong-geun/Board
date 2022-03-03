@@ -67,7 +67,7 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void logout_성공() {
+    public void logout_호출_성공() {
         //given
         given(mockHttpSession.getAttribute("login")).willReturn(true);
 
@@ -77,6 +77,24 @@ public class AuthServiceTest {
         //then
         BDDMockito.then(mockHttpSession).should(times(2)).getAttribute("login");
         then(result).isEqualTo(true);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void logout_null값_호출_실패_에러() {
+        //given
+        given(mockHttpSession.getAttribute("login")).willReturn(null);
+
+        //when
+        authService.logout(mockHttpSession);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void logout_false값_호출_실패_에러() {
+        //given
+        given(mockHttpSession.getAttribute("login")).willReturn(false);
+
+        //when
+        authService.logout(mockHttpSession);
     }
 
     @Test(expected = IllegalArgumentException.class)
