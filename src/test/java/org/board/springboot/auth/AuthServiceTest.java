@@ -12,6 +12,7 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.mock.web.MockHttpSession;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,6 +24,9 @@ public class AuthServiceTest {
 
     @Mock
     private UserService userService;
+
+    @Mock
+    private MockHttpSession mockHttpSession;
 
     @InjectMocks
     private AuthService authService;
@@ -60,6 +64,19 @@ public class AuthServiceTest {
         //then
         then(loginUserResponseDto.getName()).isEqualTo(name);
         then(loginUserResponseDto.getEmail()).isEqualTo(email);
+    }
+
+    @Test
+    public void logout_성공() {
+        //given
+        given(mockHttpSession.getAttribute("login")).willReturn(true);
+
+        //when
+        boolean result = authService.logout(mockHttpSession);
+
+        //then
+        BDDMockito.then(mockHttpSession).should(times(2)).getAttribute("login");
+        then(result).isEqualTo(true);
     }
 
     @Test(expected = IllegalArgumentException.class)
