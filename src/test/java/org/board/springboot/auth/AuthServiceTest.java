@@ -36,14 +36,16 @@ public class AuthServiceTest {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
         UserFindResponseDto userFindResponseDto = new UserFindResponseDto(User.builder().build());
-
         given(userService.find(any())).willReturn(userFindResponseDto);
+        given(mockHttpSession.getAttribute("login")).willReturn(false);
+
         //when
         authService.login(loginRequestDto, mockHttpSession);
 
         //then
         BDDMockito.then(userService).should(times(1)).find(any());
         BDDMockito.then(mockHttpSession).should(times(1)).setAttribute("login", true);
+        BDDMockito.then(mockHttpSession).should(times(2)).getAttribute("login");
     }
 
     @Test
@@ -57,12 +59,14 @@ public class AuthServiceTest {
                 .email(email)
                 .build());
         given(userService.find(any())).willReturn(userFindResponseDto);
+        given(mockHttpSession.getAttribute("login")).willReturn(false);
 
         //when
         LoginUserResponseDto loginUserResponseDto = authService.login(loginRequestDto, mockHttpSession);
 
         //then
         BDDMockito.then(mockHttpSession).should(times(1)).setAttribute("login", true);
+        BDDMockito.then(mockHttpSession).should(times(2)).getAttribute("login");
         then(loginUserResponseDto.getName()).isEqualTo(name);
         then(loginUserResponseDto.getEmail()).isEqualTo(email);
     }
