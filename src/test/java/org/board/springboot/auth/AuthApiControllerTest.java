@@ -12,12 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import javax.servlet.http.HttpServletRequest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -34,7 +33,7 @@ public class AuthApiControllerTest {
     AuthService authService;
 
     @Mock
-    HttpServletRequest httpServletRequest;
+    MockHttpSession mockHttpSession;
 
     @Autowired
     MockMvc mockMvc;
@@ -136,13 +135,35 @@ public class AuthApiControllerTest {
                 .success(true)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/logout";
-        given(authService.logout(httpServletRequest.getSession())).willReturn(true);
+        given(authService.logout(mockHttpSession)).willReturn(true);
 
         //when
-        ResultActions resultActions = mockMvc.perform(post(url));
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .session(mockHttpSession));
 
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(logoutResponseDto)));
+    }
+
+    @Test
+    public void logout_호출_실패_에러처리() throws Exception {
+        //given
+        boolean success = false;
+        String message = "로그인 상태가 아닙니다.";
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(success)
+                .message(message)
+                .build();
+        String url = "http://localhost:8080/api/v1/auth/logout";
+        given(authService.logout(mockHttpSession)).willThrow(new IllegalArgumentException(message));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .session(mockHttpSession));
+
+        //then
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(exceptionResponse)));
     }
 }
