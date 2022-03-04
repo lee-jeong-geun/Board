@@ -19,6 +19,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -88,7 +89,7 @@ public class AuthApiControllerTest {
                 .user(loginUserResponseDto)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/login";
-        given(authService.login(any())).willReturn(loginUserResponseDto);
+        given(authService.login(any(), any())).willReturn(loginUserResponseDto);
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
@@ -116,7 +117,7 @@ public class AuthApiControllerTest {
                 .message(message)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/login";
-        given(authService.login(any())).willThrow(new IllegalArgumentException(message));
+        given(authService.login(any(), any())).willThrow(new IllegalArgumentException(message));
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
