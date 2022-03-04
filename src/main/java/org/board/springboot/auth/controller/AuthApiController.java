@@ -49,6 +49,14 @@ public class AuthApiController {
                 .build();
     }
 
+    @PostMapping("/api/v1/auth/logout")
+    public LogoutResponseDto logout() {
+        authService.logout(httpServletRequest.getSession());
+        return LogoutResponseDto.builder()
+                .success(true)
+                .build();
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ExceptionResponse IllegalArgumentExceptionHandler(Exception exception) {
         return ExceptionResponse.builder()
