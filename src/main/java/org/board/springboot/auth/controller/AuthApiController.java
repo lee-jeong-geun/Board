@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,11 +37,7 @@ public class AuthApiController {
 
     @PostMapping("/api/v1/auth/login")
     public LoginResponseDto login(@RequestBody LoginRequestDto requestDto) {
-        LoginUserResponseDto loginUserResponseDto = authService.login(requestDto);
-
-        HttpSession httpSession = httpServletRequest.getSession();
-        httpSession.setAttribute("login", true);
-
+        LoginUserResponseDto loginUserResponseDto = authService.login(requestDto, httpServletRequest.getSession());
         return LoginResponseDto.builder()
                 .success(true)
                 .user(loginUserResponseDto)
