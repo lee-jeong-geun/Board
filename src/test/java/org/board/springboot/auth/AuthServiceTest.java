@@ -85,7 +85,7 @@ public class AuthServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void logout_null값_호출_실패_에러() {
+    public void logout_세션_null값_호출_실패_에러() {
         //given
         given(mockHttpSession.getAttribute("login")).willReturn(null);
 
@@ -94,7 +94,7 @@ public class AuthServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void logout_false값_호출_실패_에러() {
+    public void logout_세션_false값_호출_실패_에러() {
         //given
         given(mockHttpSession.getAttribute("login")).willReturn(false);
 
@@ -107,6 +107,18 @@ public class AuthServiceTest {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
         given(userService.find(any())).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
+
+        //when
+        authService.login(loginRequestDto, mockHttpSession);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void login_세션_true값_호출_실패_에러() {
+        //given
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
+        UserFindResponseDto userFindResponseDto = new UserFindResponseDto(User.builder().build());
+        given(userService.find(any())).willReturn(userFindResponseDto);
+        given(mockHttpSession.getAttribute("login")).willReturn(true);
 
         //when
         authService.login(loginRequestDto, mockHttpSession);
