@@ -15,8 +15,12 @@ public class AuthService {
 
     private final UserService userService;
 
-    public LoginUserResponseDto login(LoginRequestDto loginRequestDto) {
+    public LoginUserResponseDto login(LoginRequestDto loginRequestDto, HttpSession httpSession) {
         UserFindResponseDto userFindResponseDto = userService.find(loginRequestDto.toUserFindRequestDto());
+        if (httpSession.getAttribute("login") != null && (boolean) httpSession.getAttribute("login")) {
+            throw new IllegalArgumentException("이미 로그인 상태입니다.");
+        }
+        httpSession.setAttribute("login", true);
         return LoginUserResponseDto.builder()
                 .name(userFindResponseDto.getName())
                 .email(userFindResponseDto.getEmail())
