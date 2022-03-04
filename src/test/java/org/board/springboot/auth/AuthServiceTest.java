@@ -38,12 +38,12 @@ public class AuthServiceTest {
         UserFindResponseDto userFindResponseDto = new UserFindResponseDto(User.builder().build());
 
         given(userService.find(any())).willReturn(userFindResponseDto);
-
         //when
-        authService.login(loginRequestDto);
+        authService.login(loginRequestDto, mockHttpSession);
 
         //then
         BDDMockito.then(userService).should(times(1)).find(any());
+        BDDMockito.then(mockHttpSession).should(times(1)).setAttribute("login", true);
     }
 
     @Test
@@ -59,9 +59,10 @@ public class AuthServiceTest {
         given(userService.find(any())).willReturn(userFindResponseDto);
 
         //when
-        LoginUserResponseDto loginUserResponseDto = authService.login(loginRequestDto);
+        LoginUserResponseDto loginUserResponseDto = authService.login(loginRequestDto, mockHttpSession);
 
         //then
+        BDDMockito.then(mockHttpSession).should(times(1)).setAttribute("login", true);
         then(loginUserResponseDto.getName()).isEqualTo(name);
         then(loginUserResponseDto.getEmail()).isEqualTo(email);
     }
@@ -104,6 +105,6 @@ public class AuthServiceTest {
         given(userService.find(any())).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
 
         //when
-        authService.login(loginRequestDto);
+        authService.login(loginRequestDto, mockHttpSession);
     }
 }
