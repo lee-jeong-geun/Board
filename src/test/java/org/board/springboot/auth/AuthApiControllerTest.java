@@ -129,7 +129,7 @@ public class AuthApiControllerTest {
     }
 
     @Test
-    public void logout_호출_성공() throws Exception {
+    public void 로그아웃_호출_성공() throws Exception {
         //given
         LogoutResponseDto logoutResponseDto = LogoutResponseDto.builder()
                 .success(true)
@@ -147,7 +147,7 @@ public class AuthApiControllerTest {
     }
 
     @Test
-    public void logout_호출_실패_에러처리() throws Exception {
+    public void 로그아웃_호출_실패_에러처리() throws Exception {
         //given
         boolean success = false;
         String message = "로그인 상태가 아닙니다.";
