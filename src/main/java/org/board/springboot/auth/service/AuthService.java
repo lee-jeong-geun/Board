@@ -16,10 +16,9 @@ public class AuthService {
     private final UserService userService;
 
     public LoginUserResponseDto login(LoginRequestDto loginRequestDto, HttpSession httpSession) {
+        validateLoginState(httpSession);
+
         UserFindResponseDto userFindResponseDto = userService.find(loginRequestDto.toUserFindRequestDto());
-        if (httpSession.getAttribute("login") != null && (boolean) httpSession.getAttribute("login")) {
-            throw new IllegalArgumentException("이미 로그인 상태입니다.");
-        }
         httpSession.setAttribute("login", true);
         return LoginUserResponseDto.builder()
                 .name(userFindResponseDto.getName())
@@ -27,12 +26,23 @@ public class AuthService {
                 .build();
     }
 
+    private void validateLoginState(HttpSession httpSession) {
+        if (httpSession.getAttribute("login") != null && (boolean) httpSession.getAttribute("login")) {
+            throw new IllegalArgumentException("이미 로그인 상태입니다.");
+        }
+    }
+
 
     public boolean logout(HttpSession httpSession) {
+        validateLogoutState(httpSession);
+
+        httpSession.setAttribute("login", false);
+        return true;
+    }
+
+    private void validateLogoutState(HttpSession httpSession) {
         if (httpSession.getAttribute("login") == null || !(boolean) httpSession.getAttribute("login")) {
             throw new IllegalArgumentException("로그인 상태가 아닙니다.");
         }
-        httpSession.setAttribute("login", false);
-        return true;
     }
 }
