@@ -116,8 +116,6 @@ public class AuthServiceTest {
     public void login_세션_true값_호출_실패_에러() {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
-        UserFindResponseDto userFindResponseDto = new UserFindResponseDto(User.builder().build());
-        given(userService.find(any())).willReturn(userFindResponseDto);
         given(mockHttpSession.getAttribute("login")).willReturn(true);
 
         //when
