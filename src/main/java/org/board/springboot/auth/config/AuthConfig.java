@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthConfig {
 
     @Bean
-    public AuthSession map() {
+    public AuthSession authSession() {
         return new AuthSession(new ConcurrentHashMap<>());
     }
 }
