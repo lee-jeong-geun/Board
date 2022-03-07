@@ -139,4 +139,20 @@ public class AuthServiceTest {
         //when
         authService.login(loginRequestDto, mockHttpSession);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void login_이메일_로그인_상태_호출_실패_에러() {
+        //given
+        String email = "jk@jk.com";
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(email)
+                .build();
+        Map<String, Object> map = new ConcurrentHashMap<>();
+        map.put(email, true);
+        given(userService.find(any())).willReturn(new UserFindResponseDto(User.builder().build()));
+        given(authSession.getSession()).willReturn(map);
+
+        //when
+        authService.login(loginRequestDto, mockHttpSession);
+    }
 }
