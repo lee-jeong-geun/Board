@@ -119,6 +119,15 @@ public class UserServiceTest {
         //then
         then(userRepository).should().findByEmail(email);
         BDDAssertions.then(user).isEqualTo(result);
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void 유저탐색_이메일_호출_실패_에러() {
+        //given
+        String email = "jk@jk.com";
+        given(userRepository.findByEmail(email)).willReturn(Optional.empty());
+
+        //when
+        userService.findByEmail(email);
     }
 }
