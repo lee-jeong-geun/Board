@@ -1,5 +1,6 @@
 package org.board.springboot.user;
 
+import org.assertj.core.api.BDDAssertions;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
 import org.board.springboot.user.dto.UserFindRequestDto;
@@ -101,5 +102,23 @@ public class UserServiceTest {
 
         //when
         userService.find(userFindRequestDto);
+    }
+
+    @Test
+    public void 유저탐색_이메일_호출_성공() {
+        //given
+        String email = "jk@jk.com";
+        User user = User.builder()
+                .email(email)
+                .build();
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        //when
+        User result = userService.findByEmail(email);
+
+        //then
+        then(userRepository).should().findByEmail(email);
+        BDDAssertions.then(user).isEqualTo(result);
+
     }
 }
