@@ -11,6 +11,7 @@ public class UserFindResponseDto {
     private String name;
     private String email;
 
+    @Builder
     public UserFindResponseDto(User user) {
         this.name = user.getName();
         this.email = user.getEmail();
