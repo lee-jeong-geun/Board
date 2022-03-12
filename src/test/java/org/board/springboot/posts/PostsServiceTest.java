@@ -7,8 +7,10 @@ import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
 import org.board.springboot.posts.service.PostsService;
 import org.board.springboot.user.domain.User;
+import org.board.springboot.user.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -27,6 +29,9 @@ import static org.mockito.Mockito.times;
 public class PostsServiceTest {
 
     @Mock
+    private UserService userService;
+
+    @Mock
     private PostsRepository postsRepository;
 
     @InjectMocks
@@ -35,19 +40,28 @@ public class PostsServiceTest {
     @Test
     public void 포스트_저장_호출_성공() throws Exception {
         //given
+        String email = "jk@jk.com";
+        User user = User.builder()
+                .build();
         Posts posts = Posts.builder().build();
         Field field = posts.getClass().getDeclaredField("id");
         field.setAccessible(true);
         field.set(posts, 1l);
 
-        PostsSaveRequestDto postSaveRequestDto = PostsSaveRequestDto.builder().build();
+        PostsSaveRequestDto postSaveRequestDto = PostsSaveRequestDto.builder()
+                .email(email)
+                .build();
+        ArgumentCaptor<Posts> postsArgumentCaptor = ArgumentCaptor.forClass(Posts.class);
+        given(userService.findByEmail(postSaveRequestDto.getEmail())).willReturn(user);
         given(postsRepository.save(any())).willReturn(posts);
 
         //when
         Long id = postsService.save(postSaveRequestDto);
 
         //then
-        then(postsRepository).should(times(1)).save(any());
+        then(userService).should().findByEmail(postSaveRequestDto.getEmail());
+        then(postsRepository).should().save(postsArgumentCaptor.capture());
+        BDDAssertions.then(postsArgumentCaptor.getValue().getUser()).isEqualTo(user);
         BDDAssertions.then(id).isEqualTo(1l);
     }
 
