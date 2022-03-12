@@ -32,6 +32,14 @@ public class UserService {
     public UserFindResponseDto find(UserFindRequestDto userFindRequestDto) {
         User user = userRepository.findByEmailAndPassword(userFindRequestDto.getEmail(), userFindRequestDto.getPassword())
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
-        return new UserFindResponseDto(user);
+        return UserFindResponseDto.builder()
+                .user(user)
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
     }
 }
