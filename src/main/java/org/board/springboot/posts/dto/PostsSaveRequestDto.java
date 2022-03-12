@@ -3,8 +3,6 @@ package org.board.springboot.posts.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.board.springboot.posts.domain.Posts;
-import org.board.springboot.user.domain.User;
 
 @Getter
 @NoArgsConstructor
@@ -12,21 +10,12 @@ public class PostsSaveRequestDto {
 
     private String title;
     private String content;
-    private User user;
+    private String email;
 
     @Builder
-    public PostsSaveRequestDto(String title, String content, User user) {
+    public PostsSaveRequestDto(String title, String content, String email) {
         this.title = title;
         this.content = content;
-        this.user = user;
+        this.email = email;
     }
-
-    public Posts toEntity() {
-        return Posts.builder()
-                .title(title)
-                .content(content)
-                .user(user)
-                .build();
-    }
-
 }
