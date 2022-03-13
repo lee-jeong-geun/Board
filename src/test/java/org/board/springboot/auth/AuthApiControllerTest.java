@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.board.springboot.auth.controller.AuthApiController;
 import org.board.springboot.auth.dto.*;
 import org.board.springboot.auth.service.AuthService;
+import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,7 +20,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -38,6 +38,9 @@ public class AuthApiControllerTest {
 
     @Autowired
     MockMvc mockMvc;
+
+    @Autowired
+    ObjectMapper objectMapper;
 
     @Test
     public void 유저등록_호출_성공() throws Exception {
@@ -62,11 +65,11 @@ public class AuthApiControllerTest {
         //when
         ResultActions result = mockMvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(new ObjectMapper().writeValueAsString(registerRequestDto)));
+                .content(objectMapper.writeValueAsString(registerRequestDto)));
 
         //then
         result.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(registerResponseDto)));
+                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(registerResponseDto)));
     }
 
     @Test
@@ -94,11 +97,11 @@ public class AuthApiControllerTest {
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(new ObjectMapper().writeValueAsString(loginRequestDto)));
+                .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(loginResponseDto)));
+                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(loginResponseDto)));
     }
 
     @Test
@@ -122,11 +125,11 @@ public class AuthApiControllerTest {
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(new ObjectMapper().writeValueAsString(loginRequestDto)));
+                .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(exceptionResponse)));
+                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(exceptionResponse)));
     }
 
     @Test
@@ -144,7 +147,7 @@ public class AuthApiControllerTest {
 
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(logoutResponseDto)));
+                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(logoutResponseDto)));
     }
 
     @Test
@@ -165,6 +168,6 @@ public class AuthApiControllerTest {
 
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(exceptionResponse)));
+                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(exceptionResponse)));
     }
 }
