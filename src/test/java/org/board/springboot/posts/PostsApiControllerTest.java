@@ -2,6 +2,7 @@ package org.board.springboot.posts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.BDDAssertions;
+import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.controller.PostsApiController;
 import org.board.springboot.posts.dto.*;
 import org.board.springboot.posts.service.PostsService;
@@ -42,6 +43,9 @@ public class PostsApiControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    ObjectMapper objectMapper;
+
     @Test
     public void 게시글_리스트_조회_성공() throws Exception {
         //given
@@ -69,7 +73,7 @@ public class PostsApiControllerTest {
 
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(postsListResponseDto)));
+                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(postsListResponseDto)));
     }
 
     @Test
@@ -96,17 +100,44 @@ public class PostsApiControllerTest {
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(new ObjectMapper().writeValueAsString(postsSaveRequestBody))
+                .content(objectMapper.writeValueAsString(postsSaveRequestBody))
                 .session(mockHttpSession));
 
         //then
         resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(new ObjectMapper().writeValueAsString(postsSaveResponseDto)));
+                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(postsSaveResponseDto)));
         then(mockHttpSession).should(times(2)).getAttribute("login");
         then(postsService).should().save(argumentCaptor.capture());
         BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
         BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
         BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
+    }
 
+    @Test
+    public void 게시글_등록_실패_로그인상태_에러처리() throws Exception {
+        //given
+        String url = "/api/v1/posts";
+        boolean success = false;
+        String message = "로그인 상태가 아닙니다.";
+        PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
+                .title("title")
+                .content("content")
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(success)
+                .message(message)
+                .build();
+        given(mockHttpSession.getAttribute("login")).willReturn(null);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .session(mockHttpSession)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(postsSaveRequestBody)));
+
+        //then
+        then(mockHttpSession).should().getAttribute("login");
+        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(exceptionResponse)));
     }
 }
