@@ -3,6 +3,7 @@ package org.board.springboot.auth.controller;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.auth.dto.*;
 import org.board.springboot.auth.service.AuthService;
+import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
 import org.springframework.web.bind.annotation.ExceptionHandler;
