@@ -1,12 +1,10 @@
 package org.board.springboot.posts.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.dto.*;
 import org.board.springboot.posts.service.PostsService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -33,9 +31,7 @@ public class PostsApiController {
     public PostsSaveResponseDto postsSave(@RequestBody PostsSaveRequestBody postsSaveRequestBody) {
         HttpSession httpSession = httpServletRequest.getSession();
 
-        if (httpSession.getAttribute("login") == null) {
-            throw new IllegalStateException("로그인 상태가 아닙니다.");
-        }
+        validateLoginState(httpSession);
 
         String email = httpSession.getAttribute("login").toString();
 
@@ -48,6 +44,20 @@ public class PostsApiController {
         return PostsSaveResponseDto.builder()
                 .success(true)
                 .id(id)
+                .build();
+    }
+
+    private void validateLoginState(HttpSession httpSession) {
+        if (httpSession.getAttribute("login") == null) {
+            throw new IllegalStateException("로그인 상태가 아닙니다.");
+        }
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ExceptionResponse IllegalStateExceptionHandler(Exception exception) {
+        return ExceptionResponse.builder()
+                .success(false)
+                .message(exception.getMessage())
                 .build();
     }
 }
