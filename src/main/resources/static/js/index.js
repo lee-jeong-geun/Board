@@ -28,9 +28,13 @@
                     if (state === '로그인') {
                         alert('로그인에 성공하셨습니다.')
                         e.target.textContent = '로그아웃'
+                        const element = document.createElement('a')
+                        element.innerHTML = '<a href="/posts/create" role="button" class="btn btn-primary">글 등록</a>'
+                        e.target.parentElement.appendChild(element)
                     } else {
                         alert('로그아웃에 성공하셨습니다.')
                         e.target.textContent = '로그인'
+                        e.target.parentElement.removeChild(e.target.parentElement.lastChild);
                     }
                 } else {
                     alert(body.message)
