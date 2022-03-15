@@ -15,4 +15,9 @@ public class IndexController {
     public String register() {
         return "register";
     }
+
+    @GetMapping("/posts/create")
+    public String postsCreate() {
+        return "posts/create";
+    }
 }
