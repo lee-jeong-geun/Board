@@ -1,8 +1,10 @@
 package org.board.springboot.user;
 
 import org.assertj.core.api.BDDAssertions;
+import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
+import org.board.springboot.user.dto.UserFindPostsListResponseDto;
 import org.board.springboot.user.dto.UserFindRequestDto;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
@@ -14,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -129,5 +132,38 @@ public class UserServiceTest {
 
         //when
         userService.findByEmail(email);
+    }
+
+    @Test
+    public void 유저_게시글_조회_호출_성공() throws Exception {
+        //given
+        User user = User.builder().build();
+        Field field = user.getClass().getDeclaredField("id");
+        field.setAccessible(true);
+        field.set(user, 1l);
+        Posts posts1 = Posts.builder()
+                .title("title1")
+                .content("content1")
+                .user(user)
+                .build();
+        Posts posts2 = Posts.builder()
+                .title("title2")
+                .content("content2")
+                .user(user)
+                .build();
+
+        given(userRepository.findById(1l)).willReturn(Optional.of(user));
+
+        //when
+        List<UserFindPostsListResponseDto> result = userService.findPostsById(1l);
+
+        //then
+        then(userRepository).should().findById(1l);
+        BDDAssertions.then(result.size()).isEqualTo(2);
+        BDDAssertions.then(result.get(0).getTitle()).isEqualTo("title1");
+        BDDAssertions.then(result.get(0).getContent()).isEqualTo("content1");
+        BDDAssertions.then(result.get(1).getTitle()).isEqualTo("title2");
+        BDDAssertions.then(result.get(1).getContent()).isEqualTo("content2");
+
     }
 }
