@@ -3,11 +3,15 @@ package org.board.springboot.user.service;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
+import org.board.springboot.user.dto.UserFindPostsListResponseDto;
 import org.board.springboot.user.dto.UserFindRequestDto;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -41,5 +45,17 @@ public class UserService {
     public User findByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserFindPostsListResponseDto> findPostsById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."))
+                .getPostsList()
+                .stream()
+                .map(p -> UserFindPostsListResponseDto.builder()
+                        .posts(p)
+                        .build())
+                .collect(Collectors.toList());
     }
 }
