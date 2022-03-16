@@ -164,6 +164,15 @@ public class UserServiceTest {
         BDDAssertions.then(result.get(0).getContent()).isEqualTo("content1");
         BDDAssertions.then(result.get(1).getTitle()).isEqualTo("title2");
         BDDAssertions.then(result.get(1).getContent()).isEqualTo("content2");
+    }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void 유저_게시글_조회_호출_실패_에러() throws Exception {
+        //given
+        Long id = 1l;
+        given(userRepository.findById(id)).willReturn(Optional.empty());
+
+        //when
+        userService.findPostsById(id);
     }
 }
