@@ -2,13 +2,14 @@ package org.board.springboot.user;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.board.springboot.common.dto.ApiResponse;
+import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.user.controller.UserApiController;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.dto.UserFindPostsListResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
-import org.board.springboot.web.ApiResponse;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -96,6 +97,25 @@ public class UserApiControllerTest {
                 .andExpect(content().string(objectMapper.writeValueAsString(ApiResponse.builder()
                         .success(true)
                         .response(list)
+                        .build())));
+    }
+
+    @Test
+    public void 유저_게시글_호출_실패_에러처리() throws Exception {
+        //given
+        String url = "http://localhost:8080/api/v1/users/1";
+        String message = "해당 유저가 없습니다.";
+        given(userService.findPostsById(1l)).willThrow(new IllegalArgumentException(message));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(ExceptionResponse.builder()
+                        .success(false)
+                        .message(message)
                         .build())));
     }
 }
