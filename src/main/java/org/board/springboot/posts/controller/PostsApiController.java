@@ -1,8 +1,12 @@
 package org.board.springboot.posts.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
-import org.board.springboot.posts.dto.*;
+import org.board.springboot.posts.dto.PostsFindResponseDto;
+import org.board.springboot.posts.dto.PostsSaveRequestBody;
+import org.board.springboot.posts.dto.PostsSaveRequestDto;
+import org.board.springboot.posts.dto.PostsSaveResponseDto;
 import org.board.springboot.posts.service.PostsService;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,12 +22,10 @@ public class PostsApiController {
     private final HttpServletRequest httpServletRequest;
 
     @GetMapping("/api/v1/posts")
-    public PostsListResponseDto postsList() {
-        boolean success = true;
-        List<PostsFindResponseDto> result = postsService.findAll();
-        return PostsListResponseDto.builder()
-                .success(success)
-                .postsList(result)
+    public ApiResponse<List<PostsFindResponseDto>> postsList() {
+        return ApiResponse.<List<PostsFindResponseDto>>builder()
+                .success(true)
+                .response(postsService.findAll())
                 .build();
     }
 
