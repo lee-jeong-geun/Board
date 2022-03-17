@@ -8,7 +8,6 @@ import org.board.springboot.posts.controller.PostsApiController;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.posts.dto.PostsSaveRequestBody;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
-import org.board.springboot.posts.dto.PostsSaveResponseDto;
 import org.board.springboot.posts.service.PostsService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,9 +88,9 @@ public class PostsApiControllerTest {
                 .title(title)
                 .content(content)
                 .build();
-        PostsSaveResponseDto postsSaveResponseDto = PostsSaveResponseDto.builder()
+        ApiResponse<Long> apiResponse = ApiResponse.<Long>builder()
                 .success(success)
-                .id(id)
+                .response(id)
                 .build();
         ArgumentCaptor<PostsSaveRequestDto> argumentCaptor = ArgumentCaptor.forClass(PostsSaveRequestDto.class);
         given(mockHttpSession.getAttribute("login")).willReturn(email);
@@ -105,7 +104,7 @@ public class PostsApiControllerTest {
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(postsSaveResponseDto)));
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
         then(mockHttpSession).should(times(2)).getAttribute("login");
         then(postsService).should().save(argumentCaptor.capture());
         BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
@@ -117,15 +116,13 @@ public class PostsApiControllerTest {
     public void 게시글_등록_실패_로그인상태_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts";
-        boolean success = false;
-        String message = "로그인 상태가 아닙니다.";
         PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
                 .title("title")
                 .content("content")
                 .build();
         ExceptionResponse exceptionResponse = ExceptionResponse.builder()
-                .success(success)
-                .message(message)
+                .success(false)
+                .message("로그인 상태가 아닙니다.")
                 .build();
         given(mockHttpSession.getAttribute("login")).willReturn(null);
 
