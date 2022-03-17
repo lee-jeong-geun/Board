@@ -3,6 +3,7 @@ package org.board.springboot.auth.controller;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.auth.dto.*;
 import org.board.springboot.auth.service.AuthService;
+import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
@@ -22,17 +23,16 @@ public class AuthApiController {
     private final HttpServletRequest httpServletRequest;
 
     @PostMapping("/api/v1/auth/register")
-    public RegisterResponseDto register(@RequestBody RegisterRequestDto requestDto) {
+    public ApiResponse<Long> register(@RequestBody RegisterRequestDto requestDto) {
         UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder()
                 .name(requestDto.getName())
                 .email(requestDto.getEmail())
                 .password(requestDto.getPassword())
                 .build();
 
-        Long id = userService.save(userSaveRequestDto);
-        return RegisterResponseDto.builder()
+        return ApiResponse.<Long>builder()
                 .success(true)
-                .id(id)
+                .response(userService.save(userSaveRequestDto))
                 .build();
     }
 
