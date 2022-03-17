@@ -1,7 +1,10 @@
 package org.board.springboot.auth.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.board.springboot.auth.dto.*;
+import org.board.springboot.auth.dto.LoginRequestDto;
+import org.board.springboot.auth.dto.LoginUserResponseDto;
+import org.board.springboot.auth.dto.LogoutResponseDto;
+import org.board.springboot.auth.dto.RegisterRequestDto;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
@@ -37,11 +40,11 @@ public class AuthApiController {
     }
 
     @PostMapping("/api/v1/auth/login")
-    public LoginResponseDto login(@RequestBody LoginRequestDto requestDto) {
+    public ApiResponse<LoginUserResponseDto> login(@RequestBody LoginRequestDto requestDto) {
         LoginUserResponseDto loginUserResponseDto = authService.login(requestDto, httpServletRequest.getSession());
-        return LoginResponseDto.builder()
+        return ApiResponse.<LoginUserResponseDto>builder()
                 .success(true)
-                .user(loginUserResponseDto)
+                .response(loginUserResponseDto)
                 .build();
     }
 
