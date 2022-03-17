@@ -2,9 +2,13 @@ package org.board.springboot.posts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.BDDAssertions;
+import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.controller.PostsApiController;
-import org.board.springboot.posts.dto.*;
+import org.board.springboot.posts.dto.PostsFindResponseDto;
+import org.board.springboot.posts.dto.PostsSaveRequestBody;
+import org.board.springboot.posts.dto.PostsSaveRequestDto;
+import org.board.springboot.posts.dto.PostsSaveResponseDto;
 import org.board.springboot.posts.service.PostsService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +22,6 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +32,8 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PostsApiController.class)
@@ -49,31 +54,26 @@ public class PostsApiControllerTest {
     @Test
     public void 게시글_리스트_조회_성공() throws Exception {
         //given
-        String title = "title";
-        String content = "content";
-        String userName = "jk";
         String url = "/api/v1/posts";
-        boolean success = true;
         PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
-                .title(title)
-                .content(content)
-                .userName(userName)
+                .title("title")
+                .content("content")
+                .userName("jk")
                 .build();
         List<PostsFindResponseDto> list = new ArrayList<>();
         list.add(postsFindResponseDto);
-        PostsListResponseDto postsListResponseDto = PostsListResponseDto.builder()
-                .success(success)
-                .postsList(list)
+        ApiResponse<List<PostsFindResponseDto>> apiResponse = ApiResponse.<List<PostsFindResponseDto>>builder()
+                .success(true)
+                .response(list)
                 .build();
         given(postsService.findAll()).willReturn(list);
 
         //when
         ResultActions resultActions = mockMvc.perform(get(url));
 
-
         //then
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(postsListResponseDto)));
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
     }
 
     @Test
@@ -104,8 +104,8 @@ public class PostsApiControllerTest {
                 .session(mockHttpSession));
 
         //then
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(postsSaveResponseDto)));
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(postsSaveResponseDto)));
         then(mockHttpSession).should(times(2)).getAttribute("login");
         then(postsService).should().save(argumentCaptor.capture());
         BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
@@ -137,7 +137,7 @@ public class PostsApiControllerTest {
 
         //then
         then(mockHttpSession).should().getAttribute("login");
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
     }
 }
