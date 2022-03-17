@@ -43,7 +43,9 @@ public class PostsServiceTest {
         String email = "jk@jk.com";
         User user = User.builder()
                 .build();
-        Posts posts = Posts.builder().build();
+        Posts posts = Posts.builder()
+                .user(user)
+                .build();
         Field field = posts.getClass().getDeclaredField("id");
         field.setAccessible(true);
         field.set(posts, 1l);
