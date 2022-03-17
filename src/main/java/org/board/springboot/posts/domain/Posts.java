@@ -14,6 +14,7 @@ public class Posts {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "posts_id")
     private Long id;
 
     @Column(nullable = false)
@@ -22,7 +23,7 @@ public class Posts {
     @Column(nullable = false)
     private String content;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -31,5 +32,6 @@ public class Posts {
         this.title = title;
         this.content = content;
         this.user = user;
+        user.getPostsList().add(this);
     }
 }
