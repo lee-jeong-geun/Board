@@ -2,7 +2,10 @@ package org.board.springboot.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.board.springboot.auth.controller.AuthApiController;
-import org.board.springboot.auth.dto.*;
+import org.board.springboot.auth.dto.LoginRequestDto;
+import org.board.springboot.auth.dto.LoginUserResponseDto;
+import org.board.springboot.auth.dto.LogoutResponseDto;
+import org.board.springboot.auth.dto.RegisterRequestDto;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
@@ -18,12 +21,12 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(AuthApiController.class)
@@ -73,21 +76,19 @@ public class AuthApiControllerTest {
     @Test
     public void 로그인_호출_성공() throws Exception {
         //given
-        String name = "jk";
         String email = "jk@jk.com";
-        String password = "jkjk";
 
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
-                .password(password)
+                .password("jkjk")
                 .build();
         LoginUserResponseDto loginUserResponseDto = LoginUserResponseDto.builder()
-                .name(name)
+                .name("jk")
                 .email(email)
                 .build();
-        LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+        ApiResponse<LoginUserResponseDto> apiResponse = ApiResponse.<LoginUserResponseDto>builder()
                 .success(true)
-                .user(loginUserResponseDto)
+                .response(loginUserResponseDto)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/login";
         given(authService.login(any(), any())).willReturn(loginUserResponseDto);
@@ -99,22 +100,19 @@ public class AuthApiControllerTest {
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(loginResponseDto)));
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
     }
 
     @Test
     public void 로그인_호출_실패_에러처리() throws Exception {
         //given
-        String email = "jk@jk.com";
-        String password = "jkjk";
         String message = "해당 유저가 없습니다.";
-        boolean success = false;
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
-                .email(email)
-                .password(password)
+                .email("jk@jk.com")
+                .password("jkjk")
                 .build();
         ExceptionResponse exceptionResponse = ExceptionResponse.builder()
-                .success(success)
+                .success(false)
                 .message(message)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/login";
