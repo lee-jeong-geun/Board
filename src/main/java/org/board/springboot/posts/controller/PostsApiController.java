@@ -6,7 +6,6 @@ import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.posts.dto.PostsSaveRequestBody;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
-import org.board.springboot.posts.dto.PostsSaveResponseDto;
 import org.board.springboot.posts.service.PostsService;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,7 +29,7 @@ public class PostsApiController {
     }
 
     @PostMapping("/api/v1/posts")
-    public PostsSaveResponseDto postsSave(@RequestBody PostsSaveRequestBody postsSaveRequestBody) {
+    public ApiResponse<Long> postsSave(@RequestBody PostsSaveRequestBody postsSaveRequestBody) {
         HttpSession httpSession = httpServletRequest.getSession();
 
         validateLoginState(httpSession);
@@ -42,10 +41,9 @@ public class PostsApiController {
                 .content(postsSaveRequestBody.getContent())
                 .email(email)
                 .build();
-        long id = postsService.save(postsSaveRequestDto);
-        return PostsSaveResponseDto.builder()
+        return ApiResponse.<Long>builder()
                 .success(true)
-                .id(id)
+                .response(postsService.save(postsSaveRequestDto))
                 .build();
     }
 
