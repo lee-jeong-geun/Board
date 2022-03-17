@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.board.springboot.auth.controller.AuthApiController;
 import org.board.springboot.auth.dto.*;
 import org.board.springboot.auth.service.AuthService;
+import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
@@ -22,6 +23,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(AuthApiController.class)
@@ -45,19 +47,15 @@ public class AuthApiControllerTest {
     @Test
     public void 유저등록_호출_성공() throws Exception {
         //given
-        String name = "jk";
-        String email = "jk@jk.com";
-        String password = "jkjk";
-        boolean success = true;
         Long id = 1l;
         RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
-                .name(name)
-                .email(email)
-                .password(password)
+                .name("jk")
+                .email("jk@jk.com")
+                .password("jkjk")
                 .build();
-        RegisterResponseDto registerResponseDto = RegisterResponseDto.builder()
-                .success(success)
-                .id(id)
+        ApiResponse<Long> apiResponse = ApiResponse.<Long>builder()
+                .success(true)
+                .response(id)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/register";
         given(userService.save(any())).willReturn(id);
@@ -68,8 +66,8 @@ public class AuthApiControllerTest {
                 .content(objectMapper.writeValueAsString(registerRequestDto)));
 
         //then
-        result.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(registerResponseDto)));
+        result.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
     }
 
     @Test
@@ -100,8 +98,8 @@ public class AuthApiControllerTest {
                 .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(loginResponseDto)));
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(loginResponseDto)));
     }
 
     @Test
@@ -128,8 +126,8 @@ public class AuthApiControllerTest {
                 .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
     }
 
     @Test
@@ -146,8 +144,8 @@ public class AuthApiControllerTest {
                 .session(mockHttpSession));
 
         //then
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(logoutResponseDto)));
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(logoutResponseDto)));
     }
 
     @Test
@@ -167,7 +165,7 @@ public class AuthApiControllerTest {
                 .session(mockHttpSession));
 
         //then
-        resultActions.andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
     }
 }
