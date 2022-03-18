@@ -131,8 +131,9 @@ public class AuthApiControllerTest {
     @Test
     public void 로그아웃_호출_성공() throws Exception {
         //given
-        LogoutResponseDto logoutResponseDto = LogoutResponseDto.builder()
+        ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
                 .success(true)
+                .response(null)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/logout";
         given(authService.logout(mockHttpSession)).willReturn(true);
@@ -143,7 +144,7 @@ public class AuthApiControllerTest {
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(logoutResponseDto)));
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
     }
 
     @Test
