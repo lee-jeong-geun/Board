@@ -3,7 +3,6 @@ package org.board.springboot.auth.controller;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.auth.dto.LoginRequestDto;
 import org.board.springboot.auth.dto.LoginUserResponseDto;
-import org.board.springboot.auth.dto.LogoutResponseDto;
 import org.board.springboot.auth.dto.RegisterRequestDto;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.common.dto.ApiResponse;
@@ -49,10 +48,11 @@ public class AuthApiController {
     }
 
     @PostMapping("/api/v1/auth/logout")
-    public LogoutResponseDto logout() {
+    public ApiResponse<Void> logout() {
         authService.logout(httpServletRequest.getSession());
-        return LogoutResponseDto.builder()
+        return ApiResponse.<Void>builder()
                 .success(true)
+                .response(null)
                 .build();
     }
 
