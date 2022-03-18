@@ -69,7 +69,7 @@
         }).then((response) => {
             response.json().then((body) => {
                 if (body.success === true) {
-                    setPostsList(body.postsList)
+                    setPostsList(body.response)
                 } else {
                     console.log('조회에 실패하였습니다.')
                 }
