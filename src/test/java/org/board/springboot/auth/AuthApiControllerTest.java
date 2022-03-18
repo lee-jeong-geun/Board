@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.board.springboot.auth.controller.AuthApiController;
 import org.board.springboot.auth.dto.LoginRequestDto;
 import org.board.springboot.auth.dto.LoginUserResponseDto;
-import org.board.springboot.auth.dto.LogoutResponseDto;
 import org.board.springboot.auth.dto.RegisterRequestDto;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.common.dto.ApiResponse;
