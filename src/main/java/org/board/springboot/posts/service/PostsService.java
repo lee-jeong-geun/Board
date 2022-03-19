@@ -38,6 +38,7 @@ public class PostsService {
                 .map(p -> PostsFindResponseDto.builder()
                         .title(p.getTitle())
                         .content(p.getContent())
+                        .userId(p.getUser().getId())
                         .userName(p.getUser().getName())
                         .build())
                 .collect(Collectors.toList());
