@@ -68,12 +68,15 @@ public class PostsServiceTest {
     }
 
     @Test
-    public void 포스트_전체_검색_호출_성공() {
+    public void 포스트_전체_검색_호출_성공() throws Exception {
         //given
         String name = "jk";
         User user = User.builder()
                 .name(name)
                 .build();
+        Field field = user.getClass().getDeclaredField("id");
+        field.setAccessible(true);
+        field.set(user, 1l);
 
         Posts posts1 = Posts.builder()
                 .title("title1")
@@ -84,7 +87,7 @@ public class PostsServiceTest {
         Posts posts2 = Posts.builder()
                 .user(user)
                 .build();
-        List<Posts> list = new ArrayList(Arrays.asList(new Posts[]{posts1, posts2}));
+        List<Posts> list = new ArrayList(Arrays.asList(posts1, posts2));
 
         given(postsRepository.findAll()).willReturn(list);
 
@@ -97,6 +100,7 @@ public class PostsServiceTest {
         BDDAssertions.then(result.size()).isEqualTo(2);
         BDDAssertions.then(result.get(0).getTitle()).isEqualTo("title1");
         BDDAssertions.then(result.get(0).getContent()).isEqualTo("content1");
+        BDDAssertions.then(result.get(0).getUserId()).isEqualTo(1l);
         BDDAssertions.then(result.get(0).getUserName()).isEqualTo(name);
         BDDAssertions.then(result.get(1).getUserName()).isEqualTo(name);
     }
