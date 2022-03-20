@@ -135,12 +135,12 @@ public class UserServiceTest {
     }
 
     @Test
-    public void 유저_게시글_조회_호출_성공() throws Exception {
+    public void 유저_게시글_조회_호출_성공() {
         //given
-        User user = User.builder().build();
-        Field field = user.getClass().getDeclaredField("id");
-        field.setAccessible(true);
-        field.set(user, 1l);
+        String email = "jk@jk.com";
+        User user = User.builder()
+                .email(email)
+                .build();
         Posts posts1 = Posts.builder()
                 .title("title1")
                 .content("content1")
@@ -152,13 +152,13 @@ public class UserServiceTest {
                 .user(user)
                 .build();
 
-        given(userRepository.findById(1l)).willReturn(Optional.of(user));
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
 
         //when
-        List<UserFindPostsListResponseDto> result = userService.findPostsById(1l);
+        List<UserFindPostsListResponseDto> result = userService.findPostsByEmail(email);
 
         //then
-        then(userRepository).should().findById(1l);
+        then(userRepository).should().findByEmail(email);
         BDDAssertions.then(result.size()).isEqualTo(2);
         BDDAssertions.then(result.get(0).getTitle()).isEqualTo("title1");
         BDDAssertions.then(result.get(0).getContent()).isEqualTo("content1");
@@ -167,12 +167,12 @@ public class UserServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void 유저_게시글_조회_호출_실패_에러() throws Exception {
+    public void 유저_게시글_조회_호출_실패_에러() {
         //given
-        Long id = 1l;
-        given(userRepository.findById(id)).willReturn(Optional.empty());
+        String email = "jk@jk.com";
+        given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when
-        userService.findPostsById(id);
+        userService.findPostsByEmail(email);
     }
 }
