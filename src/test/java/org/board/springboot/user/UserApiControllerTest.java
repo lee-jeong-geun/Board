@@ -71,8 +71,11 @@ public class UserApiControllerTest {
     @Test
     public void 유저_게시글_호출_성공() throws Exception {
         //given
-        String url = "http://localhost:8080/api/v1/users/1";
-        User user = User.builder().build();
+        String email = "jk@jk.com";
+        String url = "http://localhost:8080/api/v1/users/" + email;
+        User user = User.builder()
+                .email(email)
+                .build();
         Posts posts1 = Posts.builder()
                 .title("title1")
                 .content("content1")
@@ -86,7 +89,7 @@ public class UserApiControllerTest {
         List<UserFindPostsListResponseDto> list = new ArrayList<>();
         list.add(UserFindPostsListResponseDto.builder().posts(posts1).build());
         list.add(UserFindPostsListResponseDto.builder().posts(posts2).build());
-        given(userService.findPostsById(1l)).willReturn(list);
+        given(userService.findPostsByEmail(email)).willReturn(list);
 
         //when
         ResultActions resultActions = mockMvc.perform(get(url)
@@ -103,9 +106,10 @@ public class UserApiControllerTest {
     @Test
     public void 유저_게시글_호출_실패_에러처리() throws Exception {
         //given
-        String url = "http://localhost:8080/api/v1/users/1";
+        String email = "jk@jk.com";
+        String url = "http://localhost:8080/api/v1/users/" + email;
         String message = "해당 유저가 없습니다.";
-        given(userService.findPostsById(1l)).willThrow(new IllegalArgumentException(message));
+        given(userService.findPostsByEmail(email)).willThrow(new IllegalArgumentException(message));
 
         //when
         ResultActions resultActions = mockMvc.perform(get(url)
