@@ -48,8 +48,8 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserFindPostsListResponseDto> findPostsById(Long id) {
-        return userRepository.findById(id)
+    public List<UserFindPostsListResponseDto> findPostsByEmail(String email) {
+        return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."))
                 .getPostsList()
                 .stream()
