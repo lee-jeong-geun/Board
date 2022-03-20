@@ -57,8 +57,7 @@ public class PostsApiControllerTest {
         PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
                 .title("title")
                 .content("content")
-                .userId(1l)
-                .userName("jk")
+                .userEmail("jk@jk.com")
                 .build();
         List<PostsFindResponseDto> list = new ArrayList<>();
         list.add(postsFindResponseDto);
