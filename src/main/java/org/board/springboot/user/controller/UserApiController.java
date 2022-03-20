@@ -21,11 +21,11 @@ public class UserApiController {
         return userService.save(requestDto);
     }
 
-    @GetMapping("/api/v1/users/{id}")
-    public ApiResponse<List<UserFindPostsListResponseDto>> findPostsById(@PathVariable Long id) {
+    @GetMapping("/api/v1/users/{email}")
+    public ApiResponse<List<UserFindPostsListResponseDto>> findPostsByEmail(@PathVariable String email) {
         return ApiResponse.<List<UserFindPostsListResponseDto>>builder()
                 .success(true)
-                .response(userService.findPostsById(id))
+                .response(userService.findPostsByEmail(email))
                 .build();
     }
 
