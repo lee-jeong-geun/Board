@@ -55,6 +55,7 @@ public class PostsApiControllerTest {
         //given
         String url = "/api/v1/posts";
         PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
+                .postsId(1l)
                 .title("title")
                 .content("content")
                 .userEmail("jk@jk.com")
