@@ -56,7 +56,13 @@
             node.appendChild(childNode);
 
             childNode = document.createElement('th')
-            childNode.innerText = element.userName;
+            childNode.innerText = element.userEmail;
+            childNode.addEventListener('mouseover', (e) => {
+                e.target.style.cursor = 'pointer'
+            })
+            childNode.addEventListener('click', () => {
+                window.location.href = '/users/' + element.userEmail
+            })
             node.appendChild(childNode);
 
             tbody.appendChild(node);
