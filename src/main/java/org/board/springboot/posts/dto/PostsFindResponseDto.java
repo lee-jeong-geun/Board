@@ -9,12 +9,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostsFindResponseDto {
 
+    private Long postsId;
     private String title;
     private String content;
     private String userEmail;
 
     @Builder
-    public PostsFindResponseDto(String title, String content, String userEmail) {
+    public PostsFindResponseDto(Long postsId, String title, String content, String userEmail) {
+        this.postsId = postsId;
         this.title = title;
         this.content = content;
         this.userEmail = userEmail;
