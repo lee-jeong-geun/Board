@@ -68,15 +68,12 @@ public class PostsServiceTest {
     }
 
     @Test
-    public void 포스트_전체_검색_호출_성공() throws Exception {
+    public void 포스트_전체_검색_호출_성공() {
         //given
-        String name = "jk";
+        String email = "jk@jk.com";
         User user = User.builder()
-                .name(name)
+                .email(email)
                 .build();
-        Field field = user.getClass().getDeclaredField("id");
-        field.setAccessible(true);
-        field.set(user, 1l);
 
         Posts posts1 = Posts.builder()
                 .title("title1")
@@ -100,8 +97,7 @@ public class PostsServiceTest {
         BDDAssertions.then(result.size()).isEqualTo(2);
         BDDAssertions.then(result.get(0).getTitle()).isEqualTo("title1");
         BDDAssertions.then(result.get(0).getContent()).isEqualTo("content1");
-        BDDAssertions.then(result.get(0).getUserId()).isEqualTo(1l);
-        BDDAssertions.then(result.get(0).getUserName()).isEqualTo(name);
-        BDDAssertions.then(result.get(1).getUserName()).isEqualTo(name);
+        BDDAssertions.then(result.get(0).getUserEmail()).isEqualTo(email);
+        BDDAssertions.then(result.get(1).getUserEmail()).isEqualTo(email);
     }
 }
