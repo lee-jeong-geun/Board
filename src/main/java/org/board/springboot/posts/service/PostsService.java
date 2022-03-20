@@ -36,6 +36,7 @@ public class PostsService {
         return postsRepository.findAll()
                 .stream()
                 .map(p -> PostsFindResponseDto.builder()
+                        .postsId(p.getId())
                         .title(p.getTitle())
                         .content(p.getContent())
                         .userEmail(p.getUser().getEmail())
