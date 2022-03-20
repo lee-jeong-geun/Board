@@ -11,14 +11,12 @@ public class PostsFindResponseDto {
 
     private String title;
     private String content;
-    private Long userId;
-    private String userName;
+    private String userEmail;
 
     @Builder
-    public PostsFindResponseDto(String title, String content, Long userId, String userName) {
+    public PostsFindResponseDto(String title, String content, String userEmail) {
         this.title = title;
         this.content = content;
-        this.userId = userId;
-        this.userName = userName;
+        this.userEmail = userEmail;
     }
 }
