@@ -53,6 +53,12 @@
 
             childNode = document.createElement('th')
             childNode.innerText = element.title;
+            childNode.addEventListener('mouseover', (e) => {
+                e.target.style.cursor = 'pointer'
+            })
+            childNode.addEventListener('click', () => {
+                window.location.href = '/posts/' + element.postsId
+            })
             node.appendChild(childNode);
 
             childNode = document.createElement('th')
