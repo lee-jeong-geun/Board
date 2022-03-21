@@ -1,12 +1,11 @@
 package org.board.springboot.user.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.board.springboot.common.dto.ApiResponse;
-import org.board.springboot.common.dto.ExceptionResponse;
-import org.board.springboot.user.dto.UserAndPostsFindResponseDto;
 import org.board.springboot.user.dto.UserFindPostsListResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
+import org.board.springboot.common.dto.ApiResponse;
+import org.board.springboot.common.dto.ExceptionResponse;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,12 +22,10 @@ public class UserApiController {
     }
 
     @GetMapping("/api/v1/users/{email}")
-    public ApiResponse<UserAndPostsFindResponseDto> findByEmail(@PathVariable String email) {
-        return ApiResponse.<UserAndPostsFindResponseDto>builder()
+    public ApiResponse<List<UserFindPostsListResponseDto>> findPostsByEmail(@PathVariable String email) {
+        return ApiResponse.<List<UserFindPostsListResponseDto>>builder()
                 .success(true)
-                .response(UserAndPostsFindResponseDto.builder()
-                        .user(userService.findByEmail(email))
-                        .build())
+                .response(userService.findPostsByEmail(email))
                 .build();
     }
 
