@@ -52,7 +52,7 @@ public class AuthServiceTest {
                 .email(email)
                 .build());
         Map<String, Object> map = new ConcurrentHashMap<>();
-        given(userService.find(any())).willReturn(userFindResponseDto);
+        given(userService.findByEmailAndPassword(any())).willReturn(userFindResponseDto);
         given(authSession.getSession()).willReturn(map);
         given(mockHttpSession.getAttribute("login")).willReturn(null);
 
@@ -60,7 +60,7 @@ public class AuthServiceTest {
         authService.login(loginRequestDto, mockHttpSession);
 
         //then
-        BDDMockito.then(userService).should(times(1)).find(any());
+        BDDMockito.then(userService).should(times(1)).findByEmailAndPassword(any());
         BDDMockito.then(mockHttpSession).should(times(1)).setAttribute("login", email);
         BDDMockito.then(mockHttpSession).should(times(1)).getAttribute("login");
         BDDMockito.then(authSession).should(times(2)).getSession();
@@ -79,7 +79,7 @@ public class AuthServiceTest {
                 .email(email)
                 .build());
         Map<String, Object> map = new ConcurrentHashMap<>();
-        given(userService.find(any())).willReturn(userFindResponseDto);
+        given(userService.findByEmailAndPassword(any())).willReturn(userFindResponseDto);
         given(authSession.getSession()).willReturn(map);
         given(mockHttpSession.getAttribute("login")).willReturn(null);
 
@@ -124,7 +124,7 @@ public class AuthServiceTest {
     public void login_조회_실패_에러() {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
-        given(userService.find(any())).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
+        given(userService.findByEmailAndPassword(any())).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
 
         //when
         authService.login(loginRequestDto, mockHttpSession);
@@ -149,7 +149,7 @@ public class AuthServiceTest {
                 .build();
         Map<String, Object> map = new ConcurrentHashMap<>();
         map.put(email, true);
-        given(userService.find(any())).willReturn(new UserFindResponseDto(User.builder().build()));
+        given(userService.findByEmailAndPassword(any())).willReturn(new UserFindResponseDto(User.builder().build()));
         given(authSession.getSession()).willReturn(map);
 
         //when

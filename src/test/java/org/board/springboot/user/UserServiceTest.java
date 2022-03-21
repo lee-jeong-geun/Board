@@ -84,7 +84,7 @@ public class UserServiceTest {
                         .build()));
 
         //when
-        UserFindResponseDto userFindResponseDto = userService.find(userFindRequestDto);
+        UserFindResponseDto userFindResponseDto = userService.findByEmailAndPassword(userFindRequestDto);
 
         //then
         then(userRepository).should().findByEmailAndPassword(email, password);
@@ -104,7 +104,7 @@ public class UserServiceTest {
         given(userRepository.findByEmailAndPassword(email, password)).willReturn(Optional.empty());
 
         //when
-        userService.find(userFindRequestDto);
+        userService.findByEmailAndPassword(userFindRequestDto);
     }
 
     @Test

@@ -20,7 +20,7 @@ public class AuthService {
     public LoginUserResponseDto login(LoginRequestDto loginRequestDto, HttpSession httpSession) {
         validateLoginState(httpSession);
 
-        UserFindResponseDto userFindResponseDto = userService.find(loginRequestDto.toUserFindRequestDto());
+        UserFindResponseDto userFindResponseDto = userService.findByEmailAndPassword(loginRequestDto.toUserFindRequestDto());
 
         validateLoginEmailState(loginRequestDto);
 

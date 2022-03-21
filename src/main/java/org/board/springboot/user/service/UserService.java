@@ -33,7 +33,7 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserFindResponseDto find(UserFindRequestDto userFindRequestDto) {
+    public UserFindResponseDto findByEmailAndPassword(UserFindRequestDto userFindRequestDto) {
         User user = userRepository.findByEmailAndPassword(userFindRequestDto.getEmail(), userFindRequestDto.getPassword())
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
         return UserFindResponseDto.builder()
