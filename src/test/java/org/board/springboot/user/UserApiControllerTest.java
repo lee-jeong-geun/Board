@@ -7,6 +7,7 @@ import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.user.controller.UserApiController;
 import org.board.springboot.user.domain.User;
+import org.board.springboot.user.dto.UserAndPostsFindResponseDto;
 import org.board.springboot.user.dto.UserFindPostsListResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
@@ -86,10 +87,10 @@ public class UserApiControllerTest {
                 .content("content2")
                 .user(user)
                 .build();
-        List<UserFindPostsListResponseDto> list = new ArrayList<>();
-        list.add(UserFindPostsListResponseDto.builder().posts(posts1).build());
-        list.add(UserFindPostsListResponseDto.builder().posts(posts2).build());
-        given(userService.findPostsByEmail(email)).willReturn(list);
+        UserAndPostsFindResponseDto userAndPostsFindResponseDto = UserAndPostsFindResponseDto.builder()
+                .user(user)
+                .build();
+        given(userService.findByEmail(email)).willReturn(user);
 
         //when
         ResultActions resultActions = mockMvc.perform(get(url)
@@ -99,7 +100,7 @@ public class UserApiControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(ApiResponse.builder()
                         .success(true)
-                        .response(list)
+                        .response(userAndPostsFindResponseDto)
                         .build())));
     }
 
@@ -109,7 +110,7 @@ public class UserApiControllerTest {
         String email = "jk@jk.com";
         String url = "http://localhost:8080/api/v1/users/" + email;
         String message = "해당 유저가 없습니다.";
-        given(userService.findPostsByEmail(email)).willThrow(new IllegalArgumentException(message));
+        given(userService.findByEmail(email)).willThrow(new IllegalArgumentException(message));
 
         //when
         ResultActions resultActions = mockMvc.perform(get(url)
