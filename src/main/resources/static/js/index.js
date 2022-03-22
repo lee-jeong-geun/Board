@@ -34,7 +34,7 @@
                     } else {
                         alert('로그아웃에 성공하셨습니다.')
                         e.target.textContent = '로그인'
-                        e.target.parentElement.removeChild(e.target.parentElement.lastChild);
+                        e.target.parentElement.removeChild(e.target.parentElement.lastChild)
                     }
                 } else {
                     alert(body.message)
@@ -44,33 +44,44 @@
     })
 
     const setPostsList = (list) => {
+        const createElementInnerText = (tagName, text) => {
+            const element = document.createElement(tagName)
+            element.innerText = text
+            return element
+        }
+
+        const createIndexElement = (index) => {
+            return createElementInnerText('td', index)
+        }
+
+        const createTitleElement = (title, postsId) => {
+            const element = createElementInnerText('td', title)
+            element.addEventListener('mouseover', (e) => {
+                e.target.style.cursor = 'pointer'
+            })
+            element.addEventListener('click', () => {
+                window.location.href = '/posts/' + postsId
+            })
+            return element
+        }
+
+        const createUserEmailElement = (email) => {
+            const element = createElementInnerText('td', email)
+            element.addEventListener('mouseover', (e) => {
+                e.target.style.cursor = 'pointer'
+            })
+            element.addEventListener('click', () => {
+                window.location.href = '/users/' + email
+            })
+            return element
+        }
+
         const tbody = document.getElementById('posts-list')
         list.forEach((element, index) => {
             const node = document.createElement('tr')
-            let childNode = document.createElement('th')
-            childNode.innerText = index + 1;
-            node.appendChild(childNode);
-
-            childNode = document.createElement('th')
-            childNode.innerText = element.title;
-            childNode.addEventListener('mouseover', (e) => {
-                e.target.style.cursor = 'pointer'
-            })
-            childNode.addEventListener('click', () => {
-                window.location.href = '/posts/' + element.postsId
-            })
-            node.appendChild(childNode);
-
-            childNode = document.createElement('th')
-            childNode.innerText = element.userEmail;
-            childNode.addEventListener('mouseover', (e) => {
-                e.target.style.cursor = 'pointer'
-            })
-            childNode.addEventListener('click', () => {
-                window.location.href = '/users/' + element.userEmail
-            })
-            node.appendChild(childNode);
-
+            node.appendChild(createIndexElement(index + 1));
+            node.appendChild(createTitleElement(element.title, element.postsId));
+            node.appendChild(createUserEmailElement(element.userEmail));
             tbody.appendChild(node);
         })
     }
