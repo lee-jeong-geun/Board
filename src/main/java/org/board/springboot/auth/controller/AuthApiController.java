@@ -9,10 +9,7 @@ import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -53,6 +50,14 @@ public class AuthApiController {
         return ApiResponse.<Void>builder()
                 .success(true)
                 .response(null)
+                .build();
+    }
+
+    @GetMapping("/api/v1/auth/logged-in")
+    public ApiResponse<Boolean> isLoggedIn() {
+        return ApiResponse.<Boolean>builder()
+                .success(true)
+                .response(authService.isLoggedIn(httpServletRequest.getSession()))
                 .build();
     }
 
