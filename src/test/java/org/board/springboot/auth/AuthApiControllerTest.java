@@ -23,6 +23,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -165,5 +166,25 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+    }
+
+    @Test
+    public void 로그인_상태_확인_호출_성공() throws Exception {
+        //given
+        ApiResponse<Boolean> apiResponse = ApiResponse.<Boolean>builder()
+                .success(true)
+                .response(true)
+                .build();
+        String url = "http://localhost:8080/api/v1/auth/logged-in";
+        given(mockHttpSession.getAttribute("login")).willReturn(true);
+        given(authService.isLoggedIn(mockHttpSession)).willReturn(true);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .session(mockHttpSession));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
     }
 }
