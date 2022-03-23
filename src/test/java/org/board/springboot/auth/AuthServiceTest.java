@@ -168,4 +168,17 @@ public class AuthServiceTest {
         BDDMockito.then(mockHttpSession).should().getAttribute("login");
         then(result).isEqualTo(true);
     }
+
+    @Test
+    public void 로그인_상태_확인_false_반환() {
+        //given
+        given(mockHttpSession.getAttribute("login")).willReturn(null);
+
+        //when
+        boolean result = authService.isLoggedIn(mockHttpSession);
+
+        //then
+        BDDMockito.then(mockHttpSession).should().getAttribute("login");
+        then(result).isEqualTo(false);
+    }
 }
