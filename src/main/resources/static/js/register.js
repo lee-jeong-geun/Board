@@ -14,6 +14,7 @@
             response.json().then((body) => {
                 if (body.success === true) {
                     alert('회원가입 성공하셨습니다.')
+                    window.location.href = '/'
                 } else {
                     alert(body.message)
                 }
