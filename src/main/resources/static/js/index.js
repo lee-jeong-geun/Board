@@ -1,26 +1,33 @@
 (() => {
     document.querySelector("#login").addEventListener('click', (e) => {
-        const state = e.target.textContent;
-        let url
-        let init
-        if (state === '로그인') {
-            url = '/api/v1/auth/login'
-            init = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: document.getElementById('email').value,
-                    password: document.getElementById('password').value
-                })
+        const getUrl = (request) => {
+            if (request === '로그인') {
+                return '/api/v1/auth/login'
             }
-        } else {
-            url = '/api/v1/auth/logout'
-            init = {
+            return '/api/v1/auth/logout'
+        }
+
+        const getInit = (request) => {
+            if (request === '로그인') {
+                return {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                }
+            }
+            return {
                 method: 'POST'
             }
         }
+
+        const state = e.target.textContent;
+        const url = getUrl(state)
+        const init = getInit(state)
 
         fetch(url, init).then((response) => {
             response.json().then((body) => {
