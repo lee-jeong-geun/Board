@@ -57,4 +57,8 @@ public class AuthService {
             throw new IllegalArgumentException("로그인 상태가 아닙니다.");
         }
     }
+
+    public boolean isLoggedIn(HttpSession httpSession) {
+        return httpSession.getAttribute("login") != null;
+    }
 }
