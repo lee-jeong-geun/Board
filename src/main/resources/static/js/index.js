@@ -1,5 +1,18 @@
 (() => {
-    document.querySelector("#login").addEventListener('click', (e) => {
+    const makeBeforeLoginTemplate = () => {
+        let template = document.getElementById('beforeLoginTemplate').innerHTML
+        document.getElementById('loginContainer').innerHTML = template
+        document.querySelector("#login").addEventListener('click', e => loginButtonEvent(e))
+    }
+
+    const makeAfterLoginTemplate = (name) => {
+        let template = document.getElementById('afterLoginTemplate').innerHTML
+        template = template.replace('{name}', name)
+        document.getElementById('loginContainer').innerHTML = template
+        document.querySelector("#login").addEventListener('click', e => loginButtonEvent(e))
+    }
+
+    const loginButtonEvent = (e) => {
         const getUrl = (request) => {
             if (request === '로그인') {
                 return '/api/v1/auth/login'
@@ -34,21 +47,19 @@
                 if (body.success === true) {
                     if (state === '로그인') {
                         alert('로그인에 성공하셨습니다.')
-                        e.target.textContent = '로그아웃'
-                        const element = document.createElement('a')
-                        element.innerHTML = '<a href="/posts/create" role="button" class="btn btn-primary">글 등록</a>'
-                        e.target.parentElement.appendChild(element)
+                        document.cookie = 'name=' + body.response.name
+                        makeAfterLoginTemplate(body.response.name)
+
                     } else {
                         alert('로그아웃에 성공하셨습니다.')
-                        e.target.textContent = '로그인'
-                        e.target.parentElement.removeChild(e.target.parentElement.lastChild)
+                        makeBeforeLoginTemplate()
                     }
                 } else {
                     alert(body.message)
                 }
             })
         }).catch((error) => console.log(error))
-    })
+    }
 
     const setPostsList = (list) => {
         const createElementInnerText = (tagName, text) => {
@@ -94,6 +105,31 @@
     }
 
     const loadData = () => {
+        const loggedInCheck = body => {
+            if (body.success) {
+                if (body.response) {
+                    const name = document.cookie.split('; ').find(s => s.startsWith('name'))
+                    makeAfterLoginTemplate(name.split('=')[1])
+                } else {
+                    makeBeforeLoginTemplate()
+                }
+            } else {
+                alert(body.message)
+            }
+        }
+        document.querySelector("#login").addEventListener('click', e => loginButtonEvent(e))
+
+        const url = '/api/v1/auth/logged-in'
+        const init = {
+            method: 'GET'
+        }
+        fetch(url, init).then(response => {
+            response.json().then(body => {
+                loggedInCheck(body)
+            })
+        }).catch(error => console.log(error))
+
+
         fetch('/api/v1/posts', {
             method: 'GET'
         }).then((response) => {
