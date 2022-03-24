@@ -8,7 +8,7 @@
 <body>
 <div class="container">
     <h1>게시판</h1>
-    <div class="col-md-12">
+    <div class="col-md-12" id="loginContainer">
         <form>
             <div class="mb-3">
                 <label for="email">이메일</label>
@@ -42,5 +42,34 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="/js/index.js"></script>
+<script type="text/template" id="beforeLoginTemplate">
+    <form>
+        <div class="mb-3">
+            <label for="email">이메일</label>
+            <input type="text" class="form-control" id="email" placeholder="이메일을 입력하세요.">
+        </div>
+        <div class="mb-3">
+            <label for="password">비밀번호</label>
+            <input type="password" class="form-control" id="password">
+        </div>
+    </form>
+    <div class="row">
+        <div>
+            <a href="/auth/register" role="button" class="btn btn-primary">회원가입</a>
+            <button type="submit" class="btn btn-secondary" id="login">로그인</button>
+        </div>
+    </div>
+</script>
+<script type="text/template" id="afterLoginTemplate">
+    <div class="mb-3">
+        <p>{name}님 환영합니다.</p>
+    </div>
+    <div class="row">
+        <div>
+            <a href="/posts/create" role="button" class="btn btn-primary">글 등록</a>
+            <button type="submit" class="btn btn-secondary" id="login">로그아웃</button>
+        </div>
+    </div>
+</script>
 </body>
 </html>
