@@ -2,58 +2,47 @@
     const makeBeforeLoginTemplate = () => {
         let template = document.getElementById('beforeLoginTemplate').innerHTML
         document.getElementById('loginContainer').innerHTML = template
-        document.querySelector("#login").addEventListener('click', e => loginButtonEvent(e))
+        document.querySelector("#login").addEventListener('click', () => loginButtonEvent())
     }
 
     const makeAfterLoginTemplate = (name) => {
         let template = document.getElementById('afterLoginTemplate').innerHTML
         template = template.replace('{name}', name)
         document.getElementById('loginContainer').innerHTML = template
-        document.querySelector("#login").addEventListener('click', e => loginButtonEvent(e))
+        document.querySelector("#login").addEventListener('click', () => logoutButtonEvent())
     }
 
-    const loginButtonEvent = (e) => {
-        const getUrl = (request) => {
-            if (request === '로그인') {
-                return '/api/v1/auth/login'
-            }
-            return '/api/v1/auth/logout'
-        }
-
-        const getInit = (request) => {
-            if (request === '로그인') {
-                return {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        email: document.getElementById('email').value,
-                        password: document.getElementById('password').value
-                    })
-                }
-            }
-            return {
-                method: 'POST'
-            }
-        }
-
-        const state = e.target.textContent;
-        const url = getUrl(state)
-        const init = getInit(state)
-
-        fetch(url, init).then((response) => {
+    const loginButtonEvent = () => {
+        fetch('/api/v1/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            })
+        }).then((response) => {
             response.json().then((body) => {
                 if (body.success === true) {
-                    if (state === '로그인') {
-                        alert('로그인에 성공하셨습니다.')
-                        document.cookie = 'name=' + body.response.name
-                        makeAfterLoginTemplate(body.response.name)
+                    alert('로그인에 성공하셨습니다.')
+                    document.cookie = 'name=' + body.response.name
+                    makeAfterLoginTemplate(body.response.name)
+                } else {
+                    alert(body.message)
+                }
+            })
+        }).catch((error) => console.log(error))
+    }
 
-                    } else {
-                        alert('로그아웃에 성공하셨습니다.')
-                        makeBeforeLoginTemplate()
-                    }
+    const logoutButtonEvent = () => {
+        fetch('/api/v1/auth/logout', {
+            method: 'POST'
+        }).then((response) => {
+            response.json().then((body) => {
+                if (body.success === true) {
+                    alert('로그아웃에 성공하셨습니다.')
+                    makeBeforeLoginTemplate()
                 } else {
                     alert(body.message)
                 }
@@ -117,13 +106,11 @@
                 alert(body.message)
             }
         }
-        document.querySelector("#login").addEventListener('click', e => loginButtonEvent(e))
+        document.querySelector("#login").addEventListener('click', () => loginButtonEvent())
 
-        const url = '/api/v1/auth/logged-in'
-        const init = {
+        fetch('/api/v1/auth/logged-in', {
             method: 'GET'
-        }
-        fetch(url, init).then(response => {
+        }).then(response => {
             response.json().then(body => {
                 loggedInCheck(body)
             })
@@ -133,7 +120,7 @@
         fetch('/api/v1/posts', {
             method: 'GET'
         }).then((response) => {
-            response.json().then((body) => {
+            response.json().then(body => {
                 if (body.success === true) {
                     setPostsList(body.response)
                 } else {
