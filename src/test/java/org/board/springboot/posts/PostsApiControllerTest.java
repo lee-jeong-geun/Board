@@ -138,4 +138,29 @@ public class PostsApiControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
     }
+
+    @Test
+    public void 게시글_조회_아이디_성공() throws Exception {
+        //given
+        String url = "/api/v1/posts/1";
+        PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
+                .postsId(1l)
+                .title("title")
+                .content("content")
+                .userEmail("jk@jk.com")
+                .build();
+        ApiResponse<PostsFindResponseDto> apiResponse = ApiResponse.<PostsFindResponseDto>builder()
+                .success(true)
+                .response(postsFindResponseDto)
+                .build();
+        given(postsService.findById(1l)).willReturn(postsFindResponseDto);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get(url));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(postsService).should().findById(1l);
+    }
 }
