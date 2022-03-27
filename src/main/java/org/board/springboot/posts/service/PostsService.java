@@ -43,4 +43,15 @@ public class PostsService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Transactional(readOnly = true)
+    public PostsFindResponseDto findById(Long id) {
+        Posts posts = postsRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("해당 게시글이 없습니다."));
+        return PostsFindResponseDto.builder()
+                .title(posts.getTitle())
+                .content(posts.getContent())
+                .userEmail(posts.getUser().getEmail())
+                .build();
+    }
 }
