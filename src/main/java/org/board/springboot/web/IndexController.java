@@ -26,4 +26,9 @@ public class IndexController {
     public String userInform(@PathVariable String email) {
         return "user/inform";
     }
+
+    @GetMapping("/posts/{id}")
+    public String postsDetail(@PathVariable Long id) {
+        return "posts/detail";
+    }
 }
