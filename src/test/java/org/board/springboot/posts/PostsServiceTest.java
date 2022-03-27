@@ -19,6 +19,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -107,5 +108,32 @@ public class PostsServiceTest {
         BDDAssertions.then(result.get(0).getUserEmail()).isEqualTo(email);
         BDDAssertions.then(result.get(1).getPostsId()).isEqualTo(2l);
         BDDAssertions.then(result.get(1).getUserEmail()).isEqualTo(email);
+    }
+
+    @Test
+    public void 포스트_검색_아이디_호출_성공() {
+        //given
+        Long id = 1l;
+        String title = "title";
+        String content = "content";
+        String email = "jk@jk.com";
+        User user = User.builder()
+                .email(email)
+                .build();
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .user(user)
+                .build();
+        given(postsRepository.findById(id)).willReturn(Optional.of(posts));
+
+        //when
+        PostsFindResponseDto result = postsService.findById(id);
+
+        //then
+        then(postsRepository).should().findById(id);
+        BDDAssertions.then(result.getTitle()).isEqualTo(title);
+        BDDAssertions.then(result.getContent()).isEqualTo(content);
+        BDDAssertions.then(result.getUserEmail()).isEqualTo(email);
     }
 }
