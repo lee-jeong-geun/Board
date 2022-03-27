@@ -136,4 +136,13 @@ public class PostsServiceTest {
         BDDAssertions.then(result.getContent()).isEqualTo(content);
         BDDAssertions.then(result.getUserEmail()).isEqualTo(email);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void 포스트_검색_아이디_호출_실패_에러() {
+        //given
+        given(postsRepository.findById(1l)).willReturn(Optional.empty());
+
+        //when
+        postsService.findById(1l);
+    }
 }
