@@ -47,6 +47,14 @@ public class PostsApiController {
                 .build();
     }
 
+    @GetMapping("/api/v1/posts/{id}")
+    public ApiResponse<PostsFindResponseDto> findById(@PathVariable Long id) {
+        return ApiResponse.<PostsFindResponseDto>builder()
+                .success(true)
+                .response(postsService.findById(id))
+                .build();
+    }
+
     private void validateLoginState(HttpSession httpSession) {
         if (httpSession.getAttribute("login") == null) {
             throw new IllegalStateException("로그인 상태가 아닙니다.");
