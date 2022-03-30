@@ -9,7 +9,7 @@
         let template = document.getElementById('afterLoginTemplate').innerHTML
         template = template.replace('{name}', name)
         document.getElementById('loginContainer').innerHTML = template
-        document.querySelector("#login").addEventListener('click', () => logoutButtonEvent())
+        document.querySelector("#logout").addEventListener('click', () => logoutButtonEvent())
     }
 
     const loginButtonEvent = () => {
