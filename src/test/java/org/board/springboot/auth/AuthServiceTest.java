@@ -77,7 +77,6 @@ public class AuthServiceTest {
     @Test
     public void logout_호출_성공() {
         //given
-        Map<String, Object> map = new ConcurrentHashMap<>();
         given(authSession.getSession()).willReturn(map);
         given(mockHttpSession.getAttribute("login")).willReturn(true);
 
@@ -85,9 +84,10 @@ public class AuthServiceTest {
         boolean result = authService.logout(mockHttpSession);
 
         //then
-        BDDMockito.then(authSession).should(times(1)).getSession();
+        BDDMockito.then(authSession).should().getSession();
         BDDMockito.then(mockHttpSession).should(times(2)).getAttribute("login");
-        BDDMockito.then(mockHttpSession).should(times(1)).removeAttribute("login");
+        BDDMockito.then(map).should().delete(mockHttpSession.getAttribute("login").toString(), "login");
+        BDDMockito.then(mockHttpSession).should().removeAttribute("login");
         then(result).isEqualTo(true);
     }
 
