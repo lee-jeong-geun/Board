@@ -75,34 +75,6 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void login_올바른값_반환() {
-        //given
-        String name = "jk";
-        String email = "jk@jk.com";
-        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
-                .email(email)
-                .build();
-        UserFindResponseDto userFindResponseDto = new UserFindResponseDto(User.builder()
-                .name(name)
-                .email(email)
-                .build());
-        Map<String, Object> map = new ConcurrentHashMap<>();
-        given(userService.findByEmailAndPassword(any())).willReturn(userFindResponseDto);
-        given(authSession.getSession()).willReturn(map);
-        given(mockHttpSession.getAttribute("login")).willReturn(null);
-
-        //when
-        LoginUserResponseDto loginUserResponseDto = authService.login(loginRequestDto, mockHttpSession);
-
-        //then
-        BDDMockito.then(mockHttpSession).should(times(1)).setAttribute("login", email);
-        BDDMockito.then(mockHttpSession).should(times(1)).getAttribute("login");
-        BDDMockito.then(authSession).should(times(2)).getSession();
-        then(loginUserResponseDto.getName()).isEqualTo(name);
-        then(loginUserResponseDto.getEmail()).isEqualTo(email);
-    }
-
-    @Test
     public void logout_호출_성공() {
         //given
         Map<String, Object> map = new ConcurrentHashMap<>();
