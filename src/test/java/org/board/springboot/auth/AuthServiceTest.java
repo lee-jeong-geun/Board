@@ -55,7 +55,7 @@ public class AuthServiceTest {
                 .build());
         given(userService.findByEmailAndPassword(any())).willReturn(userFindResponseDto);
         given(authSession.getSession()).willReturn(map);
-        given(map.get(email, "login")).willReturn(false);
+        given(map.hasKey(email, "login")).willReturn(false);
         given(mockHttpSession.getAttribute("login")).willReturn(null);
 
         //when
@@ -66,8 +66,8 @@ public class AuthServiceTest {
         BDDMockito.then(mockHttpSession).should().setAttribute("login", email);
         BDDMockito.then(mockHttpSession).should().getAttribute("login");
         BDDMockito.then(authSession).should(times(2)).getSession();
-        BDDMockito.then(map).should().put(email, "login", true);
-        BDDMockito.then(map).should().get(email, "login");
+        BDDMockito.then(map).should().put(email, "login", "true");
+        BDDMockito.then(map).should().hasKey(email, "login");
         then(result.getName()).isEqualTo(name);
         then(result.getEmail()).isEqualTo(email);
     }
