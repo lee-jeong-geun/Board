@@ -16,9 +16,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.mock.web.MockHttpSession;
 
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
@@ -127,10 +125,9 @@ public class AuthServiceTest {
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
                 .build();
-        Map<String, Object> map = new ConcurrentHashMap<>();
-        map.put(email, true);
         given(userService.findByEmailAndPassword(any())).willReturn(new UserFindResponseDto(User.builder().build()));
         given(authSession.getSession()).willReturn(map);
+        given(map.get(email, "login")).willReturn(true);
 
         //when
         authService.login(loginRequestDto, mockHttpSession);
