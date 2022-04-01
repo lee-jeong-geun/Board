@@ -13,6 +13,7 @@ import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.data.redis.core.HashOperations;
 import org.springframework.mock.web.MockHttpSession;
 
 import java.util.Map;
@@ -36,6 +37,9 @@ public class AuthServiceTest {
     @Mock
     private AuthSession authSession;
 
+    @Mock
+    private HashOperations<String, String, Object> map;
+
     @InjectMocks
     private AuthService authService;
 
@@ -51,19 +55,23 @@ public class AuthServiceTest {
                 .name(name)
                 .email(email)
                 .build());
-        Map<String, Object> map = new ConcurrentHashMap<>();
         given(userService.findByEmailAndPassword(any())).willReturn(userFindResponseDto);
         given(authSession.getSession()).willReturn(map);
+        given(map.get(email, "login")).willReturn(false);
         given(mockHttpSession.getAttribute("login")).willReturn(null);
 
         //when
-        authService.login(loginRequestDto, mockHttpSession);
+        LoginUserResponseDto result = authService.login(loginRequestDto, mockHttpSession);
 
         //then
-        BDDMockito.then(userService).should(times(1)).findByEmailAndPassword(any());
-        BDDMockito.then(mockHttpSession).should(times(1)).setAttribute("login", email);
-        BDDMockito.then(mockHttpSession).should(times(1)).getAttribute("login");
+        BDDMockito.then(userService).should().findByEmailAndPassword(any());
+        BDDMockito.then(mockHttpSession).should().setAttribute("login", email);
+        BDDMockito.then(mockHttpSession).should().getAttribute("login");
         BDDMockito.then(authSession).should(times(2)).getSession();
+        BDDMockito.then(map).should().put(email, "login", true);
+        BDDMockito.then(map).should().get(email, "login");
+        then(result.getName()).isEqualTo(name);
+        then(result.getEmail()).isEqualTo(email);
     }
 
     @Test
