@@ -127,7 +127,7 @@ public class AuthServiceTest {
                 .build();
         given(userService.findByEmailAndPassword(any())).willReturn(new UserFindResponseDto(User.builder().build()));
         given(authSession.getSession()).willReturn(map);
-        given(map.get(email, "login")).willReturn(true);
+        given(map.hasKey(email, "login")).willReturn(true);
 
         //when
         authService.login(loginRequestDto, mockHttpSession);
