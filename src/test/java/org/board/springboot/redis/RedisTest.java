@@ -35,4 +35,16 @@ public class RedisTest {
         //then
         Assertions.assertThat(result).isEqualTo("true");
     }
+
+    @Test
+    public void 레디스_해시_삭제_성공() {
+        //given
+        hashOperations.put("jk@jk.com", "test", "true");
+
+        //when
+        Long result = hashOperations.delete("jk@jk.com", "test");
+
+        //then
+        Assertions.assertThat(result).isNotNull();
+    }
 }
