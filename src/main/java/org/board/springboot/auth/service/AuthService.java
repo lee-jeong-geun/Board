@@ -1,11 +1,11 @@
 package org.board.springboot.auth.service;
 
 import lombok.RequiredArgsConstructor;
-import org.board.springboot.auth.config.AuthSession;
 import org.board.springboot.auth.dto.LoginRequestDto;
 import org.board.springboot.auth.dto.LoginUserResponseDto;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.service.UserService;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpSession;
 public class AuthService {
 
     private final UserService userService;
-    private final AuthSession authSession;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public LoginUserResponseDto login(LoginRequestDto loginRequestDto, HttpSession httpSession) {
         validateLoginState(httpSession);
@@ -24,7 +24,7 @@ public class AuthService {
 
         validateLoginEmailState(loginRequestDto);
 
-        authSession.getSession().put(loginRequestDto.getEmail(), "login", "true");
+        redisTemplate.opsForHash().put(loginRequestDto.getEmail(), "login", "true");
         httpSession.setAttribute("login", loginRequestDto.getEmail());
         return LoginUserResponseDto.builder()
                 .name(userFindResponseDto.getName())
@@ -33,7 +33,7 @@ public class AuthService {
     }
 
     private void validateLoginEmailState(LoginRequestDto loginRequestDto) {
-        if (authSession.getSession().hasKey(loginRequestDto.getEmail(), "login")) {
+        if (redisTemplate.opsForHash().hasKey(loginRequestDto.getEmail(), "login")) {
             throw new IllegalArgumentException("해당 아이디는 다른곳에서 로그인 중입니다.");
         }
     }
@@ -47,7 +47,7 @@ public class AuthService {
     public boolean logout(HttpSession httpSession) {
         validateLogoutState(httpSession);
 
-        authSession.getSession().delete(httpSession.getAttribute("login").toString(), "login");
+        redisTemplate.opsForHash().delete(httpSession.getAttribute("login").toString(), "login");
         httpSession.removeAttribute("login");
         return true;
     }
