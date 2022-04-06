@@ -1,6 +1,7 @@
 package org.board.springboot.redis;
 
 import org.assertj.core.api.Assertions;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,30 +20,41 @@ public class RedisTest {
 
     HashOperations<String, String, Object> hashOperations;
 
+    static final String key = "jk@jk.com";
+    static final String hashKey = "test";
+    static final String value = "true";
+
     @Before
     public void 세팅() {
         hashOperations = redisTemplate.opsForHash();
     }
 
+    @After
+    public void 초기화() {
+        System.out.println("clear");
+        hashOperations.delete(key, hashKey);
+    }
+
+
     @Test
     public void 레디스_해시_삽입_성공() {
         //given
-        hashOperations.put("jk@jk.com", "test", "true");
+        hashOperations.put(key, hashKey, value);
 
         //when
-        Object result = hashOperations.get("jk@jk.com", "test");
+        Object result = hashOperations.get(key, hashKey);
 
         //then
-        Assertions.assertThat(result).isEqualTo("true");
+        Assertions.assertThat(result).isEqualTo(value);
     }
 
     @Test
     public void 레디스_해시_삭제_성공() {
         //given
-        hashOperations.put("jk@jk.com", "test", "true");
+        hashOperations.put(key, hashKey, value);
 
         //when
-        Long result = hashOperations.delete("jk@jk.com", "test");
+        Long result = hashOperations.delete(key, hashKey);
 
         //then
         Assertions.assertThat(result).isNotNull();
