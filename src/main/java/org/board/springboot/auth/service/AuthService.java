@@ -24,7 +24,7 @@ public class AuthService {
 
         validateLoginEmailState(loginRequestDto);
 
-        authSession.getSession().put(loginRequestDto.getEmail(), true);
+        authSession.getSession().put(loginRequestDto.getEmail(), "login", "true");
         httpSession.setAttribute("login", loginRequestDto.getEmail());
         return LoginUserResponseDto.builder()
                 .name(userFindResponseDto.getName())
@@ -33,7 +33,7 @@ public class AuthService {
     }
 
     private void validateLoginEmailState(LoginRequestDto loginRequestDto) {
-        if (authSession.getSession().containsKey(loginRequestDto.getEmail())) {
+        if (authSession.getSession().hasKey(loginRequestDto.getEmail(), "login")) {
             throw new IllegalArgumentException("해당 아이디는 다른곳에서 로그인 중입니다.");
         }
     }
@@ -47,7 +47,7 @@ public class AuthService {
     public boolean logout(HttpSession httpSession) {
         validateLogoutState(httpSession);
 
-        authSession.getSession().remove(httpSession.getAttribute("login"));
+        authSession.getSession().delete(httpSession.getAttribute("login").toString(), "login");
         httpSession.removeAttribute("login");
         return true;
     }
