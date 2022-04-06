@@ -1,6 +1,5 @@
 package org.board.springboot.auth;
 
-import org.board.springboot.auth.config.AuthSession;
 import org.board.springboot.auth.dto.LoginRequestDto;
 import org.board.springboot.auth.dto.LoginUserResponseDto;
 import org.board.springboot.auth.service.AuthService;
@@ -14,6 +13,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mock.web.MockHttpSession;
 
 import java.util.Optional;
@@ -33,10 +33,10 @@ public class AuthServiceTest {
     private MockHttpSession mockHttpSession;
 
     @Mock
-    private AuthSession authSession;
+    private HashOperations<String, Object, Object> map;
 
     @Mock
-    private HashOperations<String, String, Object> map;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @InjectMocks
     private AuthService authService;
@@ -54,7 +54,7 @@ public class AuthServiceTest {
                 .email(email)
                 .build());
         given(userService.findByEmailAndPassword(any())).willReturn(userFindResponseDto);
-        given(authSession.getSession()).willReturn(map);
+        given(redisTemplate.opsForHash()).willReturn(map);
         given(map.hasKey(email, "login")).willReturn(false);
         given(mockHttpSession.getAttribute("login")).willReturn(null);
 
@@ -65,7 +65,7 @@ public class AuthServiceTest {
         BDDMockito.then(userService).should().findByEmailAndPassword(any());
         BDDMockito.then(mockHttpSession).should().setAttribute("login", email);
         BDDMockito.then(mockHttpSession).should().getAttribute("login");
-        BDDMockito.then(authSession).should(times(2)).getSession();
+        BDDMockito.then(redisTemplate).should(times(2)).opsForHash();
         BDDMockito.then(map).should().put(email, "login", "true");
         BDDMockito.then(map).should().hasKey(email, "login");
         then(result.getName()).isEqualTo(name);
@@ -75,14 +75,14 @@ public class AuthServiceTest {
     @Test
     public void logout_호출_성공() {
         //given
-        given(authSession.getSession()).willReturn(map);
+        given(redisTemplate.opsForHash()).willReturn(map);
         given(mockHttpSession.getAttribute("login")).willReturn(true);
 
         //when
         boolean result = authService.logout(mockHttpSession);
 
         //then
-        BDDMockito.then(authSession).should().getSession();
+        BDDMockito.then(redisTemplate).should().opsForHash();
         BDDMockito.then(mockHttpSession).should(times(2)).getAttribute("login");
         BDDMockito.then(map).should().delete(mockHttpSession.getAttribute("login").toString(), "login");
         BDDMockito.then(mockHttpSession).should().removeAttribute("login");
@@ -126,7 +126,7 @@ public class AuthServiceTest {
                 .email(email)
                 .build();
         given(userService.findByEmailAndPassword(any())).willReturn(new UserFindResponseDto(User.builder().build()));
-        given(authSession.getSession()).willReturn(map);
+        given(redisTemplate.opsForHash()).willReturn(map);
         given(map.hasKey(email, "login")).willReturn(true);
 
         //when
