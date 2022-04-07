@@ -16,6 +16,8 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -40,6 +42,12 @@ public class PostsApiControllerTest {
 
     @MockBean
     private PostsService postsService;
+
+    @MockBean
+    private RedisTemplate<String, Object> redisTemplate;
+
+    @Mock
+    private HashOperations<String, Object, Object> session;
 
     @Mock
     private MockHttpSession mockHttpSession;
@@ -83,6 +91,8 @@ public class PostsApiControllerTest {
         String content = "content";
         String email = "jk@jk.com";
         String url = "/api/v1/posts";
+        String todayRemainPostsCount = "todayRemainPostsCount";
+        int todayPostsCountMax = 10;
         boolean success = true;
         long id = 1;
         PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
@@ -96,6 +106,9 @@ public class PostsApiControllerTest {
         ArgumentCaptor<PostsSaveRequestDto> argumentCaptor = ArgumentCaptor.forClass(PostsSaveRequestDto.class);
         given(mockHttpSession.getAttribute("login")).willReturn(email);
         given(postsService.save(any())).willReturn(id);
+        given(redisTemplate.opsForHash()).willReturn(session);
+        given(session.hasKey(email, todayRemainPostsCount)).willReturn(true);
+        given(session.get(email, todayRemainPostsCount)).willReturn(todayPostsCountMax);
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
@@ -108,6 +121,10 @@ public class PostsApiControllerTest {
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
         then(mockHttpSession).should(times(2)).getAttribute("login");
         then(postsService).should().save(argumentCaptor.capture());
+        then(redisTemplate).should(times(5)).opsForHash();
+        then(session).should(times(2)).hasKey(email, todayRemainPostsCount);
+        then(session).should(times(2)).get(email, todayRemainPostsCount);
+        then(session).should().put(email, todayRemainPostsCount, todayPostsCountMax - 1);
         BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
         BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
         BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
