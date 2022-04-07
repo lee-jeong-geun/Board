@@ -124,7 +124,7 @@ public class PostsApiControllerTest {
         then(redisTemplate).should(times(5)).opsForHash();
         then(session).should(times(2)).hasKey(email, todayRemainPostsCount);
         then(session).should(times(2)).get(email, todayRemainPostsCount);
-        then(session).should().put(email, todayRemainPostsCount, todayPostsCountMax - 1);
+        then(session).should().put(email, todayRemainPostsCount, String.valueOf(todayPostsCountMax - 1));
         BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
         BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
         BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
@@ -170,8 +170,8 @@ public class PostsApiControllerTest {
         then(redisTemplate).should(times(5)).opsForHash();
         then(session).should(times(2)).hasKey(email, todayRemainPostsCount);
         then(session).should().get(email, todayRemainPostsCount);
-        then(session).should().put(email, todayRemainPostsCount, todayPostsCountMax);
-        then(session).should().put(email, todayRemainPostsCount, todayPostsCountMax - 1);
+        then(session).should().put(email, todayRemainPostsCount, String.valueOf(todayPostsCountMax));
+        then(session).should().put(email, todayRemainPostsCount, String.valueOf(todayPostsCountMax - 1));
         BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
         BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
         BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
