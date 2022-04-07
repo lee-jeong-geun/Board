@@ -131,6 +131,53 @@ public class PostsApiControllerTest {
     }
 
     @Test
+    public void 게시글_등록_성공_hasKey_값_false() throws Exception {
+        //given
+        String title = "title";
+        String content = "content";
+        String email = "jk@jk.com";
+        String url = "/api/v1/posts";
+        String todayRemainPostsCount = "todayRemainPostsCount";
+        int todayPostsCountMax = 10;
+        boolean success = true;
+        long id = 1;
+        PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
+                .title(title)
+                .content(content)
+                .build();
+        ApiResponse<Long> apiResponse = ApiResponse.<Long>builder()
+                .success(success)
+                .response(id)
+                .build();
+        ArgumentCaptor<PostsSaveRequestDto> argumentCaptor = ArgumentCaptor.forClass(PostsSaveRequestDto.class);
+        given(mockHttpSession.getAttribute("login")).willReturn(email);
+        given(postsService.save(any())).willReturn(id);
+        given(redisTemplate.opsForHash()).willReturn(session);
+        given(session.hasKey(email, todayRemainPostsCount)).willReturn(false);
+        given(session.get(email, todayRemainPostsCount)).willReturn(todayPostsCountMax);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(postsSaveRequestBody))
+                .session(mockHttpSession));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(mockHttpSession).should(times(2)).getAttribute("login");
+        then(postsService).should().save(argumentCaptor.capture());
+        then(redisTemplate).should(times(5)).opsForHash();
+        then(session).should(times(2)).hasKey(email, todayRemainPostsCount);
+        then(session).should().get(email, todayRemainPostsCount);
+        then(session).should().put(email, todayRemainPostsCount, todayPostsCountMax);
+        then(session).should().put(email, todayRemainPostsCount, todayPostsCountMax - 1);
+        BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
+        BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
+        BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
+    }
+
+    @Test
     public void 게시글_등록_실패_로그인상태_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts";
