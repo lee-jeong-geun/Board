@@ -178,6 +178,45 @@ public class PostsApiControllerTest {
     }
 
     @Test
+    public void 게시글_등록_실패_일일_게시글_최대상태_에러처리() throws Exception{
+        //given
+        String title = "title";
+        String content = "content";
+        String email = "jk@jk.com";
+        String url = "/api/v1/posts";
+        String todayRemainPostsCount = "todayRemainPostsCount";
+        boolean success = false;
+        long id = 1;
+        PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
+                .title(title)
+                .content(content)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(success)
+                .message("오늘은 더이상 게시글을 올릴 수 없습니다.")
+                .build();
+        given(mockHttpSession.getAttribute("login")).willReturn(email);
+        given(postsService.save(any())).willReturn(id);
+        given(redisTemplate.opsForHash()).willReturn(session);
+        given(session.hasKey(email, todayRemainPostsCount)).willReturn(true);
+        given(session.get(email, todayRemainPostsCount)).willReturn(0);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(postsSaveRequestBody))
+                .session(mockHttpSession));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(mockHttpSession).should(times(2)).getAttribute("login");
+        then(redisTemplate).should(times(2)).opsForHash();
+        then(session).should().hasKey(email, todayRemainPostsCount);
+        then(session).should().get(email, todayRemainPostsCount);
+    }
+
+    @Test
     public void 게시글_등록_실패_로그인상태_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts";
