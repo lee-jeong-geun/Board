@@ -7,7 +7,7 @@ import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.posts.dto.PostsSaveRequestBody;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
 import org.board.springboot.posts.service.PostsService;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.board.springboot.user.service.UserSessionService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,9 +19,8 @@ import java.util.List;
 public class PostsApiController {
 
     private final PostsService postsService;
-    private final RedisTemplate<String, Object> redisTemplate;
+    private final UserSessionService userSessionService;
     private final HttpServletRequest httpServletRequest;
-    private static final int TODAY_POSTS_COUNT_MAX = 10;
 
     @GetMapping("/api/v1/posts")
     public ApiResponse<List<PostsFindResponseDto>> postsList() {
@@ -68,31 +67,12 @@ public class PostsApiController {
     }
 
     private void checkSessionStateByEmail(String email) {
-        checkTodayRemainPostsCount(email);
-    }
-
-    private void checkTodayRemainPostsCount(String email) {
-        if (!redisTemplate.opsForHash().hasKey(email, "todayRemainPostsCount")) {
-            return;
-        }
-        int remainPostsCount = Integer.parseInt(redisTemplate.opsForHash().get(email, "todayRemainPostsCount").toString());
-        if (remainPostsCount <= 0) {
-            throw new IllegalStateException("오늘은 더이상 게시글을 올릴 수 없습니다.");
-        }
+        userSessionService.checkTodayRemainPostsCount(email);
     }
 
     private void updateSessionStateByEmail(String email) {
-        updateTodayRemainPostsCount(email);
+        userSessionService.updateTodayRemainPostsCount(email);
     }
-
-    private void updateTodayRemainPostsCount(String email) {
-        if (!redisTemplate.opsForHash().hasKey(email, "todayRemainPostsCount")) {
-            redisTemplate.opsForHash().put(email, "todayRemainPostsCount", String.valueOf(TODAY_POSTS_COUNT_MAX));
-        }
-        int remainPostsCount = Integer.parseInt(redisTemplate.opsForHash().get(email, "todayRemainPostsCount").toString()) - 1;
-        redisTemplate.opsForHash().put(email, "todayRemainPostsCount", String.valueOf(remainPostsCount));
-    }
-
 
     @ExceptionHandler(IllegalStateException.class)
     public ExceptionResponse IllegalStateExceptionHandler(Exception exception) {
