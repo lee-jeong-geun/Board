@@ -9,6 +9,7 @@ import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.posts.dto.PostsSaveRequestBody;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
 import org.board.springboot.posts.service.PostsService;
+import org.board.springboot.user.service.UserSessionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -16,8 +17,6 @@ import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -28,8 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -44,10 +42,7 @@ public class PostsApiControllerTest {
     private PostsService postsService;
 
     @MockBean
-    private RedisTemplate<String, Object> redisTemplate;
-
-    @Mock
-    private HashOperations<String, Object, Object> session;
+    private UserSessionService userSessionService;
 
     @Mock
     private MockHttpSession mockHttpSession;
@@ -91,8 +86,6 @@ public class PostsApiControllerTest {
         String content = "content";
         String email = "jk@jk.com";
         String url = "/api/v1/posts";
-        String todayRemainPostsCount = "todayRemainPostsCount";
-        int todayPostsCountMax = 10;
         boolean success = true;
         long id = 1;
         PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
@@ -106,9 +99,6 @@ public class PostsApiControllerTest {
         ArgumentCaptor<PostsSaveRequestDto> argumentCaptor = ArgumentCaptor.forClass(PostsSaveRequestDto.class);
         given(mockHttpSession.getAttribute("login")).willReturn(email);
         given(postsService.save(any())).willReturn(id);
-        given(redisTemplate.opsForHash()).willReturn(session);
-        given(session.hasKey(email, todayRemainPostsCount)).willReturn(true);
-        given(session.get(email, todayRemainPostsCount)).willReturn(todayPostsCountMax);
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
@@ -121,70 +111,20 @@ public class PostsApiControllerTest {
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
         then(mockHttpSession).should(times(2)).getAttribute("login");
         then(postsService).should().save(argumentCaptor.capture());
-        then(redisTemplate).should(times(5)).opsForHash();
-        then(session).should(times(2)).hasKey(email, todayRemainPostsCount);
-        then(session).should(times(2)).get(email, todayRemainPostsCount);
-        then(session).should().put(email, todayRemainPostsCount, String.valueOf(todayPostsCountMax - 1));
+        then(userSessionService).should().checkTodayRemainPostsCount(email);
+        then(userSessionService).should().updateTodayRemainPostsCount(email);
         BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
         BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
         BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
     }
 
     @Test
-    public void 게시글_등록_성공_hasKey_값_false() throws Exception {
+    public void 게시글_등록_실패_일일_게시글_최대상태_에러처리() throws Exception {
         //given
         String title = "title";
         String content = "content";
         String email = "jk@jk.com";
         String url = "/api/v1/posts";
-        String todayRemainPostsCount = "todayRemainPostsCount";
-        int todayPostsCountMax = 10;
-        boolean success = true;
-        long id = 1;
-        PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
-                .title(title)
-                .content(content)
-                .build();
-        ApiResponse<Long> apiResponse = ApiResponse.<Long>builder()
-                .success(success)
-                .response(id)
-                .build();
-        ArgumentCaptor<PostsSaveRequestDto> argumentCaptor = ArgumentCaptor.forClass(PostsSaveRequestDto.class);
-        given(mockHttpSession.getAttribute("login")).willReturn(email);
-        given(postsService.save(any())).willReturn(id);
-        given(redisTemplate.opsForHash()).willReturn(session);
-        given(session.hasKey(email, todayRemainPostsCount)).willReturn(false);
-        given(session.get(email, todayRemainPostsCount)).willReturn(todayPostsCountMax);
-
-        //when
-        ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(objectMapper.writeValueAsString(postsSaveRequestBody))
-                .session(mockHttpSession));
-
-        //then
-        resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
-        then(mockHttpSession).should(times(2)).getAttribute("login");
-        then(postsService).should().save(argumentCaptor.capture());
-        then(redisTemplate).should(times(5)).opsForHash();
-        then(session).should(times(2)).hasKey(email, todayRemainPostsCount);
-        then(session).should().get(email, todayRemainPostsCount);
-        then(session).should().put(email, todayRemainPostsCount, String.valueOf(todayPostsCountMax));
-        then(session).should().put(email, todayRemainPostsCount, String.valueOf(todayPostsCountMax - 1));
-        BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
-        BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
-        BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
-    }
-
-    @Test
-    public void 게시글_등록_실패_일일_게시글_최대상태_에러처리() throws Exception{
-        //given
-        String title = "title";
-        String content = "content";
-        String email = "jk@jk.com";
-        String url = "/api/v1/posts";
-        String todayRemainPostsCount = "todayRemainPostsCount";
         boolean success = false;
         long id = 1;
         PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
@@ -197,9 +137,7 @@ public class PostsApiControllerTest {
                 .build();
         given(mockHttpSession.getAttribute("login")).willReturn(email);
         given(postsService.save(any())).willReturn(id);
-        given(redisTemplate.opsForHash()).willReturn(session);
-        given(session.hasKey(email, todayRemainPostsCount)).willReturn(true);
-        given(session.get(email, todayRemainPostsCount)).willReturn(0);
+        willThrow(new IllegalStateException("오늘은 더이상 게시글을 올릴 수 없습니다.")).given(userSessionService).checkTodayRemainPostsCount(email);
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
@@ -211,9 +149,7 @@ public class PostsApiControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
         then(mockHttpSession).should(times(2)).getAttribute("login");
-        then(redisTemplate).should(times(2)).opsForHash();
-        then(session).should().hasKey(email, todayRemainPostsCount);
-        then(session).should().get(email, todayRemainPostsCount);
+        then(userSessionService).should().checkTodayRemainPostsCount(email);
     }
 
     @Test
