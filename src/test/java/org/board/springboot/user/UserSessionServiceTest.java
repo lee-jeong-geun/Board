@@ -44,4 +44,16 @@ public class UserSessionServiceTest {
         then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT);
         then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkTodayRemainPostsCount_호출_실패_에러처리() {
+        //given
+        String email = "jk@jk.com";
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(true);
+        given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(0);
+
+        //when
+        userSessionService.checkTodayRemainPostsCount(email);
+    }
 }
