@@ -71,4 +71,23 @@ public class UserSessionServiceTest {
         //when
         userSessionService.checkTodayRemainPostsCount(email);
     }
+
+    @Test
+    public void updateTodayRemainPostsCount_호출_성공_hasKey_값_false() {
+        //given
+        String email = "jk@jk.com";
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(false);
+        given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(TODAY_POSTS_COUNT_MAX);
+
+        //when
+        userSessionService.updateTodayRemainPostsCount(email);
+
+        //then
+        then(redisTemplate).should(times(4)).opsForHash();
+        then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT);
+        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT, String.valueOf(TODAY_POSTS_COUNT_MAX));
+        then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT);
+        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT, String.valueOf(TODAY_POSTS_COUNT_MAX - 1));
+    }
 }
