@@ -39,10 +39,13 @@ public class PostsServiceTest {
     @InjectMocks
     private PostsService postsService;
 
+    private final String email = "jk@jk.com";
+    private final String title = "title";
+    private final String content = "content";
+
     @Test
     public void 포스트_저장_호출_성공() throws Exception {
         //given
-        String email = "jk@jk.com";
         User user = User.builder()
                 .build();
         Posts posts = Posts.builder()
@@ -72,14 +75,13 @@ public class PostsServiceTest {
     @Test
     public void 포스트_전체_검색_호출_성공() throws Exception {
         //given
-        String email = "jk@jk.com";
         User user = User.builder()
                 .email(email)
                 .build();
 
         Posts posts1 = Posts.builder()
-                .title("title1")
-                .content("content1")
+                .title(title)
+                .content(content)
                 .user(user)
                 .build();
         Field field = posts1.getClass().getDeclaredField("id");
@@ -104,8 +106,8 @@ public class PostsServiceTest {
         then(postsRepository).should(times(1)).findAll();
         BDDAssertions.then(result.size()).isEqualTo(2);
         BDDAssertions.then(result.get(0).getPostsId()).isEqualTo(1l);
-        BDDAssertions.then(result.get(0).getTitle()).isEqualTo("title1");
-        BDDAssertions.then(result.get(0).getContent()).isEqualTo("content1");
+        BDDAssertions.then(result.get(0).getTitle()).isEqualTo(title);
+        BDDAssertions.then(result.get(0).getContent()).isEqualTo(content);
         BDDAssertions.then(result.get(0).getUserEmail()).isEqualTo(email);
         BDDAssertions.then(result.get(1).getPostsId()).isEqualTo(2l);
         BDDAssertions.then(result.get(1).getUserEmail()).isEqualTo(email);
@@ -115,9 +117,6 @@ public class PostsServiceTest {
     public void 포스트_검색_아이디_호출_성공() throws Exception {
         //given
         Long id = 1l;
-        String title = "title";
-        String content = "content";
-        String email = "jk@jk.com";
         User user = User.builder()
                 .email(email)
                 .build();
