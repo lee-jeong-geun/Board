@@ -53,15 +53,19 @@ public class PostsApiControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    private final String title = "title";
+    private final String content = "content";
+    private final String email = "jk@jk.com";
+
     @Test
     public void 게시글_리스트_조회_성공() throws Exception {
         //given
         String url = "/api/v1/posts";
         PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
                 .postsId(1l)
-                .title("title")
-                .content("content")
-                .userEmail("jk@jk.com")
+                .title(title)
+                .content(content)
+                .userEmail(email)
                 .build();
         List<PostsFindResponseDto> list = new ArrayList<>();
         list.add(postsFindResponseDto);
@@ -82,9 +86,6 @@ public class PostsApiControllerTest {
     @Test
     public void 게시글_등록_성공() throws Exception {
         //given
-        String title = "title";
-        String content = "content";
-        String email = "jk@jk.com";
         String url = "/api/v1/posts";
         boolean success = true;
         long id = 1;
@@ -121,9 +122,6 @@ public class PostsApiControllerTest {
     @Test
     public void 게시글_등록_실패_일일_게시글_최대상태_에러처리() throws Exception {
         //given
-        String title = "title";
-        String content = "content";
-        String email = "jk@jk.com";
         String url = "/api/v1/posts";
         boolean success = false;
         long id = 1;
@@ -157,8 +155,8 @@ public class PostsApiControllerTest {
         //given
         String url = "/api/v1/posts";
         PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
-                .title("title")
-                .content("content")
+                .title(title)
+                .content(content)
                 .build();
         ExceptionResponse exceptionResponse = ExceptionResponse.builder()
                 .success(false)
@@ -184,9 +182,9 @@ public class PostsApiControllerTest {
         String url = "/api/v1/posts/1";
         PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
                 .postsId(1l)
-                .title("title")
-                .content("content")
-                .userEmail("jk@jk.com")
+                .title(title)
+                .content(content)
+                .userEmail(email)
                 .build();
         ApiResponse<PostsFindResponseDto> apiResponse = ApiResponse.<PostsFindResponseDto>builder()
                 .success(true)
