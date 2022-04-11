@@ -16,11 +16,11 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class RedisTest {
 
     @Autowired
-    RedisTemplate redisTemplate;
+    RedisTemplate<String, Object> redisTemplate;
 
     HashOperations<String, String, Object> hashOperations;
 
-    static final String key = "jk@jk.com";
+    static final String key = "test";
     static final String hashKey = "test";
     static final String value = "true";
 
