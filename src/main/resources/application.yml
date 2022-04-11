@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://host.docker.internal:3306/board?characterEncoding=utf8&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: jkjk
+    password:
+
+  redis:
+    host: host.docker.internal
+    port: 6379
