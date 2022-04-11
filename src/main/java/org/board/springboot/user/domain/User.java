@@ -11,7 +11,7 @@ import java.util.List;
 
 @Getter
 @NoArgsConstructor
-@Entity
+@Entity(name = "user")
 public class User {
 
     @Id
