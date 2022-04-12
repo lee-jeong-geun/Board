@@ -25,13 +25,13 @@ public class UserSessionServiceTest {
     @InjectMocks
     private UserSessionService userSessionService;
 
-    private static final int TODAY_POSTS_COUNT_MAX = 10;
-    private static final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
+    private final int TODAY_POSTS_COUNT_MAX = 10;
+    private final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
+    private final String email = "jk@jk.com";
 
     @Test
     public void checkTodayRemainPostsCount_호출_성공() {
         //given
-        String email = "jk@jk.com";
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(true);
         given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(TODAY_POSTS_COUNT_MAX);
@@ -48,7 +48,6 @@ public class UserSessionServiceTest {
     @Test
     public void checkTodayRemainPostsCount_호출_성공_hasKey_값_false() {
         //given
-        String email = "jk@jk.com";
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(false);
 
@@ -63,7 +62,6 @@ public class UserSessionServiceTest {
     @Test(expected = IllegalStateException.class)
     public void checkTodayRemainPostsCount_호출_실패_에러처리() {
         //given
-        String email = "jk@jk.com";
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(true);
         given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(0);
@@ -75,7 +73,6 @@ public class UserSessionServiceTest {
     @Test
     public void updateTodayRemainPostsCount_호출_성공_hasKey_값_false() {
         //given
-        String email = "jk@jk.com";
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(false);
         given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(TODAY_POSTS_COUNT_MAX);
@@ -94,7 +91,6 @@ public class UserSessionServiceTest {
     @Test
     public void updateTodayRemainPostsCount_호출_성공_hasKey_값_true() {
         //given
-        String email = "jk@jk.com";
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(true);
         given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(TODAY_POSTS_COUNT_MAX);
@@ -113,7 +109,6 @@ public class UserSessionServiceTest {
     public void updateTodayRemainPostsCount_호출_성공_hasKey_값_true_remain_값_1() {
         //given
         int todayRemainPostsCount = 1;
-        String email = "jk@jk.com";
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(true);
         given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(todayRemainPostsCount);
