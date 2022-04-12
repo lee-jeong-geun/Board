@@ -29,4 +29,18 @@ public class UserSessionService {
         int remainPostsCount = Integer.parseInt(redisTemplate.opsForHash().get(email, TODAY_REMAIN_POSTS_COUNT).toString()) - 1;
         redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT, String.valueOf(remainPostsCount));
     }
+
+    public void validateLoginEmailState(String email) {
+        if (redisTemplate.opsForHash().hasKey(email, "login")) {
+            throw new IllegalArgumentException("해당 아이디는 다른곳에서 로그인 중입니다.");
+        }
+    }
+
+    public void createLoginState(String email) {
+        redisTemplate.opsForHash().put(email, "login", "true");
+    }
+
+    public void deleteLoginState(String email) {
+        redisTemplate.opsForHash().delete(email, "login");
+    }
 }
