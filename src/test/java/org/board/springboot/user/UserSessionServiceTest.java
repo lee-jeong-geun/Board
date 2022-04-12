@@ -122,4 +122,18 @@ public class UserSessionServiceTest {
         then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT);
         then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT, String.valueOf(todayRemainPostsCount - 1));
     }
+
+    @Test
+    public void validateLoginEmailState_호출_성공_hasKey_값_false() {
+        //given
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(hashOperations.hasKey(email, "login")).willReturn(false);
+
+        //when
+        userSessionService.validateLoginEmailState(email);
+
+        //then
+        then(redisTemplate).should().opsForHash();
+        then(hashOperations).should().hasKey(email, "login");
+    }
 }
