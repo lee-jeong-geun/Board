@@ -136,4 +136,14 @@ public class UserSessionServiceTest {
         then(redisTemplate).should().opsForHash();
         then(hashOperations).should().hasKey(email, "login");
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateLoginEmailState_호출_실패_hasKey_값_true_에러처리() {
+        //given
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(hashOperations.hasKey(email, "login")).willReturn(true);
+
+        //when
+        userSessionService.validateLoginEmailState(email);
+    }
 }
