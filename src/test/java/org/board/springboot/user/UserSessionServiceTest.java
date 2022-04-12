@@ -146,4 +146,17 @@ public class UserSessionServiceTest {
         //when
         userSessionService.validateLoginEmailState(email);
     }
+
+    @Test
+    public void createLoginState_호출_성공() {
+        //given
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+
+        //when
+        userSessionService.createLoginState(email);
+
+        //then
+        then(redisTemplate).should().opsForHash();
+        then(hashOperations).should().put(email, "login", "true");
+    }
 }
