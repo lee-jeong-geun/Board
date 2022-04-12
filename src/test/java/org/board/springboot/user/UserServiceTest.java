@@ -34,10 +34,11 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
+    private final String email = "jk@jk.com";
+
     @Test
     public void 유저저장_호출_성공() throws Exception {
         //given
-        String email = "jk@jk.com";
         User user = User.builder().build();
         Field field = user.getClass().getDeclaredField("id");
         field.setAccessible(true);
@@ -59,7 +60,6 @@ public class UserServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void 유저저장_호출_에러() {
         //given
-        String email = "jk@jk.com";
         UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder().email(email).build();
         given(userRepository.findByEmail(userSaveRequestDto.getEmail())).willReturn(Optional.of(User.builder().build()));
 
@@ -71,7 +71,6 @@ public class UserServiceTest {
     public void 유저탐색_호출_성공() {
         //given
         String name = "jk";
-        String email = "jk@jk.com";
         String password = "jkjk";
         UserFindRequestDto userFindRequestDto = UserFindRequestDto.builder()
                 .email(email)
@@ -95,7 +94,6 @@ public class UserServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void 유저탐색_호출_에러() {
         //given
-        String email = "jk@jk.com";
         String password = "jkjk";
         UserFindRequestDto userFindRequestDto = UserFindRequestDto.builder()
                 .email(email)
@@ -110,7 +108,6 @@ public class UserServiceTest {
     @Test
     public void 유저탐색_이메일_호출_성공() {
         //given
-        String email = "jk@jk.com";
         User user = User.builder()
                 .email(email)
                 .build();
@@ -127,7 +124,6 @@ public class UserServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void 유저탐색_이메일_호출_실패_에러() {
         //given
-        String email = "jk@jk.com";
         given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when
@@ -137,7 +133,6 @@ public class UserServiceTest {
     @Test
     public void 유저_게시글_조회_호출_성공() {
         //given
-        String email = "jk@jk.com";
         User user = User.builder()
                 .email(email)
                 .build();
@@ -169,7 +164,6 @@ public class UserServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void 유저_게시글_조회_호출_실패_에러() {
         //given
-        String email = "jk@jk.com";
         given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when
