@@ -159,4 +159,17 @@ public class UserSessionServiceTest {
         then(redisTemplate).should().opsForHash();
         then(hashOperations).should().put(email, "login", "true");
     }
+
+    @Test
+    public void deleteLoginState_호출_성공() {
+        //given
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+
+        //when
+        userSessionService.deleteLoginState(email);
+
+        //then
+        then(redisTemplate).should().opsForHash();
+        then(hashOperations).should().delete(email, "login");
+    }
 }
