@@ -1,4 +1,4 @@
-package org.board.springboot.user;
+package org.board.springboot.redis;
 
 import org.board.springboot.redis.user.UserSessionService;
 import org.junit.Test;
@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+
+import java.time.LocalDateTime;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -26,7 +28,9 @@ public class UserSessionServiceTest {
     private UserSessionService userSessionService;
 
     private final int TODAY_POSTS_COUNT_MAX = 10;
+    private final int POSTS_SAVE_INTERVAL_TIME = 5;
     private final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
+    private final String LAST_POSTS_SAVE_TIME = "lastPostsSaveTime";
     private final String email = "jk@jk.com";
 
     @Test
@@ -171,5 +175,21 @@ public class UserSessionServiceTest {
         //then
         then(redisTemplate).should().opsForHash();
         then(hashOperations).should().delete(email, "login");
+    }
+
+    @Test
+    public void checkLastPostsSaveTime_호출_성공() {
+        //given
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(hashOperations.hasKey(email, LAST_POSTS_SAVE_TIME)).willReturn(true);
+        given(hashOperations.get(email, LAST_POSTS_SAVE_TIME)).willReturn(LocalDateTime.now().minusSeconds(POSTS_SAVE_INTERVAL_TIME));
+
+        //when
+        userSessionService.checkLastPostsSaveTime(email);
+
+        //then
+        then(redisTemplate).should(times(2)).opsForHash();
+        then(hashOperations).should().hasKey(email, LAST_POSTS_SAVE_TIME);
+        then(hashOperations).should().get(email, LAST_POSTS_SAVE_TIME);
     }
 }
