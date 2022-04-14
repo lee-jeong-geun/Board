@@ -5,7 +5,7 @@ import org.board.springboot.auth.dto.LoginRequestDto;
 import org.board.springboot.auth.dto.LoginUserResponseDto;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.service.UserService;
-import org.board.springboot.user.service.UserSessionService;
+import org.board.springboot.redis.user.UserSessionService;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;

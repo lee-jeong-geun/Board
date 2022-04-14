@@ -7,7 +7,7 @@ import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.posts.dto.PostsSaveRequestBody;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
 import org.board.springboot.posts.service.PostsService;
-import org.board.springboot.user.service.UserSessionService;
+import org.board.springboot.redis.user.UserSessionService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;

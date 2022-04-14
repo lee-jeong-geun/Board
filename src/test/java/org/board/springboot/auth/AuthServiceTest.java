@@ -6,7 +6,7 @@ import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.service.UserService;
-import org.board.springboot.user.service.UserSessionService;
+import org.board.springboot.redis.user.UserSessionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;

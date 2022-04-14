@@ -1,4 +1,4 @@
-package org.board.springboot.user.service;
+package org.board.springboot.redis.user;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
