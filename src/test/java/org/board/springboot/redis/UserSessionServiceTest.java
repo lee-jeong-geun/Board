@@ -203,4 +203,18 @@ public class UserSessionServiceTest {
         //when
         userSessionService.checkLastPostsSaveTime(email);
     }
+
+    @Test
+    public void checkLastPostsSaveTime_호출_성공_hasKey_값_false() {
+        //given
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(hashOperations.hasKey(email, LAST_POSTS_SAVE_TIME)).willReturn(false);
+
+        //when
+        userSessionService.checkLastPostsSaveTime(email);
+
+        //then
+        then(redisTemplate).should().opsForHash();
+        then(hashOperations).should().hasKey(email, LAST_POSTS_SAVE_TIME);
+    }
 }
