@@ -192,4 +192,15 @@ public class UserSessionServiceTest {
         then(hashOperations).should().hasKey(email, LAST_POSTS_SAVE_TIME);
         then(hashOperations).should().get(email, LAST_POSTS_SAVE_TIME);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void checkLastPostsSaveTime_호출_실패_POSTS_SAVE_INTERVAL_TIME_미만값_에러처리() {
+        //given
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(hashOperations.hasKey(email, LAST_POSTS_SAVE_TIME)).willReturn(true);
+        given(hashOperations.get(email, LAST_POSTS_SAVE_TIME)).willReturn(LocalDateTime.now().minusSeconds(POSTS_SAVE_INTERVAL_TIME - 1));
+
+        //when
+        userSessionService.checkLastPostsSaveTime(email);
+    }
 }
