@@ -68,10 +68,12 @@ public class PostsApiController {
 
     private void checkSessionStateByEmail(String email) {
         userSessionService.checkTodayRemainPostsCount(email);
+        userSessionService.checkLastPostsSaveTime(email);
     }
 
     private void updateSessionStateByEmail(String email) {
         userSessionService.updateTodayRemainPostsCount(email);
+        userSessionService.updateLastPostsSaveTime(email);
     }
 
     @ExceptionHandler(IllegalStateException.class)
