@@ -153,6 +153,38 @@ public class PostsApiControllerTest {
     }
 
     @Test
+    public void 게시글_등록_실패_게시글_간격_5초_미만_에러처리() throws Exception {
+        //given
+        String url = "/api/v1/posts";
+        boolean success = false;
+        long id = 1;
+        PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
+                .title(title)
+                .content(content)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(success)
+                .message("게시글은 4초 뒤에 작성 가능합니다.")
+                .build();
+        given(mockHttpSession.getAttribute("login")).willReturn(email);
+        given(postsService.save(any())).willReturn(id);
+        willThrow(new IllegalStateException("게시글은 4초 뒤에 작성 가능합니다.")).given(userSessionService).checkLastPostsSaveTime(email);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(postsSaveRequestBody))
+                .session(mockHttpSession));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(mockHttpSession).should(times(2)).getAttribute("login");
+        then(userSessionService).should().checkTodayRemainPostsCount(email);
+        then(userSessionService).should().checkLastPostsSaveTime(email);
+    }
+
+    @Test
     public void 게시글_등록_실패_로그인상태_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts";
