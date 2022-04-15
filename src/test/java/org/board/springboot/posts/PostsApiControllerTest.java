@@ -113,7 +113,9 @@ public class PostsApiControllerTest {
         then(mockHttpSession).should(times(2)).getAttribute("login");
         then(postsService).should().save(argumentCaptor.capture());
         then(userSessionService).should().checkTodayRemainPostsCount(email);
+        then(userSessionService).should().checkLastPostsSaveTime(email);
         then(userSessionService).should().updateTodayRemainPostsCount(email);
+        then(userSessionService).should().updateLastPostsSaveTime(email);
         BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
         BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
         BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
