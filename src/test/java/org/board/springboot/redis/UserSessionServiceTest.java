@@ -5,7 +5,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
@@ -15,7 +17,8 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-@RunWith(MockitoJUnitRunner.class)
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({UserSessionService.class})
 public class UserSessionServiceTest {
 
     @Mock
@@ -216,5 +219,21 @@ public class UserSessionServiceTest {
         //then
         then(redisTemplate).should().opsForHash();
         then(hashOperations).should().hasKey(email, LAST_POSTS_SAVE_TIME);
+    }
+
+    @Test
+    public void updateLastPostsSaveTime_호출_성공() {
+        //given
+        LocalDateTime current = LocalDateTime.now();
+        PowerMockito.mockStatic(LocalDateTime.class);
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(LocalDateTime.now()).willReturn(current);
+
+        //when
+        userSessionService.updateLastPostsSaveTime(email);
+
+        //then
+        then(redisTemplate).should().opsForHash();
+        then(hashOperations).should().put(email, LAST_POSTS_SAVE_TIME, String.valueOf(current));
     }
 }
