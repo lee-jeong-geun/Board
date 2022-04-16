@@ -23,13 +23,13 @@ public class UserRepositoryTest {
         userRepository.deleteAll();
     }
 
+    private final String name = "jk";
+    private final String email = "jk@jk.com";
+    private final String password = "jkjk";
 
     @Test
     public void 유저저장_성공() {
         //given
-        String name = "jk";
-        String email = "jk@jk.com";
-        String password = "jkjk";
 
         //when
         userRepository.save(User.builder()
@@ -48,9 +48,6 @@ public class UserRepositoryTest {
     @Test
     public void 유저삭제_성공() {
         //given
-        String name = "jk";
-        String email = "jk@jk.com";
-        String password = "jkjk";
         userRepository.save(User.builder()
                 .name(name)
                 .email(email)
@@ -67,9 +64,6 @@ public class UserRepositoryTest {
     @Test
     public void 유저수정_성공() {
         //given
-        String name = "jk";
-        String email = "jk@jk.com";
-        String password = "jkjk";
         String modifyName = "jk2";
         User user = userRepository.save(User.builder()
                 .name(name)
@@ -88,9 +82,6 @@ public class UserRepositoryTest {
     @Test
     public void 유저조회_이메일_비밀번호_성공() {
         //given
-        String name = "jk";
-        String email = "jk@jk.com";
-        String password = "jkjk";
         userRepository.save(User.builder()
                 .name(name)
                 .email(email)
@@ -108,9 +99,6 @@ public class UserRepositoryTest {
     @Test
     public void 유저조회_이메일_성공() {
         //given
-        String name = "jk";
-        String email = "jk@jk.com";
-        String password = "jkjk";
         userRepository.save(User.builder()
                 .name(name)
                 .email(email)
