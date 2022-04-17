@@ -23,7 +23,6 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -48,14 +47,18 @@ public class AuthApiControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
+    private final String name = "jk";
+    private final String email = "jk@jk.com";
+    private final String password = "jkjk";
+
     @Test
     public void 유저등록_호출_성공() throws Exception {
         //given
         Long id = 1l;
         RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
-                .name("jk")
-                .email("jk@jk.com")
-                .password("jkjk")
+                .name(name)
+                .email(email)
+                .password(password)
                 .build();
         ApiResponse<Long> apiResponse = ApiResponse.<Long>builder()
                 .success(true)
@@ -77,14 +80,12 @@ public class AuthApiControllerTest {
     @Test
     public void 로그인_호출_성공() throws Exception {
         //given
-        String email = "jk@jk.com";
-
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
-                .password("jkjk")
+                .password(password)
                 .build();
         LoginUserResponseDto loginUserResponseDto = LoginUserResponseDto.builder()
-                .name("jk")
+                .name(name)
                 .email(email)
                 .build();
         ApiResponse<LoginUserResponseDto> apiResponse = ApiResponse.<LoginUserResponseDto>builder()
@@ -109,8 +110,8 @@ public class AuthApiControllerTest {
         //given
         String message = "해당 유저가 없습니다.";
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
-                .email("jk@jk.com")
-                .password("jkjk")
+                .email(email)
+                .password(password)
                 .build();
         ExceptionResponse exceptionResponse = ExceptionResponse.builder()
                 .success(false)
