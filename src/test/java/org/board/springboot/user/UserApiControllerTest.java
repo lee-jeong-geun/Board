@@ -8,7 +8,6 @@ import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.user.controller.UserApiController;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.dto.UserAndPostsFindResponseDto;
-import org.board.springboot.user.dto.UserFindPostsListResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
@@ -20,9 +19,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -44,11 +40,12 @@ public class UserApiControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    private final String email = "jk@jk.com";
+
     @Test
     public void 유저저장_호출_성공() throws Exception {
         //given
         String name = "jk";
-        String email = "jk@jk.com";
         String password = "jkjk";
         UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder()
                 .name(name)
@@ -72,7 +69,6 @@ public class UserApiControllerTest {
     @Test
     public void 유저_게시글_호출_성공() throws Exception {
         //given
-        String email = "jk@jk.com";
         String url = "http://localhost:8080/api/v1/users/" + email;
         User user = User.builder()
                 .email(email)
@@ -107,7 +103,6 @@ public class UserApiControllerTest {
     @Test
     public void 유저_게시글_호출_실패_에러처리() throws Exception {
         //given
-        String email = "jk@jk.com";
         String url = "http://localhost:8080/api/v1/users/" + email;
         String message = "해당 유저가 없습니다.";
         given(userService.findByEmail(email)).willThrow(new IllegalArgumentException(message));
