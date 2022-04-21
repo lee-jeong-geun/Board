@@ -35,6 +35,7 @@ public class UserServiceTest {
     private UserService userService;
 
     private final String email = "jk@jk.com";
+    private final String password = "jkjk";
 
     @Test
     public void 유저저장_호출_성공() throws Exception {
@@ -71,7 +72,6 @@ public class UserServiceTest {
     public void 유저탐색_호출_성공() {
         //given
         String name = "jk";
-        String password = "jkjk";
         UserFindRequestDto userFindRequestDto = UserFindRequestDto.builder()
                 .email(email)
                 .password(password)
@@ -94,7 +94,6 @@ public class UserServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void 유저탐색_호출_에러() {
         //given
-        String password = "jkjk";
         UserFindRequestDto userFindRequestDto = UserFindRequestDto.builder()
                 .email(email)
                 .password(password)
