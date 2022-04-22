@@ -35,6 +35,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-mustache'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "org.powermock:powermock-module-junit4:2.0.9"
