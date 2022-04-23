@@ -38,6 +38,5 @@ public class JWTServiceTest {
         assertThat(jwtParser.parseClaimsJws(jwt).getBody().getSubject()).isEqualTo(email);
         assertThat(now).isBefore(new Date());
         assertThat(jwtParser.parseClaimsJws(jwt).getBody().getExpiration().getTime()).isEqualTo(now.getTime() + 1000 * 60 * 30);
-        System.out.println(jwt);
     }
 }
