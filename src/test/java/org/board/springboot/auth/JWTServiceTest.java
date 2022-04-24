@@ -24,10 +24,11 @@ public class JWTServiceTest {
     @Autowired
     private Key key;
 
+    private String email = "jk@jk.com";
+
     @Test
     public void createJWT_호출_값_검증_성공() {
         //given
-        String email = "jk@jk.com";
         JwtParser jwtParser = Jwts.parserBuilder().setSigningKey(key).build();
 
         //when
@@ -38,5 +39,17 @@ public class JWTServiceTest {
         assertThat(jwtParser.parseClaimsJws(jwt).getBody().getSubject()).isEqualTo(email);
         assertThat(now).isBefore(new Date());
         assertThat(jwtParser.parseClaimsJws(jwt).getBody().getExpiration().getTime()).isEqualTo(now.getTime() + 1000 * 60 * 30);
+    }
+
+    @Test
+    public void validateJWT_호출_성공() {
+        //given
+        String jwt = jwtService.createJWT(email);
+
+        //when
+        boolean result = jwtService.validateJWT(jwt);
+
+        //then
+        assertThat(result).isEqualTo(true);
     }
 }
