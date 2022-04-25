@@ -52,4 +52,16 @@ public class JWTServiceTest {
         //then
         assertThat(result).isEqualTo(true);
     }
+
+    @Test
+    public void getEmail_호출_성공() {
+        //given
+        String jwt = jwtService.createJWT(email);
+
+        //when
+        String resultEmail = jwtService.getEmail(jwt);
+
+        //then
+        assertThat(resultEmail).isEqualTo(email);
+    }
 }
