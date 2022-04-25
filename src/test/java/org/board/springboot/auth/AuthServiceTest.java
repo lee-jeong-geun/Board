@@ -113,12 +113,27 @@ public class AuthServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void logout_세션_null_값_호출_실패_에러() {
+    public void logout_토큰_null_값_호출_실패_에러() {
         //given
         MockCookie[] mockCookies = new MockCookie[1];
         mockCookies[0] = mockCookie;
         given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
         given(mockCookie.getName()).willReturn("invalid");
+
+        //when
+        authService.logout(mockHttpServletRequest, mockHttpServletResponse);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void logout_토큰_not_null_invalid_값_호출_실패_에러() {
+        //given
+        String tokenValue = "invalid";
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(tokenValue);
+        given(jwtService.validateJWT(tokenValue)).willReturn(false);
 
         //when
         authService.logout(mockHttpServletRequest, mockHttpServletResponse);
