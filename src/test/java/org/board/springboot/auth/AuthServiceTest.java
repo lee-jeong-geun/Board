@@ -217,4 +217,27 @@ public class AuthServiceTest {
         BDDMockito.then(mockCookie).should().getName();
         then(result).isEqualTo(false);
     }
+
+    @Test
+    public void isLoggedIn_토큰_not_null_값_invalid_값_false_반환() {
+        //given
+        String tokenValue = "invalid";
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(tokenValue);
+        given(jwtService.validateJWT(tokenValue)).willReturn(false);
+
+        //when
+        boolean result = authService.isLoggedIn(mockHttpServletRequest);
+
+        //then
+        BDDMockito.then(mockHttpServletRequest).should().getCookies();
+        BDDMockito.then(mockCookie).should().getName();
+        BDDMockito.then(mockCookie).should().getValue();
+        BDDMockito.then(jwtService).should().validateJWT(tokenValue);
+        then(result).isEqualTo(false);
+    }
 }
