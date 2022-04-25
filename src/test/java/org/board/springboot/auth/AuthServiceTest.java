@@ -3,19 +3,21 @@ package org.board.springboot.auth;
 import org.board.springboot.auth.dto.LoginRequestDto;
 import org.board.springboot.auth.dto.LoginUserResponseDto;
 import org.board.springboot.auth.service.AuthService;
+import org.board.springboot.auth.service.JWTService;
+import org.board.springboot.redis.user.UserSessionService;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.service.UserService;
-import org.board.springboot.redis.user.UserSessionService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockCookie;
 
-import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.ArgumentMatchers.any;
@@ -28,12 +30,16 @@ public class AuthServiceTest {
 
     @Mock
     private UserService userService;
-
     @Mock
     private UserSessionService userSessionService;
-
     @Mock
-    private MockHttpSession mockHttpSession;
+    private JWTService jwtService;
+    @Mock
+    private HttpServletRequest mockHttpServletRequest;
+    @Mock
+    private HttpServletResponse mockHttpServletResponse;
+    @Mock
+    private MockCookie mockCookie;
 
     @InjectMocks
     private AuthService authService;
@@ -41,9 +47,10 @@ public class AuthServiceTest {
     private final String email = "jk@jk.com";
 
     @Test
-    public void login_userService_호출_성공() {
+    public void login_호출_성공() {
         //given
         String name = "jk";
+        String tokenValue = "valid";
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
                 .build();
@@ -51,18 +58,29 @@ public class AuthServiceTest {
                 .name(name)
                 .email(email)
                 .build());
-        given(mockHttpSession.getAttribute("login")).willReturn(null);
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(tokenValue);
+        given(jwtService.validateJWT(tokenValue)).willReturn(false);
         given(userService.findByEmailAndPassword(any())).willReturn(userFindResponseDto);
+        given(jwtService.createJWT(email)).willReturn("valid");
 
         //when
-        LoginUserResponseDto result = authService.login(loginRequestDto, mockHttpSession);
+        LoginUserResponseDto result = authService.login(loginRequestDto, mockHttpServletRequest, mockHttpServletResponse);
 
         //then
-        BDDMockito.then(mockHttpSession).should().getAttribute("login");
+        BDDMockito.then(mockHttpServletRequest).should().getCookies();
+        BDDMockito.then(mockCookie).should().getName();
+        BDDMockito.then(mockCookie).should().getValue();
+        BDDMockito.then(jwtService).should().validateJWT(mockCookie.getValue());
         BDDMockito.then(userService).should().findByEmailAndPassword(any());
         BDDMockito.then(userSessionService).should().validateLoginEmailState(email);
         BDDMockito.then(userSessionService).should().createLoginState(email);
-        BDDMockito.then(mockHttpSession).should().setAttribute("login", email);
+        BDDMockito.then(jwtService).should().createJWT(email);
+        BDDMockito.then(mockHttpServletResponse).should().addCookie(any());
         then(result.getName()).isEqualTo(name);
         then(result.getEmail()).isEqualTo(email);
     }
@@ -70,45 +88,75 @@ public class AuthServiceTest {
     @Test
     public void logout_호출_성공() {
         //given
-        given(mockHttpSession.getAttribute("login")).willReturn(true);
+        String tokenValue = "valid";
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(tokenValue);
+        given(jwtService.validateJWT(tokenValue)).willReturn(true);
+        given(jwtService.getEmail(tokenValue)).willReturn(email);
 
         //when
-        boolean result = authService.logout(mockHttpSession);
+        boolean result = authService.logout(mockHttpServletRequest, mockHttpServletResponse);
 
         //then
-        BDDMockito.then(mockHttpSession).should(times(2)).getAttribute("login");
-        BDDMockito.then(userSessionService).should().deleteLoginState(mockHttpSession.getAttribute("login").toString());
-        BDDMockito.then(mockHttpSession).should().removeAttribute("login");
+        BDDMockito.then(mockHttpServletRequest).should().getCookies();
+        BDDMockito.then(mockCookie).should().getName();
+        BDDMockito.then(mockCookie).should(times(2)).getValue();
+        BDDMockito.then(jwtService).should().validateJWT(tokenValue);
+        BDDMockito.then(jwtService).should().getEmail(tokenValue);
+        BDDMockito.then(userSessionService).should().deleteLoginState(email);
+        BDDMockito.then(mockCookie).should().setMaxAge(0);
+        BDDMockito.then(mockHttpServletResponse).should().addCookie(mockCookie);
         then(result).isEqualTo(true);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void logout_세션_null_값_호출_실패_에러() {
         //given
-        given(mockHttpSession.getAttribute("login")).willReturn(null);
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("invalid");
 
         //when
-        authService.logout(mockHttpSession);
+        authService.logout(mockHttpServletRequest, mockHttpServletResponse);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void login_조회_실패_에러() {
         //given
+        String tokenValue = "valid";
         LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(tokenValue);
+        given(jwtService.validateJWT(tokenValue)).willReturn(false);
         given(userService.findByEmailAndPassword(any())).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
 
         //when
-        authService.login(loginRequestDto, mockHttpSession);
+        authService.login(loginRequestDto, mockHttpServletRequest, mockHttpServletResponse);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void login_세션_not_null_값_호출_실패_에러() {
+    public void login_토큰_not_null_valid_값_호출_실패_에러() {
         //given
+        String tokenValue = "valid";
         LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
-        given(mockHttpSession.getAttribute("login")).willReturn(Optional.empty());
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(tokenValue);
+        given(jwtService.validateJWT(tokenValue)).willReturn(true);
 
         //when
-        authService.login(loginRequestDto, mockHttpSession);
+        authService.login(loginRequestDto, mockHttpServletRequest, mockHttpServletResponse);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -117,36 +165,56 @@ public class AuthServiceTest {
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
                 .build();
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("invalid");
         given(userService.findByEmailAndPassword(any())).willReturn(new UserFindResponseDto(User.builder().build()));
         willThrow(new IllegalArgumentException()).given(userSessionService).validateLoginEmailState(email);
 
         //when
-        authService.login(loginRequestDto, mockHttpSession);
+        authService.login(loginRequestDto, mockHttpServletRequest, mockHttpServletResponse);
     }
 
     @Test
-    public void 로그인_상태_확인_true_반환() {
+    public void isLoggedIn_true_반환() {
         //given
-        given(mockHttpSession.getAttribute("login")).willReturn(true);
+        String tokenValue = "valid";
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(tokenValue);
+        given(jwtService.validateJWT(tokenValue)).willReturn(true);
 
         //when
-        boolean result = authService.isLoggedIn(mockHttpSession);
+        boolean result = authService.isLoggedIn(mockHttpServletRequest);
 
         //then
-        BDDMockito.then(mockHttpSession).should().getAttribute("login");
+        BDDMockito.then(mockHttpServletRequest).should().getCookies();
+        BDDMockito.then(mockCookie).should().getName();
+        BDDMockito.then(mockCookie).should().getValue();
+        BDDMockito.then(jwtService).should().validateJWT(tokenValue);
         then(result).isEqualTo(true);
     }
 
     @Test
-    public void 로그인_상태_확인_false_반환() {
+    public void isLoggedIn_토큰_null_값_false_반환() {
         //given
-        given(mockHttpSession.getAttribute("login")).willReturn(null);
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("invalid");
 
         //when
-        boolean result = authService.isLoggedIn(mockHttpSession);
+        boolean result = authService.isLoggedIn(mockHttpServletRequest);
 
         //then
-        BDDMockito.then(mockHttpSession).should().getAttribute("login");
+        BDDMockito.then(mockHttpServletRequest).should().getCookies();
+        BDDMockito.then(mockCookie).should().getName();
         then(result).isEqualTo(false);
     }
 }
