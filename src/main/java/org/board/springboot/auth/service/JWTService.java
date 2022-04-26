@@ -23,4 +23,17 @@ public class JWTService {
                 .signWith(key)
                 .compact();
     }
+
+    public boolean validateJWT(String jwt) {
+        Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+        return true;
+    }
+
+    public String getEmail(String jwt) {
+        return Jwts.parserBuilder()
+                .setSigningKey(key).build()
+                .parseClaimsJws(jwt)
+                .getBody()
+                .getSubject();
+    }
 }
