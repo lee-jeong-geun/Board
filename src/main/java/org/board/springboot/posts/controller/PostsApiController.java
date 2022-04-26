@@ -1,6 +1,7 @@
 package org.board.springboot.posts.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
@@ -20,6 +21,7 @@ public class PostsApiController {
 
     private final PostsService postsService;
     private final UserSessionService userSessionService;
+    private final AuthService authService;
     private final HttpServletRequest httpServletRequest;
 
     @GetMapping("/api/v1/posts")
