@@ -10,6 +10,8 @@ import java.security.Key;
 @Configuration
 public class AuthConfig {
 
+    private final String secretKey = "qwertyu123iopasdfghjklzxcvbnmqwert456";
+
     @Bean
     public SignatureAlgorithm signatureAlgorithm() {
         return SignatureAlgorithm.HS256;
@@ -17,6 +19,6 @@ public class AuthConfig {
 
     @Bean
     public Key key() {
-        return Keys.secretKeyFor(signatureAlgorithm());
+        return Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 }
