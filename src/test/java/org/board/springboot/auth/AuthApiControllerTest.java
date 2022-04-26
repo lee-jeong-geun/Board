@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.ResultActions;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -68,6 +69,7 @@ public class AuthApiControllerTest {
         //then
         result.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(userService).should().save(any());
     }
 
     @Test
@@ -96,6 +98,7 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(authService).should().login(any());
     }
 
     @Test
@@ -121,6 +124,7 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(authService).should().login(any());
     }
 
     @Test
@@ -139,6 +143,7 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(authService).should().logout();
     }
 
     @Test
@@ -159,6 +164,7 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(authService).should().logout();
     }
 
     @Test
@@ -177,6 +183,7 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(authService).should().isLoggedIn();
     }
 
     @Test
@@ -195,5 +202,6 @@ public class AuthApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(authService).should().isLoggedIn();
     }
 }
