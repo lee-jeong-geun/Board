@@ -69,7 +69,7 @@ public class AuthServiceTest {
         given(jwtService.createJWT(email)).willReturn("valid");
 
         //when
-        LoginUserResponseDto result = authService.login(loginRequestDto, mockHttpServletRequest, mockHttpServletResponse);
+        LoginUserResponseDto result = authService.login(loginRequestDto);
 
         //then
         BDDMockito.then(mockHttpServletRequest).should().getCookies();
@@ -98,7 +98,7 @@ public class AuthServiceTest {
         given(jwtService.getEmail(tokenValue)).willReturn(email);
 
         //when
-        boolean result = authService.logout(mockHttpServletRequest, mockHttpServletResponse);
+        boolean result = authService.logout();
 
         //then
         BDDMockito.then(mockHttpServletRequest).should().getCookies();
@@ -121,7 +121,7 @@ public class AuthServiceTest {
         given(mockCookie.getName()).willReturn("invalid");
 
         //when
-        authService.logout(mockHttpServletRequest, mockHttpServletResponse);
+        authService.logout();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -136,7 +136,7 @@ public class AuthServiceTest {
         given(jwtService.validateJWT(tokenValue)).willReturn(false);
 
         //when
-        authService.logout(mockHttpServletRequest, mockHttpServletResponse);
+        authService.logout();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -154,7 +154,7 @@ public class AuthServiceTest {
         given(userService.findByEmailAndPassword(any())).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
 
         //when
-        authService.login(loginRequestDto, mockHttpServletRequest, mockHttpServletResponse);
+        authService.login(loginRequestDto);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -171,7 +171,7 @@ public class AuthServiceTest {
         given(jwtService.validateJWT(tokenValue)).willReturn(true);
 
         //when
-        authService.login(loginRequestDto, mockHttpServletRequest, mockHttpServletResponse);
+        authService.login(loginRequestDto);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -189,7 +189,7 @@ public class AuthServiceTest {
         willThrow(new IllegalArgumentException()).given(userSessionService).validateLoginEmailState(email);
 
         //when
-        authService.login(loginRequestDto, mockHttpServletRequest, mockHttpServletResponse);
+        authService.login(loginRequestDto);
     }
 
     @Test
@@ -205,7 +205,7 @@ public class AuthServiceTest {
         given(jwtService.validateJWT(tokenValue)).willReturn(true);
 
         //when
-        boolean result = authService.isLoggedIn(mockHttpServletRequest);
+        boolean result = authService.isLoggedIn();
 
         //then
         BDDMockito.then(mockHttpServletRequest).should().getCookies();
@@ -225,7 +225,7 @@ public class AuthServiceTest {
         given(mockCookie.getName()).willReturn("invalid");
 
         //when
-        boolean result = authService.isLoggedIn(mockHttpServletRequest);
+        boolean result = authService.isLoggedIn();
 
         //then
         BDDMockito.then(mockHttpServletRequest).should().getCookies();
@@ -246,7 +246,7 @@ public class AuthServiceTest {
         given(jwtService.validateJWT(tokenValue)).willReturn(false);
 
         //when
-        boolean result = authService.isLoggedIn(mockHttpServletRequest);
+        boolean result = authService.isLoggedIn();
 
         //then
         BDDMockito.then(mockHttpServletRequest).should().getCookies();
