@@ -3,12 +3,14 @@ package org.board.springboot.auth.service;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.auth.dto.LoginRequestDto;
 import org.board.springboot.auth.dto.LoginUserResponseDto;
+import org.board.springboot.redis.user.UserSessionService;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.service.UserService;
-import org.board.springboot.redis.user.UserSessionService;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @Service
@@ -16,43 +18,60 @@ public class AuthService {
 
     private final UserService userService;
     private final UserSessionService userSessionService;
+    private final JWTService jwtService;
+    private final HttpServletRequest httpServletRequest;
+    private final HttpServletResponse httpServletResponse;
 
-    public LoginUserResponseDto login(LoginRequestDto loginRequestDto, HttpSession httpSession) {
-        validateLoginState(httpSession);
+    public LoginUserResponseDto login(LoginRequestDto loginRequestDto) {
+        validateLoginState();
 
         UserFindResponseDto userFindResponseDto = userService.findByEmailAndPassword(loginRequestDto.toUserFindRequestDto());
 
         userSessionService.validateLoginEmailState(loginRequestDto.getEmail());
         userSessionService.createLoginState(loginRequestDto.getEmail());
 
-        httpSession.setAttribute("login", loginRequestDto.getEmail());
+        httpServletResponse.addCookie(new Cookie("token", jwtService.createJWT(loginRequestDto.getEmail())));
         return LoginUserResponseDto.builder()
                 .name(userFindResponseDto.getName())
                 .email(userFindResponseDto.getEmail())
                 .build();
     }
 
-    private void validateLoginState(HttpSession httpSession) {
-        if (httpSession.getAttribute("login") != null) {
+    private void validateLoginState() {
+        Cookie tokenCookie = getCookie(httpServletRequest.getCookies(), "token");
+        if (tokenCookie != null && jwtService.validateJWT(tokenCookie.getValue())) {
             throw new IllegalArgumentException("이미 로그인 상태입니다.");
         }
     }
 
-    public boolean logout(HttpSession httpSession) {
-        validateLogoutState(httpSession);
+    public boolean logout() {
+        Cookie tokenCookie = getCookie(httpServletRequest.getCookies(), "token");
+        validateLogoutState(tokenCookie);
 
-        userSessionService.deleteLoginState(httpSession.getAttribute("login").toString());
-        httpSession.removeAttribute("login");
+        userSessionService.deleteLoginState(jwtService.getEmail(tokenCookie.getValue()));
+
+        tokenCookie.setMaxAge(0);
+        httpServletResponse.addCookie(tokenCookie);
         return true;
     }
 
-    private void validateLogoutState(HttpSession httpSession) {
-        if (httpSession.getAttribute("login") == null) {
+    private void validateLogoutState(Cookie tokenCookie) {
+        if (tokenCookie == null || !jwtService.validateJWT(tokenCookie.getValue())) {
             throw new IllegalArgumentException("로그인 상태가 아닙니다.");
         }
     }
 
-    public boolean isLoggedIn(HttpSession httpSession) {
-        return httpSession.getAttribute("login") != null;
+    public boolean isLoggedIn() {
+        Cookie tokenCookie = getCookie(httpServletRequest.getCookies(), "token");
+        return tokenCookie != null && jwtService.validateJWT(tokenCookie.getValue());
+    }
+
+    private Cookie getCookie(Cookie[] cookies, String name) {
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(name)) {
+                return cookie;
+            }
+        }
+        return null;
     }
 }
