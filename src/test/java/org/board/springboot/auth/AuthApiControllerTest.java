@@ -11,12 +11,10 @@ import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -34,13 +32,8 @@ public class AuthApiControllerTest {
 
     @MockBean
     UserService userService;
-
     @MockBean
     AuthService authService;
-
-    @Mock
-    MockHttpSession mockHttpSession;
-
     @Autowired
     MockMvc mockMvc;
 
@@ -93,7 +86,7 @@ public class AuthApiControllerTest {
                 .response(loginUserResponseDto)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/login";
-        given(authService.login(any(), any())).willReturn(loginUserResponseDto);
+        given(authService.login(any())).willReturn(loginUserResponseDto);
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
@@ -118,7 +111,7 @@ public class AuthApiControllerTest {
                 .message(message)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/login";
-        given(authService.login(any(), any())).willThrow(new IllegalArgumentException(message));
+        given(authService.login(any())).willThrow(new IllegalArgumentException(message));
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
@@ -138,11 +131,10 @@ public class AuthApiControllerTest {
                 .response(null)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/logout";
-        given(authService.logout(mockHttpSession)).willReturn(true);
+        given(authService.logout()).willReturn(true);
 
         //when
-        ResultActions resultActions = mockMvc.perform(post(url)
-                .session(mockHttpSession));
+        ResultActions resultActions = mockMvc.perform(post(url));
 
         //then
         resultActions.andExpect(status().isOk())
@@ -159,11 +151,10 @@ public class AuthApiControllerTest {
                 .message(message)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/logout";
-        given(authService.logout(mockHttpSession)).willThrow(new IllegalArgumentException(message));
+        given(authService.logout()).willThrow(new IllegalArgumentException(message));
 
         //when
-        ResultActions resultActions = mockMvc.perform(post(url)
-                .session(mockHttpSession));
+        ResultActions resultActions = mockMvc.perform(post(url));
 
         //then
         resultActions.andExpect(status().isOk())
@@ -178,12 +169,10 @@ public class AuthApiControllerTest {
                 .response(true)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/logged-in";
-        given(mockHttpSession.getAttribute("login")).willReturn(true);
-        given(authService.isLoggedIn(mockHttpSession)).willReturn(true);
+        given(authService.isLoggedIn()).willReturn(true);
 
         //when
-        ResultActions resultActions = mockMvc.perform(get(url)
-                .session(mockHttpSession));
+        ResultActions resultActions = mockMvc.perform(get(url));
 
         //then
         resultActions.andExpect(status().isOk())
@@ -198,12 +187,10 @@ public class AuthApiControllerTest {
                 .response(false)
                 .build();
         String url = "http://localhost:8080/api/v1/auth/logged-in";
-        given(mockHttpSession.getAttribute("login")).willReturn(false);
-        given(authService.isLoggedIn(mockHttpSession)).willReturn(false);
+        given(authService.isLoggedIn()).willReturn(false);
 
         //when
-        ResultActions resultActions = mockMvc.perform(get(url)
-                .session(mockHttpSession));
+        ResultActions resultActions = mockMvc.perform(get(url));
 
         //then
         resultActions.andExpect(status().isOk())
