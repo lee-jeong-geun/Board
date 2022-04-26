@@ -11,15 +11,12 @@ import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-
 @RequiredArgsConstructor
 @RestController
 public class AuthApiController {
 
     private final UserService userService;
     private final AuthService authService;
-    private final HttpServletRequest httpServletRequest;
 
     @PostMapping("/api/v1/auth/register")
     public ApiResponse<Long> register(@RequestBody RegisterRequestDto requestDto) {
@@ -37,7 +34,7 @@ public class AuthApiController {
 
     @PostMapping("/api/v1/auth/login")
     public ApiResponse<LoginUserResponseDto> login(@RequestBody LoginRequestDto requestDto) {
-        LoginUserResponseDto loginUserResponseDto = authService.login(requestDto, httpServletRequest.getSession());
+        LoginUserResponseDto loginUserResponseDto = authService.login(requestDto);
         return ApiResponse.<LoginUserResponseDto>builder()
                 .success(true)
                 .response(loginUserResponseDto)
@@ -46,7 +43,7 @@ public class AuthApiController {
 
     @PostMapping("/api/v1/auth/logout")
     public ApiResponse<Void> logout() {
-        authService.logout(httpServletRequest.getSession());
+        authService.logout();
         return ApiResponse.<Void>builder()
                 .success(true)
                 .response(null)
@@ -57,7 +54,7 @@ public class AuthApiController {
     public ApiResponse<Boolean> isLoggedIn() {
         return ApiResponse.<Boolean>builder()
                 .success(true)
-                .response(authService.isLoggedIn(httpServletRequest.getSession()))
+                .response(authService.isLoggedIn())
                 .build();
     }
 
