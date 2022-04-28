@@ -218,18 +218,18 @@ public class PostsApiControllerTest {
                 .success(false)
                 .message("로그인 상태가 아닙니다.")
                 .build();
-        given(mockHttpSession.getAttribute("login")).willReturn(null);
+        given(authService.isLoggedIn()).willReturn(false);
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .session(mockHttpSession)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .content(objectMapper.writeValueAsString(postsSaveRequestBody)));
+                .content(objectMapper.writeValueAsString(postsSaveRequestBody))
+                .cookie(mockCookie));
 
         //then
-        then(mockHttpSession).should().getAttribute("login");
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(authService).should().isLoggedIn();
     }
 
     @Test
