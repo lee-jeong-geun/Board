@@ -2,6 +2,7 @@ package org.board.springboot.posts.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.auth.service.AuthService;
+import org.board.springboot.auth.service.JWTService;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
@@ -11,8 +12,8 @@ import org.board.springboot.posts.service.PostsService;
 import org.board.springboot.redis.user.UserSessionService;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class PostsApiController {
     private final PostsService postsService;
     private final UserSessionService userSessionService;
     private final AuthService authService;
+    private final JWTService jwtService;
     private final HttpServletRequest httpServletRequest;
 
     @GetMapping("/api/v1/posts")
@@ -34,11 +36,11 @@ public class PostsApiController {
 
     @PostMapping("/api/v1/posts")
     public ApiResponse<Long> postsSave(@RequestBody PostsSaveRequestBody postsSaveRequestBody) {
-        HttpSession httpSession = httpServletRequest.getSession();
+        validateLoginState();
 
-        validateLoginState(httpSession);
+        Cookie tokenCookie = getCookie(httpServletRequest.getCookies(), "token");
+        String email = jwtService.getEmail(tokenCookie.getValue());
 
-        String email = httpSession.getAttribute("login").toString();
         checkSessionStateByEmail(email);
         PostsSaveRequestDto postsSaveRequestDto = PostsSaveRequestDto.builder()
                 .title(postsSaveRequestBody.getTitle())
@@ -62,8 +64,8 @@ public class PostsApiController {
                 .build();
     }
 
-    private void validateLoginState(HttpSession httpSession) {
-        if (httpSession.getAttribute("login") == null) {
+    private void validateLoginState() {
+        if (!authService.isLoggedIn()) {
             throw new IllegalStateException("로그인 상태가 아닙니다.");
         }
     }
@@ -84,5 +86,17 @@ public class PostsApiController {
                 .success(false)
                 .message(exception.getMessage())
                 .build();
+    }
+
+    private Cookie getCookie(Cookie[] cookies, String name) {
+        if (cookies == null) {
+            return null;
+        }
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals(name)) {
+                return cookie;
+            }
+        }
+        return null;
     }
 }
