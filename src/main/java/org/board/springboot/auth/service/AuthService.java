@@ -30,7 +30,9 @@ public class AuthService {
         userSessionService.validateLoginEmailState(loginRequestDto.getEmail());
         userSessionService.createLoginState(loginRequestDto.getEmail());
 
-        httpServletResponse.addCookie(new Cookie("token", jwtService.createJWT(loginRequestDto.getEmail())));
+        Cookie cookie = new Cookie("token", jwtService.createJWT(loginRequestDto.getEmail()));
+        cookie.setPath("/");
+        httpServletResponse.addCookie(cookie);
         return LoginUserResponseDto.builder()
                 .name(userFindResponseDto.getName())
                 .email(userFindResponseDto.getEmail())
@@ -67,6 +69,9 @@ public class AuthService {
     }
 
     private Cookie getCookie(Cookie[] cookies, String name) {
+        if (cookies == null) {
+            return null;
+        }
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals(name)) {
                 return cookie;
