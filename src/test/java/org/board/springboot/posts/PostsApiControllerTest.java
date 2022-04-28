@@ -182,7 +182,10 @@ public class PostsApiControllerTest {
                 .success(success)
                 .message("게시글은 4초 뒤에 작성 가능합니다.")
                 .build();
-        given(mockHttpSession.getAttribute("login")).willReturn(email);
+        given(authService.isLoggedIn()).willReturn(true);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn("valid");
+        given(jwtService.getEmail("valid")).willReturn(email);
         given(postsService.save(any())).willReturn(id);
         willThrow(new IllegalStateException("게시글은 4초 뒤에 작성 가능합니다.")).given(userSessionService).checkLastPostsSaveTime(email);
 
@@ -190,12 +193,15 @@ public class PostsApiControllerTest {
         ResultActions resultActions = mockMvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(postsSaveRequestBody))
-                .session(mockHttpSession));
+                .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
-        then(mockHttpSession).should(times(2)).getAttribute("login");
+        then(authService).should().isLoggedIn();
+        then(mockCookie).should(times(2)).getName();
+        then(mockCookie).should(times(3)).getValue();
+        then(jwtService).should().getEmail("valid");
         then(userSessionService).should().checkTodayRemainPostsCount(email);
         then(userSessionService).should().checkLastPostsSaveTime(email);
     }
