@@ -33,7 +33,8 @@ import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PostsApiController.class)
@@ -144,7 +145,10 @@ public class PostsApiControllerTest {
                 .success(success)
                 .message("오늘은 더이상 게시글을 올릴 수 없습니다.")
                 .build();
-        given(mockHttpSession.getAttribute("login")).willReturn(email);
+        given(authService.isLoggedIn()).willReturn(true);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn("valid");
+        given(jwtService.getEmail("valid")).willReturn(email);
         given(postsService.save(any())).willReturn(id);
         willThrow(new IllegalStateException("오늘은 더이상 게시글을 올릴 수 없습니다.")).given(userSessionService).checkTodayRemainPostsCount(email);
 
@@ -152,12 +156,15 @@ public class PostsApiControllerTest {
         ResultActions resultActions = mockMvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(postsSaveRequestBody))
-                .session(mockHttpSession));
+                .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
-        then(mockHttpSession).should(times(2)).getAttribute("login");
+        then(authService).should().isLoggedIn();
+        then(mockCookie).should(times(2)).getName();
+        then(mockCookie).should(times(3)).getValue();
+        then(jwtService).should().getEmail("valid");
         then(userSessionService).should().checkTodayRemainPostsCount(email);
     }
 
