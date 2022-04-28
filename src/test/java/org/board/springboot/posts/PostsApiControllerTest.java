@@ -2,6 +2,8 @@ package org.board.springboot.posts;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.assertj.core.api.BDDAssertions;
+import org.board.springboot.auth.service.AuthService;
+import org.board.springboot.auth.service.JWTService;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.controller.PostsApiController;
@@ -18,7 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpSession;
+import org.springframework.mock.web.MockCookie;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -31,8 +33,7 @@ import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(PostsApiController.class)
@@ -40,12 +41,14 @@ public class PostsApiControllerTest {
 
     @MockBean
     private PostsService postsService;
-
     @MockBean
     private UserSessionService userSessionService;
-
+    @MockBean
+    private AuthService authService;
+    @MockBean
+    private JWTService jwtService;
     @Mock
-    private MockHttpSession mockHttpSession;
+    private MockCookie mockCookie;
 
     @Autowired
     MockMvc mockMvc;
@@ -98,19 +101,25 @@ public class PostsApiControllerTest {
                 .response(id)
                 .build();
         ArgumentCaptor<PostsSaveRequestDto> argumentCaptor = ArgumentCaptor.forClass(PostsSaveRequestDto.class);
-        given(mockHttpSession.getAttribute("login")).willReturn(email);
+        given(authService.isLoggedIn()).willReturn(true);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn("valid");
+        given(jwtService.getEmail("valid")).willReturn(email);
         given(postsService.save(any())).willReturn(id);
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .content(objectMapper.writeValueAsString(postsSaveRequestBody))
-                .session(mockHttpSession));
+                .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
-        then(mockHttpSession).should(times(2)).getAttribute("login");
+        then(authService).should().isLoggedIn();
+        then(mockCookie).should(times(2)).getName();
+        then(mockCookie).should(times(3)).getValue();
+        then(jwtService).should().getEmail("valid");
         then(postsService).should().save(argumentCaptor.capture());
         then(userSessionService).should().checkTodayRemainPostsCount(email);
         then(userSessionService).should().checkLastPostsSaveTime(email);
