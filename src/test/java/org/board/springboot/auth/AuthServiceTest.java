@@ -106,6 +106,8 @@ public class AuthServiceTest {
         BDDMockito.then(mockCookie).should(times(2)).getValue();
         BDDMockito.then(jwtService).should().validateJWT(tokenValue);
         BDDMockito.then(jwtService).should().getEmail(tokenValue);
+        BDDMockito.then(mockCookie).should().setPath("/");
+        BDDMockito.then(mockCookie).should().setMaxAge(0);
         BDDMockito.then(userSessionService).should().deleteLoginState(email);
         BDDMockito.then(mockCookie).should().setMaxAge(0);
         BDDMockito.then(mockHttpServletResponse).should().addCookie(mockCookie);
