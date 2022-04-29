@@ -52,6 +52,7 @@ public class AuthService {
 
         userSessionService.deleteLoginState(jwtService.getEmail(tokenCookie.getValue()));
 
+        tokenCookie.setPath("/");
         tokenCookie.setMaxAge(0);
         httpServletResponse.addCookie(tokenCookie);
         return true;
