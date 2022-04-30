@@ -22,6 +22,8 @@ public class AuthService {
     private final HttpServletRequest httpServletRequest;
     private final HttpServletResponse httpServletResponse;
 
+    private static final int JWT_COOKIE_MAX_AGE = 60 * 30;
+
     public LoginUserResponseDto login(LoginRequestDto loginRequestDto) {
         validateLoginState();
 
@@ -31,6 +33,7 @@ public class AuthService {
         userSessionService.createLoginState(loginRequestDto.getEmail());
 
         Cookie cookie = new Cookie("token", jwtService.createJWT(loginRequestDto.getEmail()));
+        cookie.setMaxAge(JWT_COOKIE_MAX_AGE);
         cookie.setPath("/");
         httpServletResponse.addCookie(cookie);
         return LoginUserResponseDto.builder()
