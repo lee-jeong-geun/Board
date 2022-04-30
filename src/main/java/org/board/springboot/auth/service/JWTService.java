@@ -13,13 +13,15 @@ public class JWTService {
 
     private final Key key;
 
+    private static final int EXPIRATION = 1000 * 60 * 30;
+
     public String createJWT(String email) {
         Date now = new Date();
 
         return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() + 1000 * 60 * 30))
+                .setExpiration(new Date(now.getTime() + EXPIRATION))
                 .signWith(key)
                 .compact();
     }
