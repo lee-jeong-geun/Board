@@ -58,7 +58,8 @@ public class UserSessionService {
     }
 
     public void createLoginState(String email) {
-        redisTemplate.opsForHash().put(email, "login", "true");
+        LocalDateTime now = LocalDateTime.now();
+        redisTemplate.opsForHash().put(email, "login", String.valueOf(now.plusMinutes(LOGIN_SESSION_TIME)));
     }
 
     public void deleteLoginState(String email) {
