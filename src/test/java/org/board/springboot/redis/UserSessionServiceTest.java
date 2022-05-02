@@ -145,10 +145,16 @@ public class UserSessionServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void validateLoginEmailState_호출_실패_hasKey_값_true_에러처리() {
+    public void validateLoginEmailState_호출_실패_hasKey_값_true_isBefore_true_값_에러처리() {
         //given
+        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime expiredTime = current.plusMinutes(30);
+        PowerMockito.mockStatic(LocalDateTime.class);
+        given(LocalDateTime.now()).willReturn(current);
+        given(LocalDateTime.parse(expiredTime.toString())).willReturn(expiredTime);
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, "login")).willReturn(true);
+        given(hashOperations.get(email, "login")).willReturn(expiredTime);
 
         //when
         userSessionService.validateLoginEmailState(email);
