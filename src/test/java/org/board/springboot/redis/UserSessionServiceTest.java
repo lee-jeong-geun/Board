@@ -158,6 +158,27 @@ public class UserSessionServiceTest {
         then(hashOperations).should().hasKey(email, "login");
     }
 
+    @Test
+    public void validateLoginEmailState_호출_성공_hasKey_값_true_isBefore_false_값() {
+        //given
+        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime expiredTime = current.minusMinutes(30);
+        PowerMockito.mockStatic(LocalDateTime.class);
+        given(LocalDateTime.now()).willReturn(current);
+        given(LocalDateTime.parse(expiredTime.toString())).willReturn(expiredTime);
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(hashOperations.hasKey(email, "login")).willReturn(true);
+        given(hashOperations.get(email, "login")).willReturn(expiredTime);
+
+        //when
+        userSessionService.validateLoginEmailState(email);
+
+        //then
+        then(redisTemplate).should(times(2)).opsForHash();
+        then(hashOperations).should().hasKey(email, "login");
+        then(hashOperations).should().get(email, "login");
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void validateLoginEmailState_호출_실패_hasKey_값_true_isBefore_true_값_에러처리() {
         //given
