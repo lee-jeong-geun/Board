@@ -157,6 +157,10 @@ public class UserSessionServiceTest {
     @Test
     public void createLoginState_호출_성공() {
         //given
+        int loginSessionTime = 30;
+        LocalDateTime current = LocalDateTime.now();
+        PowerMockito.mockStatic(LocalDateTime.class);
+        given(LocalDateTime.now()).willReturn(current);
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
 
         //when
@@ -164,7 +168,7 @@ public class UserSessionServiceTest {
 
         //then
         then(redisTemplate).should().opsForHash();
-        then(hashOperations).should().put(email, "login", "true");
+        then(hashOperations).should().put(email, "login", String.valueOf(current.plusMinutes(loginSessionTime)));
     }
 
     @Test
