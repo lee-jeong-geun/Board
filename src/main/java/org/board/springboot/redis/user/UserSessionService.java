@@ -33,7 +33,7 @@ public class UserSessionService {
             return;
         }
         LocalDateTime lastSaveTime = LocalDateTime.parse(redisTemplate.opsForHash().get(email, LAST_POSTS_SAVE_TIME).toString());
-        long intervalTime =  ChronoUnit.SECONDS.between(lastSaveTime, LocalDateTime.now());
+        long intervalTime = ChronoUnit.SECONDS.between(lastSaveTime, LocalDateTime.now());
         if (intervalTime < POSTS_SAVE_INTERVAL_TIME) {
             throw new IllegalStateException(String.format("게시글은 %d초 뒤에 작성 가능합니다.", POSTS_SAVE_INTERVAL_TIME - intervalTime));
         }
@@ -52,7 +52,13 @@ public class UserSessionService {
     }
 
     public void validateLoginEmailState(String email) {
-        if (redisTemplate.opsForHash().hasKey(email, "login")) {
+        Boolean containsKey = redisTemplate.opsForHash().hasKey(email, "login");
+        if (containsKey == null || !containsKey) {
+            return;
+        }
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime expiredTime = LocalDateTime.parse(redisTemplate.opsForHash().get(email, "login").toString());
+        if (now.isBefore(expiredTime)) {
             throw new IllegalArgumentException("해당 아이디는 다른곳에서 로그인 중입니다.");
         }
     }
