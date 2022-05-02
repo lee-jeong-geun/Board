@@ -16,6 +16,7 @@ public class UserSessionService {
     private static final int POSTS_SAVE_INTERVAL_TIME = 5;
     private static final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
     private static final String LAST_POSTS_SAVE_TIME = "lastPostsSaveTime";
+    private static final int LOGIN_SESSION_TIME = 30;
 
     public void checkTodayRemainPostsCount(String email) {
         if (!redisTemplate.opsForHash().hasKey(email, TODAY_REMAIN_POSTS_COUNT)) {
