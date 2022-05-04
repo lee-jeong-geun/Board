@@ -53,6 +53,7 @@ public class PostsService {
                 .postsId(posts.getId())
                 .title(posts.getTitle())
                 .content(posts.getContent())
+                .viewCount(posts.getViewCount())
                 .userEmail(posts.getUser().getEmail())
                 .build();
     }
