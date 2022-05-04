@@ -179,4 +179,15 @@ public class PostsServiceTest {
         then(postsRepository).should().findById(id);
         BDDAssertions.then(result).isEqualTo(viewCount + updateCount);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void viewCountUpdateById_호출_실패_에러처리() {
+        //given
+        Long id = 1l;
+        int updateCount = 1;
+        given(postsRepository.findById(id)).willReturn(Optional.empty());
+
+        //when
+        postsService.viewCountUpdateById(id, updateCount);
+    }
 }
