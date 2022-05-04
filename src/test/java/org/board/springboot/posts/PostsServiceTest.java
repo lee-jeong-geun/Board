@@ -14,7 +14,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -120,12 +119,14 @@ public class PostsServiceTest {
     public void 포스트_검색_아이디_호출_성공() throws Exception {
         //given
         Long id = 1l;
+        int viewCount = 0;
         User user = User.builder()
                 .email(email)
                 .build();
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .viewCount(viewCount)
                 .user(user)
                 .build();
         Field field = posts.getClass().getDeclaredField("id");
@@ -141,6 +142,7 @@ public class PostsServiceTest {
         BDDAssertions.then(result.getPostsId()).isEqualTo(id);
         BDDAssertions.then(result.getTitle()).isEqualTo(title);
         BDDAssertions.then(result.getContent()).isEqualTo(content);
+        BDDAssertions.then(result.getViewCount()).isEqualTo(viewCount);
         BDDAssertions.then(result.getUserEmail()).isEqualTo(email);
     }
 
