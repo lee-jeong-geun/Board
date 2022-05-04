@@ -36,9 +36,11 @@ public class PostsRepositoryTest {
 
         String title = "title";
         String content = "content";
+        int viewCount = 0;
         Posts posts = Posts.builder()
                 .title(title)
                 .content(content)
+                .viewCount(viewCount)
                 .user(user)
                 .build();
         userRepository.save(user);
@@ -49,8 +51,8 @@ public class PostsRepositoryTest {
         //then
         then(result.getTitle()).isEqualTo(title);
         then(result.getContent()).isEqualTo(content);
+        then(result.getViewCount()).isEqualTo(viewCount);
         then(result.getUser().getName()).isEqualTo(name);
         then(result.getUser().getEmail()).isEqualTo(email);
     }
-
 }
