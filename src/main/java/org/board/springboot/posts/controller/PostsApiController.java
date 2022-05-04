@@ -58,6 +58,8 @@ public class PostsApiController {
 
     @GetMapping("/api/v1/posts/{id}")
     public ApiResponse<PostsFindResponseDto> findById(@PathVariable Long id) {
+        postsService.viewCountUpdateById(id, 1);
+
         return ApiResponse.<PostsFindResponseDto>builder()
                 .success(true)
                 .response(postsService.findById(id))
