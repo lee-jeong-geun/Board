@@ -154,4 +154,29 @@ public class PostsServiceTest {
         //when
         postsService.findById(1l);
     }
+
+    @Test
+    public void viewCountUpdateById_호출_성공() throws Exception {
+        //given
+        Long id = 1l;
+        int viewCount = 3;
+        int updateCount = 1;
+        User user = User.builder()
+                .build();
+        Posts posts = Posts.builder()
+                .viewCount(viewCount)
+                .user(user)
+                .build();
+        Field field = posts.getClass().getDeclaredField("id");
+        field.setAccessible(true);
+        field.set(posts, id);
+        given(postsRepository.findById(id)).willReturn(Optional.of(posts));
+
+        //when
+        int result = postsService.viewCountUpdateById(id, updateCount);
+
+        //then
+        then(postsRepository).should().findById(id);
+        BDDAssertions.then(result).isEqualTo(viewCount + updateCount);
+    }
 }
