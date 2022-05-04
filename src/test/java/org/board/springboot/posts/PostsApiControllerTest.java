@@ -64,11 +64,13 @@ public class PostsApiControllerTest {
     @Test
     public void 게시글_리스트_조회_성공() throws Exception {
         //given
+        int viewCount = 0;
         String url = "/api/v1/posts";
         PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
                 .postsId(1l)
                 .title(title)
                 .content(content)
+                .viewCount(viewCount)
                 .userEmail(email)
                 .build();
         List<PostsFindResponseDto> list = new ArrayList<>();
