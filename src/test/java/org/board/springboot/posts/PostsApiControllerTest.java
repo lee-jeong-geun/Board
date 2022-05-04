@@ -238,10 +238,12 @@ public class PostsApiControllerTest {
     public void 게시글_조회_아이디_성공() throws Exception {
         //given
         String url = "/api/v1/posts/1";
+        int viewCount = 0;
         PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
                 .postsId(1l)
                 .title(title)
                 .content(content)
+                .viewCount(viewCount)
                 .userEmail(email)
                 .build();
         ApiResponse<PostsFindResponseDto> apiResponse = ApiResponse.<PostsFindResponseDto>builder()
