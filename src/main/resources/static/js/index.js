@@ -1,6 +1,6 @@
 (() => {
     const makeBeforeLoginTemplate = () => {
-        let template = document.getElementById('beforeLoginTemplate').innerHTML
+        const template = document.getElementById('beforeLoginTemplate').innerHTML
         document.getElementById('loginContainer').innerHTML = template
         document.querySelector("#login").addEventListener('click', () => loginButtonEvent())
     }
@@ -83,13 +83,18 @@
             return element
         }
 
+        const createViewCountElement = (viewCount) => {
+            return createElementInnerText('td', viewCount)
+        }
+
         const tbody = document.getElementById('posts-list')
         list.forEach((element, index) => {
             const node = document.createElement('tr')
-            node.appendChild(createIndexElement(index + 1));
-            node.appendChild(createTitleElement(element.title, element.postsId));
-            node.appendChild(createUserEmailElement(element.userEmail));
-            tbody.appendChild(node);
+            node.appendChild(createIndexElement(index + 1))
+            node.appendChild(createTitleElement(element.title, element.postsId))
+            node.appendChild(createViewCountElement(element.viewCount))
+            node.appendChild(createUserEmailElement(element.userEmail))
+            tbody.appendChild(node)
         })
     }
 
