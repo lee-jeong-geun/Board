@@ -39,6 +39,7 @@ public class PostsService {
                         .postsId(p.getId())
                         .title(p.getTitle())
                         .content(p.getContent())
+                        .viewCount(p.getViewCount())
                         .userEmail(p.getUser().getEmail())
                         .build())
                 .collect(Collectors.toList());
