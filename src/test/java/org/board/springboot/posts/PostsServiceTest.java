@@ -75,6 +75,7 @@ public class PostsServiceTest {
     @Test
     public void 포스트_전체_검색_호출_성공() throws Exception {
         //given
+        int viewCount = 0;
         User user = User.builder()
                 .email(email)
                 .build();
@@ -82,6 +83,7 @@ public class PostsServiceTest {
         Posts posts1 = Posts.builder()
                 .title(title)
                 .content(content)
+                .viewCount(viewCount)
                 .user(user)
                 .build();
         Field field = posts1.getClass().getDeclaredField("id");
@@ -108,6 +110,7 @@ public class PostsServiceTest {
         BDDAssertions.then(result.get(0).getPostsId()).isEqualTo(1l);
         BDDAssertions.then(result.get(0).getTitle()).isEqualTo(title);
         BDDAssertions.then(result.get(0).getContent()).isEqualTo(content);
+        BDDAssertions.then(result.get(0).getViewCount()).isEqualTo(viewCount);
         BDDAssertions.then(result.get(0).getUserEmail()).isEqualTo(email);
         BDDAssertions.then(result.get(1).getPostsId()).isEqualTo(2l);
         BDDAssertions.then(result.get(1).getUserEmail()).isEqualTo(email);
