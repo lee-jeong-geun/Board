@@ -37,4 +37,8 @@ public class Posts {
         this.user = user;
         user.getPostsList().add(this);
     }
+
+    public void viewCountUpdate(int viewCount) {
+        this.viewCount = viewCount;
+    }
 }
