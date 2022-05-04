@@ -265,7 +265,7 @@ public class PostsApiControllerTest {
     }
 
     @Test
-    public void 게시글_조회_아이디_실패_에러처리() throws Exception {
+    public void 게시글_조회_아이디_findById_실패_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts/1";
         Long id = 1l;
@@ -284,5 +284,26 @@ public class PostsApiControllerTest {
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
         then(postsService).should().viewCountUpdateById(id, updateCount);
         then(postsService).should().findById(id);
+    }
+
+    @Test
+    public void 게시글_조회_아이디_viewCountUpdateById_실패_에러처리() throws Exception {
+        //given
+        String url = "/api/v1/posts/1";
+        Long id = 1l;
+        int updateCount = 1;
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("해당 게시글이 없습니다.")
+                .build();
+        given(postsService.viewCountUpdateById(id, updateCount)).willThrow(new IllegalStateException("해당 게시글이 없습니다."));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get(url));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(postsService).should().viewCountUpdateById(id, updateCount);
     }
 }
