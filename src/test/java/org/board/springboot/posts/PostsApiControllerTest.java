@@ -238,19 +238,21 @@ public class PostsApiControllerTest {
     public void 게시글_조회_아이디_성공() throws Exception {
         //given
         String url = "/api/v1/posts/1";
+        Long id = 1l;
         int viewCount = 0;
+        int updateCount = 1;
         PostsFindResponseDto postsFindResponseDto = PostsFindResponseDto.builder()
-                .postsId(1l)
+                .postsId(id)
                 .title(title)
                 .content(content)
-                .viewCount(viewCount)
+                .viewCount(viewCount + updateCount)
                 .userEmail(email)
                 .build();
         ApiResponse<PostsFindResponseDto> apiResponse = ApiResponse.<PostsFindResponseDto>builder()
                 .success(true)
                 .response(postsFindResponseDto)
                 .build();
-        given(postsService.findById(1l)).willReturn(postsFindResponseDto);
+        given(postsService.findById(id)).willReturn(postsFindResponseDto);
 
         //when
         ResultActions resultActions = mockMvc.perform(get(url));
@@ -258,7 +260,8 @@ public class PostsApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
-        then(postsService).should().findById(1l);
+        then(postsService).should().viewCountUpdateById(id, updateCount);
+        then(postsService).should().findById(id);
     }
 
     @Test
