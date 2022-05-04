@@ -23,15 +23,14 @@ public class Posts {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
-    private Integer viewCount;
+    private int viewCount;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     @Builder
-    public Posts(String title, String content, Integer viewCount, User user) {
+    public Posts(String title, String content, int viewCount, User user) {
         this.title = title;
         this.content = content;
         this.viewCount = viewCount;
