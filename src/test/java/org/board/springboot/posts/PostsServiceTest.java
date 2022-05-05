@@ -170,13 +170,13 @@ public class PostsServiceTest {
         Field field = posts.getClass().getDeclaredField("id");
         field.setAccessible(true);
         field.set(posts, id);
-        given(postsRepository.findById(id)).willReturn(Optional.of(posts));
+        given(postsRepository.findByIdForUpdate(id)).willReturn(Optional.of(posts));
 
         //when
         int result = postsService.viewCountUpdateById(id, updateCount);
 
         //then
-        then(postsRepository).should().findById(id);
+        then(postsRepository).should().findByIdForUpdate(id);
         BDDAssertions.then(result).isEqualTo(viewCount + updateCount);
     }
 
