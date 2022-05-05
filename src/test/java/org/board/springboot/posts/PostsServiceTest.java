@@ -185,7 +185,7 @@ public class PostsServiceTest {
         //given
         Long id = 1l;
         int updateCount = 1;
-        given(postsRepository.findById(id)).willReturn(Optional.empty());
+        given(postsRepository.findByIdForUpdate(id)).willReturn(Optional.empty());
 
         //when
         postsService.viewCountUpdateById(id, updateCount);
