@@ -60,7 +60,7 @@ public class PostsService {
 
     @Transactional
     public int viewCountUpdateById(Long id, int updateCount) {
-        Posts posts = postsRepository.findById(id)
+        Posts posts = postsRepository.findByIdForUpdate(id)
                 .orElseThrow(() -> new IllegalStateException("해당 게시글이 없습니다."));
         int viewCount = posts.getViewCount() + updateCount;
         posts.viewCountUpdate(viewCount);
