@@ -55,4 +55,39 @@ public class PostsRepositoryTest {
         then(result.getUser().getName()).isEqualTo(name);
         then(result.getUser().getEmail()).isEqualTo(email);
     }
+
+    @Test
+    public void findByIdForUpdate_호출_성공() {
+        //given
+        String name = "jk";
+        String email = "jk@jk.com";
+        String password = "jkjk";
+        User user = User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .build();
+
+        String title = "title";
+        String content = "content";
+        int viewCount = 0;
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .viewCount(viewCount)
+                .user(user)
+                .build();
+        userRepository.save(user);
+        postsRepository.save(posts);
+
+        //when
+        Posts result = postsRepository.findByIdForUpdate(1l).get();
+
+        //then
+        then(result.getTitle()).isEqualTo(title);
+        then(result.getContent()).isEqualTo(content);
+        then(result.getViewCount()).isEqualTo(viewCount);
+        then(result.getUser().getName()).isEqualTo(name);
+        then(result.getUser().getEmail()).isEqualTo(email);
+    }
 }
