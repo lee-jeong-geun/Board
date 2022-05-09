@@ -3,9 +3,12 @@ package org.board.springboot.posts.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.board.springboot.comment.domain.Comment;
 import org.board.springboot.user.domain.User;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -28,6 +31,9 @@ public class Posts {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @OneToMany(mappedBy = "posts")
+    private List<Comment> commentList = new ArrayList<>();
 
     @Builder
     public Posts(String title, String content, int viewCount, User user) {
