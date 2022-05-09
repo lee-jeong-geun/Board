@@ -3,6 +3,7 @@ package org.board.springboot.user.domain;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.board.springboot.comment.domain.Comment;
 import org.board.springboot.posts.domain.Posts;
 
 import javax.persistence.*;
@@ -30,6 +31,9 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Posts> postsList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Comment> commentList = new ArrayList<>();
 
     @Builder
     public User(String name, String email, String password) {
