@@ -73,7 +73,7 @@ public class CommentServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void save_호출_실패_유저_에러처리() {
+    public void save_호출_실패_user_에러처리() {
         //given
         String content = "content";
         String userEmail = "jk@jk.com";
@@ -85,6 +85,26 @@ public class CommentServiceTest {
                 .postsId(postsId)
                 .build();
         given(userService.findByEmail(userEmail)).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
+
+        //when
+        commentService.save(commentSaveRequestDto);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void save_호출_실패_posts_에러처리() {
+        //given
+        String content = "content";
+        String userEmail = "jk@jk.com";
+        Long postsId = 1l;
+        User user = User.builder().build();
+
+        CommentSaveRequestDto commentSaveRequestDto = CommentSaveRequestDto.builder()
+                .content(content)
+                .userEmail(userEmail)
+                .postsId(postsId)
+                .build();
+        given(userService.findByEmail(userEmail)).willReturn(user);
+        given(postsRepository.findById(postsId)).willThrow(new IllegalStateException("해당 게시글이 없습니다."));
 
         //when
         commentService.save(commentSaveRequestDto);
