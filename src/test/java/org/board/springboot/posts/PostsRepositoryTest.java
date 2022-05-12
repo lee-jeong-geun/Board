@@ -81,7 +81,7 @@ public class PostsRepositoryTest {
         postsRepository.save(posts);
 
         //when
-        Posts result = postsRepository.findByIdForUpdate(1l).get();
+        Posts result = postsRepository.findByIdForUpdate(posts.getId()).get();
 
         //then
         then(result.getTitle()).isEqualTo(title);
