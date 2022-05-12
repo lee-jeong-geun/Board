@@ -71,4 +71,22 @@ public class CommentServiceTest {
         then(commentRepository).should().save(any());
         assertThat(result).isEqualTo(1l);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void save_호출_실패_유저_에러처리() {
+        //given
+        String content = "content";
+        String userEmail = "jk@jk.com";
+        Long postsId = 1l;
+
+        CommentSaveRequestDto commentSaveRequestDto = CommentSaveRequestDto.builder()
+                .content(content)
+                .userEmail(userEmail)
+                .postsId(postsId)
+                .build();
+        given(userService.findByEmail(userEmail)).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
+
+        //when
+        commentService.save(commentSaveRequestDto);
+    }
 }
