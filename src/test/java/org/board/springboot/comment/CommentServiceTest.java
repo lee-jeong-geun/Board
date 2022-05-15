@@ -34,11 +34,12 @@ public class CommentServiceTest {
     @Mock
     private PostsRepository postsRepository;
 
+    private final String content = "content";
+    private final String userEmail = "jk@jk.com";
+
     @Test
     public void save_호출_성공() throws Exception {
         //given
-        String content = "content";
-        String userEmail = "jk@jk.com";
         Long postsId = 1l;
         User user = User.builder().build();
         Posts posts = Posts.builder()
@@ -75,8 +76,6 @@ public class CommentServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void save_호출_실패_user_에러처리() {
         //given
-        String content = "content";
-        String userEmail = "jk@jk.com";
         Long postsId = 1l;
 
         CommentSaveRequestDto commentSaveRequestDto = CommentSaveRequestDto.builder()
@@ -93,8 +92,6 @@ public class CommentServiceTest {
     @Test(expected = IllegalStateException.class)
     public void save_호출_실패_posts_에러처리() {
         //given
-        String content = "content";
-        String userEmail = "jk@jk.com";
         Long postsId = 1l;
         User user = User.builder().build();
 
