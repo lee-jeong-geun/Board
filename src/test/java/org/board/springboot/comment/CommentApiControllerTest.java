@@ -104,4 +104,35 @@ public class CommentApiControllerTest {
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
         then(commentService).should().save(any());
     }
+
+    @Test
+    public void Comment_save_호출_실패_잘못된_postsId_에러처리() throws Exception {
+        //given
+        String url = "/api/v1/comment";
+        String content = "content";
+        String userEmail = "jk@jk.com";
+        Long postsId = 1l;
+
+        CommentSaveRequestDto commentSaveRequestDto = CommentSaveRequestDto.builder()
+                .content(content)
+                .userEmail(userEmail)
+                .postsId(postsId)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("해당 게시글이 없습니다.")
+                .build();
+
+        given(commentService.save(any())).willThrow(new IllegalStateException("해당 게시글이 없습니다."));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(commentSaveRequestDto)));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(commentService).should().save(any());
+    }
 }
