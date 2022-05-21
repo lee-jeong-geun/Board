@@ -40,12 +40,12 @@ public class CommentApiControllerTest {
 
     private final String content = "content";
     private final String userEmail = "jk@jk.com";
+    private final Long postsId = 1l;
 
     @Test
     public void Comment_save_호출_성공() throws Exception {
         //given
         String url = "/api/v1/comment";
-        Long postsId = 1l;
         Long commentId = 1l;
 
         CommentSaveRequestDto commentSaveRequestDto = CommentSaveRequestDto.builder()
@@ -79,7 +79,6 @@ public class CommentApiControllerTest {
     public void Comment_save_호출_실패_잘못된_userEmail_에러처리() throws Exception {
         //given
         String url = "/api/v1/comment";
-        Long postsId = 1l;
 
         CommentSaveRequestDto commentSaveRequestDto = CommentSaveRequestDto.builder()
                 .content(content)
@@ -108,7 +107,6 @@ public class CommentApiControllerTest {
     public void Comment_save_호출_실패_잘못된_postsId_에러처리() throws Exception {
         //given
         String url = "/api/v1/comment";
-        Long postsId = 1l;
 
         CommentSaveRequestDto commentSaveRequestDto = CommentSaveRequestDto.builder()
                 .content(content)
