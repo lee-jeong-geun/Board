@@ -1,4 +1,27 @@
 (() => {
+    document.getElementById('comment-save').addEventListener('click', () => {
+        const urlArray = window.location.href.split('/')
+
+        fetch('/api/v1/comment', {
+            method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                content: document.getElementById('comment-input').value,
+                postsId: urlArray[urlArray.length - 1]
+            })
+        }).then((response) => {
+            response.json().then((body) => {
+                if (body.success === true) {
+                    alert('댓글 작성 성공하셨습니다.')
+                } else {
+                    alert(body.message)
+                }
+            })
+        }).catch(error => console.log(error))
+    })
+
     const createElementInnerText = (tagName, text) => {
         const element = document.createElement(tagName)
         element.innerText = text
