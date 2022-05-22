@@ -136,4 +136,31 @@ public class CommentApiControllerTest {
         BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
         BDDAssertions.then(argumentCaptor.getValue().getPostsId()).isEqualTo(postsId);
     }
+
+    @Test
+    public void Comment_save_호출_로그인_상태_에러처리() throws Exception {
+        //given
+        String url = "/api/v1/comment";
+
+        CommentSaveRequestBody commentSaveRequestBody = CommentSaveRequestBody.builder()
+                .content(content)
+                .postsId(postsId)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("로그인 상태가 아닙니다.")
+                .build();
+
+        given(authService.isLoggedIn()).willReturn(false);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(commentSaveRequestBody)));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(authService).should().isLoggedIn();
+    }
 }
