@@ -3,18 +3,17 @@ package org.board.springboot.comment.controller;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.auth.service.JWTService;
+import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.comment.dto.CommentSaveRequestBody;
 import org.board.springboot.comment.dto.CommentSaveRequestDto;
 import org.board.springboot.comment.service.CommentService;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 import static org.board.springboot.util.CookieUtils.getCookie;
 
@@ -46,6 +45,17 @@ public class CommentApiController {
                 .response(id)
                 .build();
     }
+
+    @GetMapping("/api/v1/comment/{postsId}")
+    public ApiResponse<List<CommentFindResponseDto>> getComments(@PathVariable Long postsId) {
+        List<CommentFindResponseDto> commentList = commentService.findByPostsId(postsId);
+
+        return ApiResponse.<List<CommentFindResponseDto>>builder()
+                .success(true)
+                .response(commentList)
+                .build();
+    }
+
 
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public ExceptionResponse ExceptionHandler(Exception exception) {
