@@ -136,4 +136,15 @@ public class CommentServiceTest {
         assertThat(commentList.get(0).content).isEqualTo(comment.getContent());
         assertThat(commentList.get(0).userEmail).isEqualTo(comment.getUser().getEmail());
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void findByPostsId_호출_실패_게시글_조회_실패_에러처리() {
+        //given
+        Long postsId = 1l;
+
+        given(postsRepository.findById(postsId)).willThrow(new IllegalStateException("해당 게시글이 없습니다."));
+
+        //when
+        commentService.findByPostsId(postsId);
+    }
 }
