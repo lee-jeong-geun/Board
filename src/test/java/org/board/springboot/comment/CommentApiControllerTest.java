@@ -6,6 +6,7 @@ import org.assertj.core.api.BDDAssertions;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.auth.service.JWTService;
 import org.board.springboot.comment.controller.CommentApiController;
+import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.comment.dto.CommentSaveRequestBody;
 import org.board.springboot.comment.dto.CommentSaveRequestDto;
 import org.board.springboot.comment.service.CommentService;
@@ -24,10 +25,14 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -162,5 +167,33 @@ public class CommentApiControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
         then(authService).should().isLoggedIn();
+    }
+
+    @Test
+    public void getComments_호출_성공() throws Exception {
+        //given
+        String url = "/api/v1/comment/" + postsId;
+        CommentFindResponseDto commentFindResponseDto = CommentFindResponseDto.builder()
+                .content(content)
+                .userEmail(userEmail)
+                .build();
+        List<CommentFindResponseDto> commentList = new ArrayList<>();
+        commentList.add(commentFindResponseDto);
+
+        ApiResponse<List<CommentFindResponseDto>> apiResponse = ApiResponse.<List<CommentFindResponseDto>>builder()
+                .success(true)
+                .response(commentList)
+                .build();
+
+        given(commentService.findByPostsId(postsId)).willReturn(commentList);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(commentService).should().findByPostsId(postsId);
     }
 }
