@@ -2,6 +2,7 @@ package org.board.springboot.comment;
 
 import org.board.springboot.comment.domain.Comment;
 import org.board.springboot.comment.domain.CommentRepository;
+import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.comment.dto.CommentSaveRequestDto;
 import org.board.springboot.comment.service.CommentService;
 import org.board.springboot.posts.domain.Posts;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -105,5 +107,33 @@ public class CommentServiceTest {
 
         //when
         commentService.save(commentSaveRequestDto);
+    }
+
+    @Test
+    public void findByPostsId_호출_성공() {
+        //given
+        User user = User.builder()
+                .email(userEmail)
+                .build();
+        Posts posts = Posts.builder()
+                .user(user)
+                .build();
+        Comment comment = Comment.builder()
+                .content(content)
+                .user(user)
+                .posts(posts)
+                .build();
+        Long postsId = 1l;
+
+        given(postsRepository.findById(postsId)).willReturn(Optional.of(posts));
+
+        //when
+        List<CommentFindResponseDto> commentList = commentService.findByPostsId(postsId);
+
+        //then
+        then(postsRepository).should().findById(postsId);
+        assertThat(commentList.size()).isEqualTo(1);
+        assertThat(commentList.get(0).content).isEqualTo(comment.getContent());
+        assertThat(commentList.get(0).userEmail).isEqualTo(comment.getUser().getEmail());
     }
 }
