@@ -196,4 +196,25 @@ public class CommentApiControllerTest {
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
         then(commentService).should().findByPostsId(postsId);
     }
+
+    @Test
+    public void getComments_호출_실패_게시글_조회_실패_에러처리() throws Exception {
+        //given
+        String url = "/api/v1/comment/" + postsId;
+
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("해당 게시글이 없습니다.")
+                .build();
+
+        given(commentService.findByPostsId(postsId)).willThrow(new IllegalStateException("해당 게시글이 없습니다."));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(get(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+    }
 }
