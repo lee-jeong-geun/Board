@@ -50,6 +50,18 @@
             })
         }).catch(error => console.log(error))
 
+        fetch('/api/v1/comment/' + postsId, {
+            method: 'GET'
+        }).then(response => {
+            response.json().then(body => {
+                if (body.success) {
+
+                } else {
+                    alert(body.message)
+                }
+            })
+        }).catch(error => console.log(error))
+
     }
     loadData()
 
