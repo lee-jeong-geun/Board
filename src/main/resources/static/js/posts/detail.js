@@ -35,6 +35,16 @@
             document.getElementById('content').appendChild(createElementInnerText('p', response.content))
         }
 
+        const setComment = response => {
+            const commentList = document.getElementById('comment-list')
+            response.forEach(data => {
+                const element = document.createElement('tr')
+                element.appendChild(createElementInnerText('td', data.userEmail))
+                element.appendChild(createElementInnerText('td', data.content))
+                commentList.appendChild(element)
+            })
+        }
+
         const urlArray = window.location.href.split('/')
         const postsId = urlArray[urlArray.length - 1]
 
@@ -55,7 +65,7 @@
         }).then(response => {
             response.json().then(body => {
                 if (body.success) {
-
+                    setComment(body.response)
                 } else {
                     alert(body.message)
                 }
