@@ -15,6 +15,7 @@
             response.json().then((body) => {
                 if (body.success === true) {
                     alert('댓글 작성 성공하셨습니다.')
+                    location.reload()
                 } else {
                     alert(body.message)
                 }
