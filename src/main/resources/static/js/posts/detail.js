@@ -36,12 +36,41 @@
             document.getElementById('content').appendChild(createElementInnerText('p', response.content))
         }
 
+        const createDeleteButton = commentId => {
+            const deleteButton = createElementInnerText('button', '삭제')
+            deleteButton.classList.add('btn')
+            deleteButton.classList.add('btn-secondary')
+            deleteButton.addEventListener('click', () => {
+                fetch('/api/v1/comment/' + commentId, {
+                    method: 'DELETE'
+                }).then((response) => {
+                    response.json().then((body) => {
+                        if (body.success === true) {
+                            alert('댓글 삭제 성공하셨습니다.')
+                            location.reload()
+                        } else {
+                            alert(body.message)
+                        }
+                    })
+                }).catch(error => console.log(error))
+            })
+            return deleteButton
+        }
+
+        const setDeleteButton = commentId => {
+            const element = document.createElement('td')
+            element.classList.add('text-end')
+            element.appendChild(createDeleteButton(commentId))
+            return element
+        }
+
         const setComment = response => {
             const commentList = document.getElementById('comment-list')
             response.forEach(data => {
                 const element = document.createElement('tr')
                 element.appendChild(createElementInnerText('td', data.userEmail))
                 element.appendChild(createElementInnerText('td', data.content))
+                element.appendChild(setDeleteButton(data.commentId))
                 commentList.appendChild(element)
             })
         }
