@@ -42,6 +42,7 @@ public class CommentService {
                 .orElseThrow(() -> new IllegalStateException("해당 게시글이 없습니다."));
         return posts.getCommentList().stream()
                 .map(comment -> CommentFindResponseDto.builder()
+                        .commentId(comment.getId())
                         .content(comment.getContent())
                         .userEmail(comment.getUser().getEmail())
                         .build())
