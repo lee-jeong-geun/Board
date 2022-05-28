@@ -32,8 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -216,5 +215,28 @@ public class CommentApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+    }
+
+    @Test
+    public void deleteComment_호출_성공() throws Exception {
+        //given
+        Long commentId = 1L;
+        String url = "/api/v1/comment/" + commentId;
+
+        ApiResponse<Long> apiResponse = ApiResponse.<Long>builder()
+                .success(true)
+                .response(commentId)
+                .build();
+
+        given(commentService.deleteById(commentId)).willReturn(commentId);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(delete(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+        then(commentService).should().deleteById(commentId);
     }
 }
