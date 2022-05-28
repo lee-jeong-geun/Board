@@ -239,4 +239,27 @@ public class CommentApiControllerTest {
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
         then(commentService).should().deleteById(commentId);
     }
+
+    @Test
+    public void deleteComment_호출_실패_댓글_조회_실패_에러처리() throws Exception {
+        //given
+        Long commentId = 1L;
+        String url = "/api/v1/comment/" + commentId;
+
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("해당 댓글이 없습니다.")
+                .build();
+
+        given(commentService.deleteById(commentId)).willThrow(new IllegalStateException("해당 댓글이 없습니다."));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(delete(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(commentService).should().deleteById(commentId);
+    }
 }
