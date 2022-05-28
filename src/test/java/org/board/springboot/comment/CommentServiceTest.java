@@ -147,4 +147,27 @@ public class CommentServiceTest {
         //when
         commentService.findByPostsId(postsId);
     }
+
+    @Test
+    public void deleteById_호출_성공() {
+        //given
+        Long commentId = 1L;
+        User user = User.builder().build();
+        Posts posts = Posts.builder()
+                .user(user)
+                .build();
+        Comment comment = Comment.builder()
+                .user(user)
+                .posts(posts)
+                .build();
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
+
+        //when
+        Long result = commentService.deleteById(commentId);
+
+        //then
+        then(commentRepository).should().findById(commentId);
+        then(commentRepository).should().delete(comment);
+        assertThat(result).isEqualTo(commentId);
+    }
 }
