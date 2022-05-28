@@ -172,7 +172,9 @@ public class CommentApiControllerTest {
     public void getComments_호출_성공() throws Exception {
         //given
         String url = "/api/v1/comment/" + postsId;
+        Long commentId = 1L;
         CommentFindResponseDto commentFindResponseDto = CommentFindResponseDto.builder()
+                .commentId(commentId)
                 .content(content)
                 .userEmail(userEmail)
                 .build();
