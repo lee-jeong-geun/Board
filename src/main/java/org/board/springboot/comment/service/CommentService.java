@@ -47,4 +47,12 @@ public class CommentService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Transactional
+    public Long deleteById(Long commentId) {
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalStateException("해당 댓글이 없습니다."));
+        commentRepository.delete(comment);
+        return commentId;
+    }
 }
