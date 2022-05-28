@@ -170,4 +170,14 @@ public class CommentServiceTest {
         then(commentRepository).should().delete(comment);
         assertThat(result).isEqualTo(commentId);
     }
+
+    @Test(expected = IllegalStateException.class)
+    public void deleteById_호출_실패_조회_실패_에러처리() {
+        //given
+        Long commentId = 1L;
+        given(commentRepository.findById(commentId)).willThrow(new IllegalStateException("해당 댓글이 없습니다."));
+
+        //when
+        commentService.deleteById(commentId);
+    }
 }
