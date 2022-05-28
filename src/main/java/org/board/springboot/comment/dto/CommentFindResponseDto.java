@@ -8,11 +8,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CommentFindResponseDto {
 
+    public Long commentId;
     public String content;
     public String userEmail;
 
     @Builder
-    public CommentFindResponseDto(String content, String userEmail) {
+    public CommentFindResponseDto(Long commentId, String content, String userEmail) {
+        this.commentId = commentId;
         this.content = content;
         this.userEmail = userEmail;
     }
