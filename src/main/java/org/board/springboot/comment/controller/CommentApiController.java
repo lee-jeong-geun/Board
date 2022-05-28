@@ -56,6 +56,16 @@ public class CommentApiController {
                 .build();
     }
 
+    @DeleteMapping("/api/v1/comment/{commentId}")
+    public ApiResponse<Long> deleteComment(@PathVariable Long commentId) {
+        Long id = commentService.deleteById(commentId);
+
+        return ApiResponse.<Long>builder()
+                .success(true)
+                .response(id)
+                .build();
+    }
+
 
     @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})
     public ExceptionResponse ExceptionHandler(Exception exception) {
