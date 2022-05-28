@@ -110,7 +110,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void findByPostsId_호출_성공() {
+    public void findByPostsId_호출_성공() throws Exception {
         //given
         User user = User.builder()
                 .email(userEmail)
@@ -123,7 +123,11 @@ public class CommentServiceTest {
                 .user(user)
                 .posts(posts)
                 .build();
-        Long postsId = 1l;
+        Long commentId = 1L;
+        Long postsId = 1L;
+        Field field = comment.getClass().getDeclaredField("id");
+        field.setAccessible(true);
+        field.set(comment, commentId);
 
         given(postsRepository.findById(postsId)).willReturn(Optional.of(posts));
 
@@ -133,6 +137,7 @@ public class CommentServiceTest {
         //then
         then(postsRepository).should().findById(postsId);
         assertThat(commentList.size()).isEqualTo(1);
+        assertThat(commentList.get(0).commentId).isEqualTo(comment.getId());
         assertThat(commentList.get(0).content).isEqualTo(comment.getContent());
         assertThat(commentList.get(0).userEmail).isEqualTo(comment.getUser().getEmail());
     }
