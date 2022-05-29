@@ -2,6 +2,7 @@ package org.board.springboot.comment;
 
 import org.board.springboot.comment.domain.Comment;
 import org.board.springboot.comment.domain.CommentRepository;
+import org.board.springboot.comment.dto.CommentDeleteRequestDto;
 import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.comment.dto.CommentSaveRequestDto;
 import org.board.springboot.comment.service.CommentService;
@@ -157,7 +158,9 @@ public class CommentServiceTest {
     public void deleteById_호출_성공() {
         //given
         Long commentId = 1L;
-        User user = User.builder().build();
+        User user = User.builder()
+                .email(userEmail)
+                .build();
         Posts posts = Posts.builder()
                 .user(user)
                 .build();
@@ -165,10 +168,15 @@ public class CommentServiceTest {
                 .user(user)
                 .posts(posts)
                 .build();
+        CommentDeleteRequestDto commentDeleteRequestDto = CommentDeleteRequestDto.builder()
+                .commentId(commentId)
+                .userEmail(userEmail)
+                .build();
+
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
         //when
-        Long result = commentService.deleteById(commentId);
+        Long result = commentService.deleteById(commentDeleteRequestDto);
 
         //then
         then(commentRepository).should().findById(commentId);
@@ -180,9 +188,14 @@ public class CommentServiceTest {
     public void deleteById_호출_실패_조회_실패_에러처리() {
         //given
         Long commentId = 1L;
+        CommentDeleteRequestDto commentDeleteRequestDto = CommentDeleteRequestDto.builder()
+                .commentId(commentId)
+                .userEmail(userEmail)
+                .build();
+
         given(commentRepository.findById(commentId)).willThrow(new IllegalStateException("해당 댓글이 없습니다."));
 
         //when
-        commentService.deleteById(commentId);
+        commentService.deleteById(commentDeleteRequestDto);
     }
 }
