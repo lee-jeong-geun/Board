@@ -6,6 +6,7 @@ import org.assertj.core.api.BDDAssertions;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.auth.service.JWTService;
 import org.board.springboot.comment.controller.CommentApiController;
+import org.board.springboot.comment.dto.CommentDeleteRequestDto;
 import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.comment.dto.CommentSaveRequestBody;
 import org.board.springboot.comment.dto.CommentSaveRequestDto;
@@ -224,22 +225,35 @@ public class CommentApiControllerTest {
         //given
         Long commentId = 1L;
         String url = "/api/v1/comment/" + commentId;
+        String validToken = "valid";
 
         ApiResponse<Long> apiResponse = ApiResponse.<Long>builder()
                 .success(true)
                 .response(commentId)
                 .build();
 
-        given(commentService.deleteById(commentId)).willReturn(commentId);
+        ArgumentCaptor<CommentDeleteRequestDto> argumentCaptor = ArgumentCaptor.forClass(CommentDeleteRequestDto.class);
+        given(authService.isLoggedIn()).willReturn(true);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(validToken);
+        given(jwtService.getEmail(validToken)).willReturn(userEmail);
+        given(commentService.deleteById(any())).willReturn(commentId);
 
         //when
         ResultActions resultActions = mockMvc.perform(delete(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8));
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
-        then(commentService).should().deleteById(commentId);
+        then(authService).should().isLoggedIn();
+        then(mockCookie).should(times(2)).getName();
+        then(mockCookie).should(times(3)).getValue();
+        then(jwtService).should().getEmail(validToken);
+        then(commentService).should().deleteById(argumentCaptor.capture());
+        BDDAssertions.then(argumentCaptor.getValue().getCommentId()).isEqualTo(commentId);
+        BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
     }
 
     @Test
@@ -247,21 +261,34 @@ public class CommentApiControllerTest {
         //given
         Long commentId = 1L;
         String url = "/api/v1/comment/" + commentId;
+        String validToken = "valid";
 
         ExceptionResponse exceptionResponse = ExceptionResponse.builder()
                 .success(false)
                 .message("해당 댓글이 없습니다.")
                 .build();
 
-        given(commentService.deleteById(commentId)).willThrow(new IllegalStateException("해당 댓글이 없습니다."));
+        ArgumentCaptor<CommentDeleteRequestDto> argumentCaptor = ArgumentCaptor.forClass(CommentDeleteRequestDto.class);
+        given(authService.isLoggedIn()).willReturn(true);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(validToken);
+        given(jwtService.getEmail(validToken)).willReturn(userEmail);
+        given(commentService.deleteById(any())).willThrow(new IllegalStateException("해당 댓글이 없습니다."));
 
         //when
         ResultActions resultActions = mockMvc.perform(delete(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8));
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
-        then(commentService).should().deleteById(commentId);
+        then(authService).should().isLoggedIn();
+        then(mockCookie).should(times(2)).getName();
+        then(mockCookie).should(times(3)).getValue();
+        then(jwtService).should().getEmail(validToken);
+        then(commentService).should().deleteById(argumentCaptor.capture());
+        BDDAssertions.then(argumentCaptor.getValue().getCommentId()).isEqualTo(commentId);
+        BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
     }
 }
