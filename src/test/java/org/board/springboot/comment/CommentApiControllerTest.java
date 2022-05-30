@@ -58,13 +58,13 @@ public class CommentApiControllerTest {
     private final String content = "content";
     private final String userEmail = "jk@jk.com";
     private final Long postsId = 1l;
+    private final Long commentId = 1L;
 
     @Test
     public void Comment_save_호출_성공() throws Exception {
         //given
         String url = "/api/v1/comment";
         String validToken = "valid";
-        Long commentId = 1l;
 
         CommentSaveRequestBody commentSaveRequestBody = CommentSaveRequestBody.builder()
                 .content(content)
@@ -173,7 +173,6 @@ public class CommentApiControllerTest {
     public void getComments_호출_성공() throws Exception {
         //given
         String url = "/api/v1/comment/" + postsId;
-        Long commentId = 1L;
         CommentFindResponseDto commentFindResponseDto = CommentFindResponseDto.builder()
                 .commentId(commentId)
                 .content(content)
@@ -223,7 +222,6 @@ public class CommentApiControllerTest {
     @Test
     public void deleteComment_호출_성공() throws Exception {
         //given
-        Long commentId = 1L;
         String url = "/api/v1/comment/" + commentId;
         String validToken = "valid";
 
@@ -259,7 +257,6 @@ public class CommentApiControllerTest {
     @Test
     public void deleteComment_호출_실패_댓글_조회_실패_에러처리() throws Exception {
         //given
-        Long commentId = 1L;
         String url = "/api/v1/comment/" + commentId;
         String validToken = "valid";
 
@@ -295,7 +292,6 @@ public class CommentApiControllerTest {
     @Test
     public void deleteComment_호출_실패_타_작성자_에러처리() throws Exception {
         //given
-        Long commentId = 1L;
         String url = "/api/v1/comment/" + commentId;
         String validToken = "valid";
 
@@ -331,7 +327,6 @@ public class CommentApiControllerTest {
     @Test
     public void deleteComment_호출_로그인_상태_에러처리() throws Exception {
         //given
-        Long commentId = 1L;
         String url = "/api/v1/comment/" + commentId;
 
         ExceptionResponse exceptionResponse = ExceptionResponse.builder()
