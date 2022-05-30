@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.in;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -194,6 +195,33 @@ public class CommentServiceTest {
                 .build();
 
         given(commentRepository.findById(commentId)).willThrow(new IllegalStateException("해당 댓글이 없습니다."));
+
+        //when
+        commentService.deleteById(commentDeleteRequestDto);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void deleteById_호출_실패_타_작성자_에러처리() {
+        //given
+        Long commentId = 1L;
+        String inValidEmail = "invalidEmail";
+        User user = User.builder()
+                .email(userEmail)
+                .build();
+        Posts posts = Posts.builder()
+                .user(user)
+                .build();
+        Comment comment = Comment.builder()
+                .user(user)
+                .posts(posts)
+                .build();
+
+        CommentDeleteRequestDto commentDeleteRequestDto = CommentDeleteRequestDto.builder()
+                .commentId(commentId)
+                .userEmail(inValidEmail)
+                .build();
+
+        given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
         //when
         commentService.deleteById(commentDeleteRequestDto);
