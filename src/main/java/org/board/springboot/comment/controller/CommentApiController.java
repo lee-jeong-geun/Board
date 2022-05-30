@@ -3,6 +3,7 @@ package org.board.springboot.comment.controller;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.auth.service.JWTService;
+import org.board.springboot.comment.dto.CommentDeleteRequestDto;
 import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.comment.dto.CommentSaveRequestBody;
 import org.board.springboot.comment.dto.CommentSaveRequestDto;
@@ -58,7 +59,17 @@ public class CommentApiController {
 
     @DeleteMapping("/api/v1/comment/{commentId}")
     public ApiResponse<Long> deleteComment(@PathVariable Long commentId) {
-        Long id = commentService.deleteById(commentId);
+        validateLoginState();
+
+        Cookie tokenCookie = getCookie(httpServletRequest.getCookies(), "token");
+        String userEmail = jwtService.getEmail(tokenCookie.getValue());
+
+        CommentDeleteRequestDto commentDeleteRequestDto = CommentDeleteRequestDto.builder()
+                .commentId(commentId)
+                .userEmail(userEmail)
+                .build();
+
+        Long id = commentService.deleteById(commentDeleteRequestDto);
 
         return ApiResponse.<Long>builder()
                 .success(true)
