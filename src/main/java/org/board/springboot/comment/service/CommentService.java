@@ -3,6 +3,7 @@ package org.board.springboot.comment.service;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.comment.domain.Comment;
 import org.board.springboot.comment.domain.CommentRepository;
+import org.board.springboot.comment.dto.CommentDeleteRequestDto;
 import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.comment.dto.CommentSaveRequestDto;
 import org.board.springboot.posts.domain.Posts;
@@ -50,10 +51,16 @@ public class CommentService {
     }
 
     @Transactional
-    public Long deleteById(Long commentId) {
-        Comment comment = commentRepository.findById(commentId)
+    public Long deleteById(CommentDeleteRequestDto commentDeleteRequestDto) {
+        Comment comment = commentRepository.findById(commentDeleteRequestDto.getCommentId())
                 .orElseThrow(() -> new IllegalStateException("해당 댓글이 없습니다."));
+        if (!comment.getUser()
+                .getEmail()
+                .equals(commentDeleteRequestDto.getUserEmail())) {
+            throw new IllegalStateException("해당 댓글의 작성자가 아닙니다.");
+        }
+
         commentRepository.delete(comment);
-        return commentId;
+        return commentDeleteRequestDto.getCommentId();
     }
 }
