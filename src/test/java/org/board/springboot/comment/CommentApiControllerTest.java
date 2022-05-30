@@ -291,4 +291,40 @@ public class CommentApiControllerTest {
         BDDAssertions.then(argumentCaptor.getValue().getCommentId()).isEqualTo(commentId);
         BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
     }
+
+    @Test
+    public void deleteComment_호출_실패_타_작성자_에러처리() throws Exception {
+        //given
+        Long commentId = 1L;
+        String url = "/api/v1/comment/" + commentId;
+        String validToken = "valid";
+
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("해당 댓글의 작성자가 아닙니다.")
+                .build();
+
+        ArgumentCaptor<CommentDeleteRequestDto> argumentCaptor = ArgumentCaptor.forClass(CommentDeleteRequestDto.class);
+        given(authService.isLoggedIn()).willReturn(true);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(validToken);
+        given(jwtService.getEmail(validToken)).willReturn(userEmail);
+        given(commentService.deleteById(any())).willThrow(new IllegalStateException("해당 댓글의 작성자가 아닙니다."));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(delete(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .cookie(mockCookie));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(authService).should().isLoggedIn();
+        then(mockCookie).should(times(2)).getName();
+        then(mockCookie).should(times(3)).getValue();
+        then(jwtService).should().getEmail(validToken);
+        then(commentService).should().deleteById(argumentCaptor.capture());
+        BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
+        BDDAssertions.then(argumentCaptor.getValue().getCommentId()).isEqualTo(commentId);
+    }
 }
