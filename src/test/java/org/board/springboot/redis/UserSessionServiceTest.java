@@ -11,6 +11,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.mockito.BDDMockito.given;
@@ -33,6 +34,7 @@ public class UserSessionServiceTest {
     private final int TODAY_POSTS_COUNT_MAX = 10;
     private final int POSTS_SAVE_INTERVAL_TIME = 5;
     private final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
+    private final String TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE = "todayRemainPostsCountLastUpdateDate";
     private final String LAST_POSTS_SAVE_TIME = "lastPostsSaveTime";
     private final String email = "jk@jk.com";
 
@@ -280,5 +282,26 @@ public class UserSessionServiceTest {
         //then
         then(redisTemplate).should().opsForHash();
         then(hashOperations).should().put(email, LAST_POSTS_SAVE_TIME, String.valueOf(current));
+    }
+
+    @Test
+    public void checkTodayRemainPostsCountUpdate_호출_성공_키_값_없는_상태() {
+        //given
+        LocalDate current = LocalDate.now();
+        PowerMockito.mockStatic(LocalDate.class);
+
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(LocalDate.now()).willReturn(current);
+        given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(false);
+        given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(current);
+
+        //when
+        userSessionService.checkTodayRemainPostsCountUpdate(email);
+
+        //then
+        then(redisTemplate).should(times(3)).opsForHash();
+        then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
+        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(current));
+        then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
     }
 }
