@@ -304,4 +304,28 @@ public class UserSessionServiceTest {
         then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(current));
         then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
     }
+
+    @Test
+    public void checkTodayRemainPostsCountUpdate_호출_성공_키_값_존재_갱신() {
+        //given
+        LocalDate lastUpdateDate = LocalDate.now().minusDays(1);
+        LocalDate current = LocalDate.now();
+        PowerMockito.mockStatic(LocalDate.class);
+
+        given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(LocalDate.now()).willReturn(current);
+        given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(true);
+        given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(lastUpdateDate);
+        given(LocalDate.parse(lastUpdateDate.toString())).willReturn(lastUpdateDate);
+
+        //when
+        userSessionService.checkTodayRemainPostsCountUpdate(email);
+
+        //then
+        then(redisTemplate).should(times(4)).opsForHash();
+        then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
+        then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
+        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(LocalDate.now()));
+        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT, String.valueOf(TODAY_POSTS_COUNT_MAX));
+    }
 }
