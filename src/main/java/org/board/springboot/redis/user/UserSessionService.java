@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
@@ -15,8 +16,20 @@ public class UserSessionService {
     private static final int TODAY_POSTS_COUNT_MAX = 10;
     private static final int POSTS_SAVE_INTERVAL_TIME = 5;
     private static final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
+    private static final String TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE = "todayRemainPostsCountLastUpdateDate";
     private static final String LAST_POSTS_SAVE_TIME = "lastPostsSaveTime";
     private static final int LOGIN_SESSION_TIME = 30;
+
+    public void checkTodayRemainPostsCountUpdate(String email) {
+        if (!redisTemplate.opsForHash().hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)) {
+            redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(LocalDate.now()));
+        }
+        LocalDate lastUpdateDate = LocalDate.parse(redisTemplate.opsForHash().get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE).toString());
+        if (lastUpdateDate.isBefore(LocalDate.now())) {
+            redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(LocalDate.now()));
+            redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT, String.valueOf(TODAY_POSTS_COUNT_MAX));
+        }
+    }
 
     public void checkTodayRemainPostsCount(String email) {
         if (!redisTemplate.opsForHash().hasKey(email, TODAY_REMAIN_POSTS_COUNT)) {
