@@ -124,6 +124,7 @@ public class PostsApiControllerTest {
         then(mockCookie).should(times(3)).getValue();
         then(jwtService).should().getEmail("valid");
         then(postsService).should().save(argumentCaptor.capture());
+        then(userSessionService).should().checkTodayRemainPostsCountUpdate(email);
         then(userSessionService).should().checkTodayRemainPostsCount(email);
         then(userSessionService).should().checkLastPostsSaveTime(email);
         then(userSessionService).should().updateTodayRemainPostsCount(email);
@@ -167,6 +168,7 @@ public class PostsApiControllerTest {
         then(mockCookie).should(times(2)).getName();
         then(mockCookie).should(times(3)).getValue();
         then(jwtService).should().getEmail("valid");
+        then(userSessionService).should().checkTodayRemainPostsCountUpdate(email);
         then(userSessionService).should().checkTodayRemainPostsCount(email);
     }
 
@@ -204,6 +206,7 @@ public class PostsApiControllerTest {
         then(mockCookie).should(times(2)).getName();
         then(mockCookie).should(times(3)).getValue();
         then(jwtService).should().getEmail("valid");
+        then(userSessionService).should().checkTodayRemainPostsCountUpdate(email);
         then(userSessionService).should().checkTodayRemainPostsCount(email);
         then(userSessionService).should().checkLastPostsSaveTime(email);
     }
