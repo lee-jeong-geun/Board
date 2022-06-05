@@ -73,6 +73,7 @@ public class PostsApiController {
     }
 
     private void checkSessionStateByEmail(String email) {
+        userSessionService.checkTodayRemainPostsCountUpdate(email);
         userSessionService.checkTodayRemainPostsCount(email);
         userSessionService.checkLastPostsSaveTime(email);
     }
