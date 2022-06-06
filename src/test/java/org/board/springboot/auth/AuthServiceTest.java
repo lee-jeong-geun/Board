@@ -162,7 +162,9 @@ public class AuthServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void login_토큰_not_null_valid_값_호출_실패_에러() {
         //given
-        LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(email)
+                .build();
         MockCookie[] mockCookies = new MockCookie[1];
         mockCookies[0] = mockCookie;
 
