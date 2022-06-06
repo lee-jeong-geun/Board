@@ -143,7 +143,9 @@ public class AuthServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void login_조회_실패_에러() {
         //given
-        LoginRequestDto loginRequestDto = LoginRequestDto.builder().build();
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(email)
+                .build();
         MockCookie[] mockCookies = new MockCookie[1];
         mockCookies[0] = mockCookie;
 
