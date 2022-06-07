@@ -256,4 +256,15 @@ public class AuthServiceTest {
         BDDMockito.then(jwtService).should().validateJWT(tokenInvalidValue);
         then(result).isEqualTo(false);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void login_email_empty_값() {
+        //given
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email("")
+                .build();
+
+        //when
+        authService.login(loginRequestDto);
+    }
 }
