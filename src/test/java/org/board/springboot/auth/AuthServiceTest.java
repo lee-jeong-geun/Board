@@ -258,10 +258,21 @@ public class AuthServiceTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void login_email_empty_값() {
+    public void login_email_empty_값_호출_실패_에러() {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email("")
+                .build();
+
+        //when
+        authService.login(loginRequestDto);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void login_email_null_값_호출_실패_에러() {
+        //given
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(null)
                 .build();
 
         //when
