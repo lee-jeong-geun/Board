@@ -25,6 +25,9 @@ public class AuthService {
     private static final int JWT_COOKIE_MAX_AGE = 60 * 30;
 
     public LoginUserResponseDto login(LoginRequestDto loginRequestDto) {
+        if (loginRequestDto.getEmail() == null || loginRequestDto.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("아이디를 입력해주세요.");
+        }
         validateLoginState();
 
         UserFindResponseDto userFindResponseDto = userService.findByEmailAndPassword(loginRequestDto.toUserFindRequestDto());
