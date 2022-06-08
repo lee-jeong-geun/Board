@@ -154,6 +154,32 @@ public class AuthApiControllerTest {
     }
 
     @Test
+    public void 로그인_호출_실패_이메일_null_값_에러처리() throws Exception {
+        //given
+        String message = "아이디를 입력해주세요.";
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(null)
+                .password(password)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message(message)
+                .build();
+        String url = "http://localhost:8080/api/v1/auth/login";
+        given(authService.login(any())).willThrow(new IllegalArgumentException(message));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(loginRequestDto)));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+        then(authService).should().login(any());
+    }
+
+    @Test
     public void 로그아웃_호출_성공() throws Exception {
         //given
         ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
