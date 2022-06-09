@@ -45,6 +45,7 @@ public class AuthServiceTest {
     private AuthService authService;
 
     private final String email = "jk@jk.com";
+    private final String password = "jkjk";
     private final String tokenValidValue = "valid";
     private final String tokenInvalidValue = "invalid";
 
@@ -54,10 +55,12 @@ public class AuthServiceTest {
         String name = "jk";
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
+                .password(password)
                 .build();
         UserFindResponseDto userFindResponseDto = new UserFindResponseDto(User.builder()
                 .name(name)
                 .email(email)
+                .password(password)
                 .build());
         MockCookie[] mockCookies = new MockCookie[1];
         mockCookies[0] = mockCookie;
@@ -145,6 +148,7 @@ public class AuthServiceTest {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
+                .password(password)
                 .build();
         MockCookie[] mockCookies = new MockCookie[1];
         mockCookies[0] = mockCookie;
@@ -164,6 +168,7 @@ public class AuthServiceTest {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
+                .password(password)
                 .build();
         MockCookie[] mockCookies = new MockCookie[1];
         mockCookies[0] = mockCookie;
@@ -182,6 +187,7 @@ public class AuthServiceTest {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
+                .password(password)
                 .build();
         MockCookie[] mockCookies = new MockCookie[1];
         mockCookies[0] = mockCookie;
@@ -273,6 +279,18 @@ public class AuthServiceTest {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(null)
+                .build();
+
+        //when
+        authService.login(loginRequestDto);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void login_password_empty_값_호출_실패_에러() {
+        //given
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(email)
+                .password("")
                 .build();
 
         //when
