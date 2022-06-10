@@ -296,4 +296,16 @@ public class AuthServiceTest {
         //when
         authService.login(loginRequestDto);
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void login_password_null_값_호출_실패_에러() {
+        //given
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(email)
+                .password(null)
+                .build();
+
+        //when
+        authService.login(loginRequestDto);
+    }
 }
