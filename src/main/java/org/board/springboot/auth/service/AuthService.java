@@ -7,6 +7,7 @@ import org.board.springboot.redis.user.UserSessionService;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.service.UserService;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -25,9 +26,7 @@ public class AuthService {
     private static final int JWT_COOKIE_MAX_AGE = 60 * 30;
 
     public LoginUserResponseDto login(LoginRequestDto loginRequestDto) {
-        if (loginRequestDto.getEmail() == null || loginRequestDto.getEmail().isEmpty()) {
-            throw new IllegalArgumentException("아이디를 입력해주세요.");
-        }
+        validateLoginRequest(loginRequestDto);
         validateLoginState();
 
         UserFindResponseDto userFindResponseDto = userService.findByEmailAndPassword(loginRequestDto.toUserFindRequestDto());
@@ -43,6 +42,15 @@ public class AuthService {
                 .name(userFindResponseDto.getName())
                 .email(userFindResponseDto.getEmail())
                 .build();
+    }
+
+    private void validateLoginRequest(LoginRequestDto loginRequestDto) {
+        if (loginRequestDto.getEmail() == null || loginRequestDto.getEmail().isEmpty()) {
+            throw new IllegalArgumentException("아이디를 입력해주세요.");
+        }
+        if (!StringUtils.hasText(loginRequestDto.getPassword())) {
+            throw new IllegalArgumentException("비밀번호를 입력해주세요.");
+        }
     }
 
     private void validateLoginState() {
