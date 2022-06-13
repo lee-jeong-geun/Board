@@ -30,6 +30,16 @@
         })
     }
 
+    const setCommentList = (list) => {
+        const tbody = document.getElementById('comment-list')
+        list.forEach((element, index) => {
+            const childNode = document.createElement('tr')
+            childNode.append(createElementInnerText('td', index + 1))
+            childNode.append(createElementInnerText('td', element.content))
+            tbody.appendChild(childNode)
+        })
+    }
+
     const loadData = () => {
         const urlArray = window.location.href.split("/")
         const email = urlArray[urlArray.length - 1]
@@ -42,6 +52,7 @@
                 if (body.success === true) {
                     setInform(body.response)
                     setPostsList(body.response.posts)
+                    setCommentList(body.response.comment)
                 } else {
                     console.error(body.message)
                 }
