@@ -2,6 +2,7 @@ package org.board.springboot.user;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.board.springboot.comment.domain.Comment;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.posts.domain.Posts;
@@ -83,8 +84,10 @@ public class UserApiControllerTest {
                 .content("content2")
                 .user(user)
                 .build();
-        user.getPostsList().add(posts1);
-        user.getPostsList().add(posts2);
+        Comment comment = Comment.builder()
+                .user(user)
+                .posts(posts1)
+                .build();
         UserAndPostsFindResponseDto userAndPostsFindResponseDto = UserAndPostsFindResponseDto.builder()
                 .user(user)
                 .build();
