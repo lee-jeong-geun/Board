@@ -83,6 +83,8 @@ public class UserApiControllerTest {
                 .content("content2")
                 .user(user)
                 .build();
+        user.getPostsList().add(posts1);
+        user.getPostsList().add(posts2);
         UserAndPostsFindResponseDto userAndPostsFindResponseDto = UserAndPostsFindResponseDto.builder()
                 .user(user)
                 .build();
