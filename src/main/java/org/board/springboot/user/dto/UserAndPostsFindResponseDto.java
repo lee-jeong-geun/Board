@@ -3,6 +3,7 @@ package org.board.springboot.user.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.user.domain.User;
 
@@ -16,6 +17,7 @@ public class UserAndPostsFindResponseDto {
     private String name;
     private String email;
     private List<PostsFindResponseDto> posts;
+    private List<CommentFindResponseDto> comment;
 
     @Builder
     public UserAndPostsFindResponseDto(User user) {
@@ -28,6 +30,11 @@ public class UserAndPostsFindResponseDto {
                         .content(p.getContent())
                         .build())
                 .collect(Collectors.toList());
+        this.comment = user.getCommentList().stream()
+                .map(c -> CommentFindResponseDto.builder()
+                        .commentId(c.getId())
+                        .content(c.getContent())
+                        .build())
+                .collect(Collectors.toList());
     }
-
 }
