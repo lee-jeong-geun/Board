@@ -25,7 +25,15 @@
         list.forEach((element, index) => {
             const childNode = document.createElement('tr')
             childNode.append(createElementInnerText('td', index + 1))
-            childNode.append(createElementInnerText('td', element.title))
+
+            const postsElement = createElementInnerText('td', element.title)
+            postsElement.addEventListener('click', () => {
+                window.location.href = '/posts/' + element.postsId
+            })
+            postsElement.addEventListener('mouseover', (e) => {
+                e.target.style.cursor = 'pointer'
+            })
+            childNode.append(postsElement)
             tbody.appendChild(childNode)
         })
     }
