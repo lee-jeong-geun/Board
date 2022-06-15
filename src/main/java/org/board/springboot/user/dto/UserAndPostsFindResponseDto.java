@@ -34,6 +34,7 @@ public class UserAndPostsFindResponseDto {
                 .map(c -> CommentFindResponseDto.builder()
                         .commentId(c.getId())
                         .content(c.getContent())
+                        .postsId(c.getPosts().getId())
                         .build())
                 .collect(Collectors.toList());
     }
