@@ -11,11 +11,13 @@ public class CommentFindResponseDto {
     public Long commentId;
     public String content;
     public String userEmail;
+    public Long postsId;
 
     @Builder
-    public CommentFindResponseDto(Long commentId, String content, String userEmail) {
+    public CommentFindResponseDto(Long commentId, String content, String userEmail, Long postsId) {
         this.commentId = commentId;
         this.content = content;
         this.userEmail = userEmail;
+        this.postsId = postsId;
     }
 }
