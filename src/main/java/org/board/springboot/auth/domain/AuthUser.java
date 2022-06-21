@@ -1,5 +1,6 @@
 package org.board.springboot.auth.domain;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.board.springboot.user.domain.User;
@@ -16,9 +17,15 @@ public class AuthUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime lastLogin;
+    private LocalDateTime lastLoggedIn;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Builder
+    public AuthUser(LocalDateTime lastLoggedIn, User user) {
+        this.lastLoggedIn = lastLoggedIn;
+        this.user = user;
+    }
 }
