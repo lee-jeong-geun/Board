@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDateTime;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
@@ -110,5 +112,25 @@ public class UserRepositoryTest {
 
         //then
         assertThat(user.getEmail()).isEqualTo(email);
+    }
+
+    @Test
+    public void 유저_로그인_시간_업데이트_성공() {
+        //given
+        LocalDateTime current = LocalDateTime.now();
+        User user = User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .build();
+
+        userRepository.save(user);
+        user.updateLastLogIn(current);
+
+        //when
+        User result = userRepository.findByEmail(email).get();
+
+        //then
+        assertThat(result.getLastLogIn()).isEqualTo(current);
     }
 }
