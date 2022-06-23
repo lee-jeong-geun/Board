@@ -7,6 +7,7 @@ import org.board.springboot.comment.domain.Comment;
 import org.board.springboot.posts.domain.Posts;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    private LocalDateTime lastLogIn;
+
     @OneToMany(mappedBy = "user")
     private List<Posts> postsList = new ArrayList<>();
 
@@ -46,5 +49,9 @@ public class User {
         this.name = name;
         this.email = email;
         this.password = password;
+    }
+
+    public void updateLastLogIn(LocalDateTime lastLogIn) {
+        this.lastLogIn = lastLogIn;
     }
 }
