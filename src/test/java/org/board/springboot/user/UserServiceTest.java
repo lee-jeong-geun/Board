@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -167,5 +168,22 @@ public class UserServiceTest {
 
         //when
         userService.findPostsByEmail(email);
+    }
+
+    @Test
+    public void 유저_로그인_시간_업데이트_호출_성공() {
+        //given
+        User user = User.builder()
+                .email(email)
+                .build();
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        //when
+        userService.updateLastLoginTime(email);
+
+        //then
+        then(userRepository).should().findByEmail(email);
+        assertThat(user.getLastLogIn()).isNotNull();
     }
 }
