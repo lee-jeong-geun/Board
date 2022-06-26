@@ -21,9 +21,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.times;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -185,5 +185,14 @@ public class UserServiceTest {
         //then
         then(userRepository).should().findByEmail(email);
         assertThat(user.getLastLogIn()).isNotNull();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void 유저_로그인_시간_업데이트_호출_실패_에러() {
+        //given
+        given(userRepository.findByEmail(email)).willReturn(Optional.empty());
+
+        //when
+        userService.updateLastLoginTime(email);
     }
 }
