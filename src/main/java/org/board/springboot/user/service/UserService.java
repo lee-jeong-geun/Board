@@ -10,6 +10,7 @@ import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,5 +58,13 @@ public class UserService {
                         .posts(p)
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void updateLastLoginTime(String email) {
+        User user =  userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        user.updateLastLogIn(LocalDateTime.now());
     }
 }
