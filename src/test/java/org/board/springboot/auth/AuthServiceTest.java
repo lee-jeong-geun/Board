@@ -309,4 +309,31 @@ public class AuthServiceTest {
         //when
         authService.login(loginRequestDto);
     }
+
+    @Test(expected = RuntimeException.class)
+    public void login_호출_실패_updateLastLoginTime_에러() {
+        //given
+        String name = "jk";
+        LoginRequestDto loginRequestDto = LoginRequestDto.builder()
+                .email(email)
+                .password(password)
+                .build();
+        UserFindResponseDto userFindResponseDto = new UserFindResponseDto(User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .build());
+        MockCookie[] mockCookies = new MockCookie[1];
+        mockCookies[0] = mockCookie;
+
+        given(mockHttpServletRequest.getCookies()).willReturn(mockCookies);
+        given(mockCookie.getName()).willReturn("token");
+        given(mockCookie.getValue()).willReturn(tokenValidValue);
+        given(jwtService.validateJWT(tokenValidValue)).willReturn(false);
+        given(userService.findByEmailAndPassword(any())).willReturn(userFindResponseDto);
+        willThrow(new RuntimeException("Runtime Exception")).given(userService).updateLastLoginTime(email);
+
+        //when
+        authService.login(loginRequestDto);
+    }
 }
