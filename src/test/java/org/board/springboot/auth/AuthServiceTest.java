@@ -83,6 +83,7 @@ public class AuthServiceTest {
         BDDMockito.then(userService).should().findByEmailAndPassword(any());
         BDDMockito.then(userSessionService).should().validateLoginEmailState(email);
         BDDMockito.then(userSessionService).should().createLoginState(email);
+        BDDMockito.then(userService).should().updateLastLoginTime(email);
         BDDMockito.then(jwtService).should().createJWT(email);
         BDDMockito.then(mockHttpServletResponse).should().addCookie(any());
         then(result.getName()).isEqualTo(name);
