@@ -33,6 +33,7 @@ public class AuthService {
 
         userSessionService.validateLoginEmailState(loginRequestDto.getEmail());
         userSessionService.createLoginState(loginRequestDto.getEmail());
+        userService.updateLastLoginTime(loginRequestDto.getEmail());
 
         Cookie cookie = new Cookie("token", jwtService.createJWT(loginRequestDto.getEmail()));
         cookie.setMaxAge(JWT_COOKIE_MAX_AGE);
