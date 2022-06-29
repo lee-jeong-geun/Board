@@ -7,6 +7,7 @@ import org.board.springboot.comment.dto.CommentFindResponseDto;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.user.domain.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,6 +17,7 @@ public class UserAndPostsFindResponseDto {
 
     private String name;
     private String email;
+    private LocalDateTime lastLogIn;
     private List<PostsFindResponseDto> posts;
     private List<CommentFindResponseDto> comment;
 
@@ -23,6 +25,7 @@ public class UserAndPostsFindResponseDto {
     public UserAndPostsFindResponseDto(User user) {
         this.name = user.getName();
         this.email = user.getEmail();
+        this.lastLogIn = user.getLastLogIn();
         this.posts = user.getPostsList().stream()
                 .map(p -> PostsFindResponseDto.builder()
                         .postsId(p.getId())
