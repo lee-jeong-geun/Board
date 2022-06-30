@@ -30,6 +30,7 @@ public class User {
     @Column(nullable = false)
     private String password;
 
+    @Column(name = "last_login")
     private LocalDateTime lastLogIn;
 
     @OneToMany(mappedBy = "user")
