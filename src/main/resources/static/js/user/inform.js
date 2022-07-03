@@ -11,7 +11,7 @@
         const tagMap = {
             '이름': response.name,
             '이메일': response.email,
-            '최근 로그인 시간': response.lastLogIn
+            '최근 로그인 시간': response.lastLogIn.replace('T', ' ')
         }
         for (let key in tagMap) {
             let childNode = document.createElement('tr')
