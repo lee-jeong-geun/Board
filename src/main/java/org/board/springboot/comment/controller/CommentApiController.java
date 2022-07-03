@@ -30,6 +30,9 @@ public class CommentApiController {
     @PostMapping("/api/v1/comment")
     public ApiResponse<Long> commentSave(@RequestBody CommentSaveRequestBody commentSaveRequestBody) {
         validateLoginState();
+        if (commentSaveRequestBody.getPostsId() == null) {
+            throw new IllegalArgumentException("postsId가 비어있습니다.");
+        }
 
         Cookie tokenCookie = getCookie(httpServletRequest.getCookies(), "token");
         String userEmail = jwtService.getEmail(tokenCookie.getValue());
