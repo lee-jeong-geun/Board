@@ -19,6 +19,10 @@ public class UserApiController {
 
     @PostMapping("/api/v1/users")
     public Long save(@RequestBody UserSaveRequestDto requestDto) {
+        if (requestDto.getEmail() == null || requestDto.getEmail().length() == 0) {
+            throw new IllegalArgumentException("이메일이 비어있습니다.");
+        }
+
         return userService.save(requestDto);
     }
 
