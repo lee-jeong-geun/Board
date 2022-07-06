@@ -24,6 +24,9 @@ public class AuthApiController {
         if (!StringUtils.hasText(requestDto.getName())) {
             throw new IllegalArgumentException("이름이 비어있습니다.");
         }
+        if (!StringUtils.hasText(requestDto.getEmail())) {
+            throw new IllegalArgumentException("이메일이 비어있습니다.");
+        }
 
         UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder()
                 .name(requestDto.getName())
