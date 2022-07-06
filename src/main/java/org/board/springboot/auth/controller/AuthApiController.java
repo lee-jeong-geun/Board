@@ -9,6 +9,7 @@ import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -20,6 +21,10 @@ public class AuthApiController {
 
     @PostMapping("/api/v1/auth/register")
     public ApiResponse<Long> register(@RequestBody RegisterRequestDto requestDto) {
+        if (!StringUtils.hasText(requestDto.getName())) {
+            throw new IllegalArgumentException("이름이 비어있습니다.");
+        }
+
         UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder()
                 .name(requestDto.getName())
                 .email(requestDto.getEmail())
