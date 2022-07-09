@@ -21,15 +21,7 @@ public class AuthApiController {
 
     @PostMapping("/api/v1/auth/register")
     public ApiResponse<Long> register(@RequestBody RegisterRequestDto requestDto) {
-        if (!StringUtils.hasText(requestDto.getName())) {
-            throw new IllegalArgumentException("이름이 비어있습니다.");
-        }
-        if (!StringUtils.hasText(requestDto.getEmail())) {
-            throw new IllegalArgumentException("이메일이 비어있습니다.");
-        }
-        if (!StringUtils.hasText(requestDto.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 비어있습니다.");
-        }
+        validateRegisterRequestDto(requestDto);
 
         UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder()
                 .name(requestDto.getName())
@@ -75,5 +67,17 @@ public class AuthApiController {
                 .success(false)
                 .message(exception.getMessage())
                 .build();
+    }
+
+    private void validateRegisterRequestDto(RegisterRequestDto requestDto) {
+        if (!StringUtils.hasText(requestDto.getName())) {
+            throw new IllegalArgumentException("이름이 비어있습니다.");
+        }
+        if (!StringUtils.hasText(requestDto.getEmail())) {
+            throw new IllegalArgumentException("이메일이 비어있습니다.");
+        }
+        if (!StringUtils.hasText(requestDto.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 비어있습니다.");
+        }
     }
 }
