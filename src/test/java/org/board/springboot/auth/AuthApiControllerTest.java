@@ -9,6 +9,7 @@ import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.service.UserService;
+import org.hibernate.tool.schema.spi.ExceptionHandler;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,6 +71,32 @@ public class AuthApiControllerTest {
         result.andExpect(status().isOk())
                 .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
         then(userService).should().save(any());
+    }
+
+    @Test
+    public void 유저등록_실패_이름_공백_예외처리() throws Exception {
+        //given
+        Long id = 1l;
+        RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
+                .name(null)
+                .email(email)
+                .password(password)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("이름이 비어있습니다.")
+                .build();
+
+        String url = "http://localhost:8080/api/v1/auth/register";
+
+        //when
+        ResultActions result = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(registerRequestDto)));
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
     }
 
     @Test
