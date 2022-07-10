@@ -76,7 +76,6 @@ public class AuthApiControllerTest {
     @Test
     public void 유저등록_실패_이름_공백_예외처리() throws Exception {
         //given
-        Long id = 1l;
         RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
                 .name(null)
                 .email(email)
@@ -85,6 +84,31 @@ public class AuthApiControllerTest {
         ExceptionResponse exceptionResponse = ExceptionResponse.builder()
                 .success(false)
                 .message("이름이 비어있습니다.")
+                .build();
+
+        String url = "http://localhost:8080/api/v1/auth/register";
+
+        //when
+        ResultActions result = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(registerRequestDto)));
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+    }
+
+    @Test
+    public void 유저등록_실패_이메일_공백_예외처리() throws Exception {
+        //given
+        RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
+                .name(name)
+                .email(null)
+                .password(password)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("이메일이 비어있습니다.")
                 .build();
 
         String url = "http://localhost:8080/api/v1/auth/register";
