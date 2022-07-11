@@ -124,6 +124,31 @@ public class AuthApiControllerTest {
     }
 
     @Test
+    public void 유저등록_실패_비밀번호_공백_예외처리() throws Exception {
+        //given
+        RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
+                .name(name)
+                .email(email)
+                .password(null)
+                .build();
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("비밀번호가 비어있습니다.")
+                .build();
+
+        String url = "http://localhost:8080/api/v1/auth/register";
+
+        //when
+        ResultActions result = mockMvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(registerRequestDto)));
+
+        //then
+        result.andExpect(status().isOk())
+                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+    }
+
+    @Test
     public void 로그인_호출_성공() throws Exception {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
