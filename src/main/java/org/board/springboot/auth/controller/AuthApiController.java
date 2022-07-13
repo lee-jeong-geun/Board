@@ -70,14 +70,14 @@ public class AuthApiController {
     }
 
     private void validateRegisterRequestDto(RegisterRequestDto requestDto) {
-        if (!StringUtils.hasText(requestDto.getName())) {
-            throw new IllegalArgumentException("이름이 비어있습니다.");
-        }
-        if (!StringUtils.hasText(requestDto.getEmail())) {
-            throw new IllegalArgumentException("이메일이 비어있습니다.");
-        }
-        if (!StringUtils.hasText(requestDto.getPassword())) {
-            throw new IllegalArgumentException("비밀번호가 비어있습니다.");
+        isNotEmpty(requestDto.getName(), "이름이 비어있습니다.");
+        isNotEmpty(requestDto.getEmail(), "이메일이 비어있습니다.");
+        isNotEmpty(requestDto.getPassword(), "비밀번호가 비어있습니다.");
+    }
+
+    private void isNotEmpty(String word, String message) {
+        if (!StringUtils.hasText(word)) {
+            throw new IllegalArgumentException(message);
         }
     }
 }
