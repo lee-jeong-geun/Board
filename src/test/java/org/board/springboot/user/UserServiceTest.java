@@ -1,6 +1,5 @@
 package org.board.springboot.user;
 
-import org.assertj.core.api.BDDAssertions;
 import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
@@ -9,37 +8,36 @@ import org.board.springboot.user.dto.UserFindRequestDto;
 import org.board.springboot.user.dto.UserFindResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.service.UserService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
 
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
     @Mock
-    private UserRepository userRepository;
+    UserRepository userRepository;
 
     @InjectMocks
-    private UserService userService;
+    UserService userService;
 
-    private final String email = "jk@jk.com";
-    private final String password = "jkjk";
+    final String email = "jk@jk.com";
+    final String password = "jkjk";
 
     @Test
-    public void 유저저장_호출_성공() throws Exception {
+    void 유저저장_호출_성공() throws Exception {
         //given
         User user = User.builder().build();
         Field field = user.getClass().getDeclaredField("id");
@@ -56,21 +54,25 @@ public class UserServiceTest {
         //then
         then(userRepository).should().findByEmail(email);
         then(userRepository).should().save(any());
-        assertThat(id).isEqualTo(1l);
+        assertEquals(1l, id);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void 유저저장_호출_에러() {
+    @Test
+    void 유저저장_호출_에러() {
         //given
         UserSaveRequestDto userSaveRequestDto = UserSaveRequestDto.builder().email(email).build();
         given(userRepository.findByEmail(userSaveRequestDto.getEmail())).willReturn(Optional.of(User.builder().build()));
 
         //when
-        userService.save(userSaveRequestDto);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.save(userSaveRequestDto));
+
+        //then
+        assertEquals("해당 유저가 이미 존재합니다.", exception.getMessage());
     }
 
     @Test
-    public void 유저탐색_호출_성공() {
+    void 유저탐색_호출_성공() {
         //given
         String name = "jk";
         UserFindRequestDto userFindRequestDto = UserFindRequestDto.builder()
@@ -88,12 +90,12 @@ public class UserServiceTest {
 
         //then
         then(userRepository).should().findByEmailAndPassword(email, password);
-        assertThat(userFindResponseDto.getName()).isEqualTo(name);
-        assertThat(userFindResponseDto.getEmail()).isEqualTo(email);
+        assertEquals(name, userFindResponseDto.getName());
+        assertEquals(email, userFindResponseDto.getEmail());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void 유저탐색_호출_에러() {
+    @Test
+    void 유저탐색_호출_에러() {
         //given
         UserFindRequestDto userFindRequestDto = UserFindRequestDto.builder()
                 .email(email)
@@ -102,11 +104,16 @@ public class UserServiceTest {
         given(userRepository.findByEmailAndPassword(email, password)).willReturn(Optional.empty());
 
         //when
-        userService.findByEmailAndPassword(userFindRequestDto);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.findByEmailAndPassword(userFindRequestDto));
+
+        //then
+
+        assertEquals("해당 유저가 없습니다.", exception.getMessage());
     }
 
     @Test
-    public void 유저탐색_이메일_호출_성공() {
+    void 유저탐색_이메일_호출_성공() {
         //given
         User user = User.builder()
                 .email(email)
@@ -118,20 +125,24 @@ public class UserServiceTest {
 
         //then
         then(userRepository).should().findByEmail(email);
-        BDDAssertions.then(user).isEqualTo(result);
+        assertEquals(user, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void 유저탐색_이메일_호출_실패_에러() {
+    @Test
+    void 유저탐색_이메일_호출_실패_에러() {
         //given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when
-        userService.findByEmail(email);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.findByEmail(email));
+
+        //then
+        assertEquals("해당 유저가 없습니다.", exception.getMessage());
     }
 
     @Test
-    public void 유저_게시글_조회_호출_성공() {
+    void 유저_게시글_조회_호출_성공() {
         //given
         User user = User.builder()
                 .email(email)
@@ -154,24 +165,28 @@ public class UserServiceTest {
 
         //then
         then(userRepository).should().findByEmail(email);
-        BDDAssertions.then(result.size()).isEqualTo(2);
-        BDDAssertions.then(result.get(0).getTitle()).isEqualTo("title1");
-        BDDAssertions.then(result.get(0).getContent()).isEqualTo("content1");
-        BDDAssertions.then(result.get(1).getTitle()).isEqualTo("title2");
-        BDDAssertions.then(result.get(1).getContent()).isEqualTo("content2");
+        assertEquals(2, result.size());
+        assertEquals("title1", result.get(0).getTitle());
+        assertEquals("content1", result.get(0).getContent());
+        assertEquals("title2", result.get(1).getTitle());
+        assertEquals("content2", result.get(1).getContent());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void 유저_게시글_조회_호출_실패_에러() {
+    @Test
+    void 유저_게시글_조회_호출_실패_에러() {
         //given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when
-        userService.findPostsByEmail(email);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.findPostsByEmail(email));
+
+        //then
+        assertEquals("해당 유저가 없습니다.", exception.getMessage());
     }
 
     @Test
-    public void 유저_로그인_시간_업데이트_호출_성공() {
+    void 유저_로그인_시간_업데이트_호출_성공() {
         //given
         User user = User.builder()
                 .email(email)
@@ -184,15 +199,19 @@ public class UserServiceTest {
 
         //then
         then(userRepository).should().findByEmail(email);
-        assertThat(user.getLastLogIn()).isNotNull();
+        assertNotNull(user.getLastLogIn());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void 유저_로그인_시간_업데이트_호출_실패_에러() {
+    @Test
+    void 유저_로그인_시간_업데이트_호출_실패_에러() {
         //given
         given(userRepository.findByEmail(email)).willReturn(Optional.empty());
 
         //when
-        userService.updateLastLoginTime(email);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.updateLastLoginTime(email));
+
+        //then
+        assertEquals("해당 유저가 없습니다.", exception.getMessage());
     }
 }
