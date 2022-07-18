@@ -2,15 +2,15 @@ package org.board.springboot.auth;
 
 import org.board.springboot.auth.dto.LoginRequestDto;
 import org.board.springboot.user.dto.UserFindRequestDto;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.BDDAssertions.then;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 
 public class LoginDtoTest {
 
     @Test
-    public void LoginRequestDto_toUserFindRequestDto_변환_성공() {
+    void LoginRequestDto_toUserFindRequestDto_변환_성공() {
         //given
         String email = "jk@jk.com";
         String password = "jkjk";
@@ -23,7 +23,7 @@ public class LoginDtoTest {
         UserFindRequestDto userFindRequestDto = loginRequestDto.toUserFindRequestDto();
 
         //then
-        then(userFindRequestDto.getEmail()).isEqualTo(email);
-        then(userFindRequestDto.getPassword()).isEqualTo(password);
+        assertEquals(email, userFindRequestDto.getEmail());
+        assertEquals(password, userFindRequestDto.getPassword());
     }
 }
