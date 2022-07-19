@@ -1,6 +1,5 @@
 package org.board.springboot.posts;
 
-import org.assertj.core.api.BDDAssertions;
 import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.posts.domain.PostsRepository;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
@@ -8,12 +7,12 @@ import org.board.springboot.posts.dto.PostsSaveRequestDto;
 import org.board.springboot.posts.service.PostsService;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.service.UserService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -21,29 +20,31 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class PostsServiceTest {
 
     @Mock
-    private UserService userService;
+    UserService userService;
 
     @Mock
-    private PostsRepository postsRepository;
+    PostsRepository postsRepository;
 
     @InjectMocks
-    private PostsService postsService;
+    PostsService postsService;
 
-    private final String email = "jk@jk.com";
-    private final String title = "title";
-    private final String content = "content";
+    final String email = "jk@jk.com";
+    final String title = "title";
+    final String content = "content";
 
     @Test
-    public void 포스트_저장_호출_성공() throws Exception {
+    void 포스트_저장_호출_성공() throws Exception {
         //given
         User user = User.builder()
                 .build();
@@ -67,12 +68,12 @@ public class PostsServiceTest {
         //then
         then(userService).should().findByEmail(postSaveRequestDto.getEmail());
         then(postsRepository).should().save(postsArgumentCaptor.capture());
-        BDDAssertions.then(postsArgumentCaptor.getValue().getUser()).isEqualTo(user);
-        BDDAssertions.then(id).isEqualTo(1l);
+        assertEquals(user, postsArgumentCaptor.getValue().getUser());
+        assertEquals(1l, id);
     }
 
     @Test
-    public void 포스트_전체_검색_호출_성공() throws Exception {
+    void 포스트_전체_검색_호출_성공() throws Exception {
         //given
         int viewCount = 0;
         User user = User.builder()
@@ -105,18 +106,18 @@ public class PostsServiceTest {
 
         //then
         then(postsRepository).should(times(1)).findAll();
-        BDDAssertions.then(result.size()).isEqualTo(2);
-        BDDAssertions.then(result.get(0).getPostsId()).isEqualTo(1l);
-        BDDAssertions.then(result.get(0).getTitle()).isEqualTo(title);
-        BDDAssertions.then(result.get(0).getContent()).isEqualTo(content);
-        BDDAssertions.then(result.get(0).getViewCount()).isEqualTo(viewCount);
-        BDDAssertions.then(result.get(0).getUserEmail()).isEqualTo(email);
-        BDDAssertions.then(result.get(1).getPostsId()).isEqualTo(2l);
-        BDDAssertions.then(result.get(1).getUserEmail()).isEqualTo(email);
+        assertEquals(2, result.size());
+        assertEquals(1l, result.get(0).getPostsId());
+        assertEquals(title, result.get(0).getTitle());
+        assertEquals(content, result.get(0).getContent());
+        assertEquals(viewCount, result.get(0).getViewCount());
+        assertEquals(email, result.get(0).getUserEmail());
+        assertEquals(2l, result.get(1).getPostsId());
+        assertEquals(email, result.get(1).getUserEmail());
     }
 
     @Test
-    public void 포스트_검색_아이디_호출_성공() throws Exception {
+    void 포스트_검색_아이디_호출_성공() throws Exception {
         //given
         Long id = 1l;
         int viewCount = 0;
@@ -139,24 +140,27 @@ public class PostsServiceTest {
 
         //then
         then(postsRepository).should().findById(id);
-        BDDAssertions.then(result.getPostsId()).isEqualTo(id);
-        BDDAssertions.then(result.getTitle()).isEqualTo(title);
-        BDDAssertions.then(result.getContent()).isEqualTo(content);
-        BDDAssertions.then(result.getViewCount()).isEqualTo(viewCount);
-        BDDAssertions.then(result.getUserEmail()).isEqualTo(email);
+        assertEquals(id, result.getPostsId());
+        assertEquals(title, result.getTitle());
+        assertEquals(content, result.getContent());
+        assertEquals(viewCount, result.getViewCount());
+        assertEquals(email, result.getUserEmail());
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void 포스트_검색_아이디_호출_실패_에러() {
+    @Test
+    void 포스트_검색_아이디_호출_실패_에러() {
         //given
         given(postsRepository.findById(1l)).willReturn(Optional.empty());
 
         //when
-        postsService.findById(1l);
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> postsService.findById(1l));
+
+        //then
+        assertEquals("해당 게시글이 없습니다.", exception.getMessage());
     }
 
     @Test
-    public void viewCountUpdateById_호출_성공() throws Exception {
+    void viewCountUpdateById_호출_성공() throws Exception {
         //given
         Long id = 1l;
         int viewCount = 3;
@@ -177,17 +181,21 @@ public class PostsServiceTest {
 
         //then
         then(postsRepository).should().findByIdForUpdate(id);
-        BDDAssertions.then(result).isEqualTo(viewCount + updateCount);
+        assertEquals(viewCount + updateCount, result);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void viewCountUpdateById_호출_실패_에러처리() {
+    @Test
+    void viewCountUpdateById_호출_실패_에러처리() {
         //given
         Long id = 1l;
         int updateCount = 1;
         given(postsRepository.findByIdForUpdate(id)).willReturn(Optional.empty());
 
         //when
-        postsService.viewCountUpdateById(id, updateCount);
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> postsService.viewCountUpdateById(id, updateCount));
+
+        //then
+        assertEquals("해당 게시글이 없습니다.", exception.getMessage());
     }
 }
