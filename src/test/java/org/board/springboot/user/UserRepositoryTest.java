@@ -2,35 +2,32 @@ package org.board.springboot.user;
 
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
 public class UserRepositoryTest {
 
     @Autowired
     UserRepository userRepository;
 
-    @After
+    @AfterEach
     public void clean() {
         userRepository.deleteAll();
     }
 
-    private final String name = "jk";
-    private final String email = "jk@jk.com";
-    private final String password = "jkjk";
+    final String name = "jk";
+    final String email = "jk@jk.com";
+    final String password = "jkjk";
 
     @Test
-    public void 유저저장_성공() {
+    void 유저저장_성공() {
         //given
 
         //when
@@ -42,13 +39,13 @@ public class UserRepositoryTest {
 
         //then
         User user = userRepository.findAll().get(0);
-        assertThat(user.getName()).isEqualTo(name);
-        assertThat(user.getEmail()).isEqualTo(email);
-        assertThat(user.getPassword()).isEqualTo(password);
+        assertEquals(name, user.getName());
+        assertEquals(email, user.getEmail());
+        assertEquals(password, user.getPassword());
     }
 
     @Test
-    public void 유저삭제_성공() {
+    void 유저삭제_성공() {
         //given
         userRepository.save(User.builder()
                 .name(name)
@@ -60,11 +57,11 @@ public class UserRepositoryTest {
         userRepository.delete(userRepository.findAll().get(0));
 
         //then
-        assertThat(userRepository.findAll().size()).isEqualTo(0);
+        assertEquals(0, userRepository.findAll().size());
     }
 
     @Test
-    public void 유저수정_성공() {
+    void 유저수정_성공() {
         //given
         String modifyName = "jk2";
         User user = userRepository.save(User.builder()
@@ -78,11 +75,11 @@ public class UserRepositoryTest {
         user = userRepository.findById(user.getId()).get();
 
         //then
-        assertThat(user.getName()).isEqualTo(modifyName);
+        assertEquals(modifyName, user.getName());
     }
 
     @Test
-    public void 유저조회_이메일_비밀번호_성공() {
+    void 유저조회_이메일_비밀번호_성공() {
         //given
         userRepository.save(User.builder()
                 .name(name)
@@ -94,12 +91,12 @@ public class UserRepositoryTest {
         User user = userRepository.findByEmailAndPassword(email, password).get();
 
         //then
-        assertThat(user.getEmail()).isEqualTo(email);
-        assertThat(user.getPassword()).isEqualTo(password);
+        assertEquals(email, user.getEmail());
+        assertEquals(password, user.getPassword());
     }
 
     @Test
-    public void 유저조회_이메일_성공() {
+    void 유저조회_이메일_성공() {
         //given
         userRepository.save(User.builder()
                 .name(name)
@@ -111,11 +108,11 @@ public class UserRepositoryTest {
         User user = userRepository.findByEmail(email).get();
 
         //then
-        assertThat(user.getEmail()).isEqualTo(email);
+        assertEquals(email, user.getEmail());
     }
 
     @Test
-    public void 유저_로그인_시간_업데이트_성공() {
+    void 유저_로그인_시간_업데이트_성공() {
         //given
         LocalDateTime current = LocalDateTime.now();
         User user = User.builder()
@@ -131,6 +128,6 @@ public class UserRepositoryTest {
         User result = userRepository.findByEmail(email).get();
 
         //then
-        assertThat(result.getLastLogIn()).isEqualTo(current);
+        assertEquals(current, result.getLastLogIn());
     }
 }
