@@ -6,27 +6,24 @@ import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.posts.domain.PostsRepository;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-@RunWith(SpringRunner.class)
 public class CommentRepositoryTest {
 
     @Autowired
-    private CommentRepository commentRepository;
+    CommentRepository commentRepository;
     @Autowired
-    private UserRepository userRepository;
+    UserRepository userRepository;
     @Autowired
-    private PostsRepository postsRepository;
+    PostsRepository postsRepository;
 
     @Test
-    public void comment_저장_성공() {
+    void comment_저장_성공() {
         //given
         String name = "jk";
         String email = "jk@jk.com";
@@ -58,9 +55,9 @@ public class CommentRepositoryTest {
         Comment result = commentRepository.findById(1l).get();
 
         //then
-        assertThat(result.getId()).isEqualTo(1l);
-        assertThat(result.getContent()).isEqualTo(content);
-        assertThat(result.getUser()).isEqualTo(user);
-        assertThat(result.getPosts()).isEqualTo(posts);
+        assertEquals(1l, result.getId());
+        assertEquals(content, result.getContent());
+        assertEquals(user, result.getUser());
+        assertEquals(posts, result.getPosts());
     }
 }
