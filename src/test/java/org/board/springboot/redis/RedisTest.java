@@ -1,17 +1,16 @@
 package org.board.springboot.redis;
 
-import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @SpringBootTest
 public class RedisTest {
 
@@ -20,16 +19,16 @@ public class RedisTest {
 
     HashOperations<String, String, Object> hashOperations;
 
-    static final String key = "test";
-    static final String hashKey = "test";
-    static final String value = "true";
+    String key = "test";
+    String hashKey = "test";
+    String value = "true";
 
-    @Before
+    @BeforeEach
     public void 세팅() {
         hashOperations = redisTemplate.opsForHash();
     }
 
-    @After
+    @AfterEach
     public void 초기화() {
         System.out.println("clear");
         hashOperations.delete(key, hashKey);
@@ -37,7 +36,7 @@ public class RedisTest {
 
 
     @Test
-    public void 레디스_해시_삽입_성공() {
+    void 레디스_해시_삽입_성공() {
         //given
         hashOperations.put(key, hashKey, value);
 
@@ -45,11 +44,11 @@ public class RedisTest {
         Object result = hashOperations.get(key, hashKey);
 
         //then
-        Assertions.assertThat(result).isEqualTo(value);
+        assertEquals(value, result);
     }
 
     @Test
-    public void 레디스_해시_삭제_성공() {
+    void 레디스_해시_삭제_성공() {
         //given
         hashOperations.put(key, hashKey, value);
 
@@ -57,6 +56,6 @@ public class RedisTest {
         Long result = hashOperations.delete(key, hashKey);
 
         //then
-        Assertions.assertThat(result).isNotNull();
+        assertNotNull(result);
     }
 }
