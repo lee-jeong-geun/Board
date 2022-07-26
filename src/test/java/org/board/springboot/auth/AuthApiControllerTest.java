@@ -10,7 +10,7 @@ import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.service.UserService;
 import org.hibernate.tool.schema.spi.ExceptionHandler;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -28,7 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(AuthApiController.class)
 public class AuthApiControllerTest {
 
@@ -42,12 +41,12 @@ public class AuthApiControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    private final String name = "jk";
-    private final String email = "jk@jk.com";
-    private final String password = "jkjk";
+    final String name = "jk";
+    final String email = "jk@jk.com";
+    final String password = "jkjk";
 
     @Test
-    public void 유저등록_호출_성공() throws Exception {
+    void 유저등록_호출_성공() throws Exception {
         //given
         Long id = 1l;
         RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
@@ -64,7 +63,7 @@ public class AuthApiControllerTest {
 
         //when
         ResultActions result = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequestDto)));
 
         //then
@@ -74,7 +73,7 @@ public class AuthApiControllerTest {
     }
 
     @Test
-    public void 유저등록_실패_이름_공백_예외처리() throws Exception {
+    void 유저등록_실패_이름_공백_예외처리() throws Exception {
         //given
         RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
                 .name(null)
@@ -90,16 +89,16 @@ public class AuthApiControllerTest {
 
         //when
         ResultActions result = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequestDto)));
 
         //then
         result.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
     }
 
     @Test
-    public void 유저등록_실패_이메일_공백_예외처리() throws Exception {
+    void 유저등록_실패_이메일_공백_예외처리() throws Exception {
         //given
         RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
                 .name(name)
@@ -115,16 +114,16 @@ public class AuthApiControllerTest {
 
         //when
         ResultActions result = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequestDto)));
 
         //then
         result.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
     }
 
     @Test
-    public void 유저등록_실패_비밀번호_공백_예외처리() throws Exception {
+    void 유저등록_실패_비밀번호_공백_예외처리() throws Exception {
         //given
         RegisterRequestDto registerRequestDto = RegisterRequestDto.builder()
                 .name(name)
@@ -140,16 +139,16 @@ public class AuthApiControllerTest {
 
         //when
         ResultActions result = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(registerRequestDto)));
 
         //then
         result.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
     }
 
     @Test
-    public void 로그인_호출_성공() throws Exception {
+    void 로그인_호출_성공() throws Exception {
         //given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .email(email)
@@ -168,7 +167,7 @@ public class AuthApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
@@ -178,7 +177,7 @@ public class AuthApiControllerTest {
     }
 
     @Test
-    public void 로그인_호출_실패_에러처리() throws Exception {
+    void 로그인_호출_실패_에러처리() throws Exception {
         //given
         String message = "해당 유저가 없습니다.";
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
@@ -194,17 +193,17 @@ public class AuthApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().login(any());
     }
 
     @Test
-    public void 로그인_호출_실패_이메일_공백_값_에러처리() throws Exception {
+    void 로그인_호출_실패_이메일_공백_값_에러처리() throws Exception {
         //given
         String message = "아이디를 입력해주세요.";
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
@@ -220,17 +219,17 @@ public class AuthApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().login(any());
     }
 
     @Test
-    public void 로그인_호출_실패_이메일_null_값_에러처리() throws Exception {
+    void 로그인_호출_실패_이메일_null_값_에러처리() throws Exception {
         //given
         String message = "아이디를 입력해주세요.";
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
@@ -246,17 +245,17 @@ public class AuthApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(loginRequestDto)));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().login(any());
     }
 
     @Test
-    public void 로그아웃_호출_성공() throws Exception {
+    void 로그아웃_호출_성공() throws Exception {
         //given
         ApiResponse<Void> apiResponse = ApiResponse.<Void>builder()
                 .success(true)
@@ -275,7 +274,7 @@ public class AuthApiControllerTest {
     }
 
     @Test
-    public void 로그아웃_호출_실패_에러처리() throws Exception {
+    void 로그아웃_호출_실패_에러처리() throws Exception {
         //given
         boolean success = false;
         String message = "로그인 상태가 아닙니다.";
@@ -291,12 +290,12 @@ public class AuthApiControllerTest {
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().logout();
     }
 
     @Test
-    public void 로그인_상태_확인_호출_성공() throws Exception {
+    void 로그인_상태_확인_호출_성공() throws Exception {
         //given
         ApiResponse<Boolean> apiResponse = ApiResponse.<Boolean>builder()
                 .success(true)
@@ -315,7 +314,7 @@ public class AuthApiControllerTest {
     }
 
     @Test
-    public void 로그인_상태_확인_호출_false_반환() throws Exception {
+    void 로그인_상태_확인_호출_false_반환() throws Exception {
         //given
         ApiResponse<Boolean> apiResponse = ApiResponse.<Boolean>builder()
                 .success(true)
