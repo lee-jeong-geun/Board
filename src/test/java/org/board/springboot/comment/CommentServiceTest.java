@@ -10,11 +10,14 @@ import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.posts.domain.PostsRepository;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.service.UserService;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -22,27 +25,28 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.in;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CommentServiceTest {
 
     @InjectMocks
-    private CommentService commentService;
+    CommentService commentService;
     @Mock
-    private CommentRepository commentRepository;
+    CommentRepository commentRepository;
     @Mock
-    private UserService userService;
+    UserService userService;
     @Mock
-    private PostsRepository postsRepository;
+    PostsRepository postsRepository;
 
-    private final String content = "content";
-    private final String userEmail = "jk@jk.com";
+    final String content = "content";
+    final String userEmail = "jk@jk.com";
 
     @Test
-    public void save_호출_성공() throws Exception {
+    void save_호출_성공() throws Exception {
         //given
         Long postsId = 1l;
         User user = User.builder().build();
@@ -74,10 +78,10 @@ public class CommentServiceTest {
         then(userService).should().findByEmail(userEmail);
         then(postsRepository).should().findById(postsId);
         then(commentRepository).should().save(any());
-        assertThat(result).isEqualTo(1l);
+        assertEquals(1l, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void save_호출_실패_user_에러처리() {
         //given
         Long postsId = 1l;
@@ -90,10 +94,14 @@ public class CommentServiceTest {
         given(userService.findByEmail(userEmail)).willThrow(new IllegalArgumentException("해당 유저가 없습니다."));
 
         //when
-        commentService.save(commentSaveRequestDto);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> commentService.save(commentSaveRequestDto));
+
+        //then
+        assertEquals("해당 유저가 없습니다.", exception.getMessage());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void save_호출_실패_posts_에러처리() {
         //given
         Long postsId = 1l;
@@ -108,7 +116,11 @@ public class CommentServiceTest {
         given(postsRepository.findById(postsId)).willThrow(new IllegalStateException("해당 게시글이 없습니다."));
 
         //when
-        commentService.save(commentSaveRequestDto);
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> commentService.save(commentSaveRequestDto));
+
+        //then
+        assertEquals("해당 게시글이 없습니다.", exception.getMessage());
     }
 
     @Test
@@ -138,13 +150,13 @@ public class CommentServiceTest {
 
         //then
         then(postsRepository).should().findById(postsId);
-        assertThat(commentList.size()).isEqualTo(1);
-        assertThat(commentList.get(0).commentId).isEqualTo(comment.getId());
-        assertThat(commentList.get(0).content).isEqualTo(comment.getContent());
-        assertThat(commentList.get(0).userEmail).isEqualTo(comment.getUser().getEmail());
+        assertEquals(1, commentList.size());
+        assertEquals(comment.getId(), commentList.get(0).getCommentId());
+        assertEquals(comment.getContent(), commentList.get(0).getContent());
+        assertEquals(comment.getUser().getEmail(), commentList.get(0).getUserEmail());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void findByPostsId_호출_실패_게시글_조회_실패_에러처리() {
         //given
         Long postsId = 1l;
@@ -152,7 +164,11 @@ public class CommentServiceTest {
         given(postsRepository.findById(postsId)).willThrow(new IllegalStateException("해당 게시글이 없습니다."));
 
         //when
-        commentService.findByPostsId(postsId);
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> commentService.findByPostsId(postsId));
+
+        //then
+        assertEquals("해당 게시글이 없습니다.", exception.getMessage());
     }
 
     @Test
@@ -182,10 +198,10 @@ public class CommentServiceTest {
         //then
         then(commentRepository).should().findById(commentId);
         then(commentRepository).should().delete(comment);
-        assertThat(result).isEqualTo(commentId);
+        assertEquals(commentId, result);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void deleteById_호출_실패_조회_실패_에러처리() {
         //given
         Long commentId = 1L;
@@ -197,10 +213,14 @@ public class CommentServiceTest {
         given(commentRepository.findById(commentId)).willThrow(new IllegalStateException("해당 댓글이 없습니다."));
 
         //when
-        commentService.deleteById(commentDeleteRequestDto);
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> commentService.deleteById(commentDeleteRequestDto));
+
+        //then
+        assertEquals("해당 댓글이 없습니다.", exception.getMessage());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void deleteById_호출_실패_타_작성자_에러처리() {
         //given
         Long commentId = 1L;
@@ -224,6 +244,10 @@ public class CommentServiceTest {
         given(commentRepository.findById(commentId)).willReturn(Optional.of(comment));
 
         //when
-        commentService.deleteById(commentDeleteRequestDto);
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> commentService.deleteById(commentDeleteRequestDto));
+
+        //then
+        assertEquals("해당 댓글의 작성자가 아닙니다.", exception.getMessage());
     }
 }
