@@ -7,11 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class CommentFindResponseDto {
-
-    public Long commentId;
-    public String content;
-    public String userEmail;
-    public Long postsId;
+    private Long commentId;
+    private String content;
+    private String userEmail;
+    private Long postsId;
 
     @Builder
     public CommentFindResponseDto(Long commentId, String content, String userEmail, Long postsId) {
