@@ -12,7 +12,8 @@ import org.board.springboot.posts.dto.PostsSaveRequestBody;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
 import org.board.springboot.posts.service.PostsService;
 import org.board.springboot.redis.user.UserSessionService;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -28,6 +29,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
@@ -36,20 +38,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(PostsApiController.class)
 public class PostsApiControllerTest {
 
     @MockBean
-    private PostsService postsService;
+    PostsService postsService;
     @MockBean
-    private UserSessionService userSessionService;
+    UserSessionService userSessionService;
     @MockBean
-    private AuthService authService;
+    AuthService authService;
     @MockBean
-    private JWTService jwtService;
+    JWTService jwtService;
     @Mock
-    private MockCookie mockCookie;
+    MockCookie mockCookie;
 
     @Autowired
     MockMvc mockMvc;
@@ -57,12 +58,12 @@ public class PostsApiControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    private final String title = "title";
-    private final String content = "content";
-    private final String email = "jk@jk.com";
+    final String title = "title";
+    final String content = "content";
+    final String email = "jk@jk.com";
 
     @Test
-    public void 게시글_리스트_조회_성공() throws Exception {
+    void 게시글_리스트_조회_성공() throws Exception {
         //given
         int viewCount = 0;
         String url = "/api/v1/posts";
@@ -90,7 +91,7 @@ public class PostsApiControllerTest {
     }
 
     @Test
-    public void 게시글_등록_성공() throws Exception {
+    void 게시글_등록_성공() throws Exception {
         //given
         String url = "/api/v1/posts";
         boolean success = true;
@@ -112,7 +113,7 @@ public class PostsApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postsSaveRequestBody))
                 .cookie(mockCookie));
 
@@ -129,13 +130,13 @@ public class PostsApiControllerTest {
         then(userSessionService).should().checkLastPostsSaveTime(email);
         then(userSessionService).should().updateTodayRemainPostsCount(email);
         then(userSessionService).should().updateLastPostsSaveTime(email);
-        BDDAssertions.then(argumentCaptor.getValue().getTitle()).isEqualTo(title);
-        BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
-        BDDAssertions.then(argumentCaptor.getValue().getEmail()).isEqualTo(email);
+        assertEquals(title, argumentCaptor.getValue().getTitle());
+        assertEquals(content, argumentCaptor.getValue().getContent());
+        assertEquals(email, argumentCaptor.getValue().getEmail());
     }
 
     @Test
-    public void 게시글_등록_실패_일일_게시글_최대상태_에러처리() throws Exception {
+    void 게시글_등록_실패_일일_게시글_최대상태_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts";
         boolean success = false;
@@ -157,13 +158,13 @@ public class PostsApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postsSaveRequestBody))
                 .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().isLoggedIn();
         then(mockCookie).should(times(2)).getName();
         then(mockCookie).should(times(3)).getValue();
@@ -173,7 +174,7 @@ public class PostsApiControllerTest {
     }
 
     @Test
-    public void 게시글_등록_실패_게시글_간격_5초_미만_에러처리() throws Exception {
+    void 게시글_등록_실패_게시글_간격_5초_미만_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts";
         boolean success = false;
@@ -195,13 +196,13 @@ public class PostsApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postsSaveRequestBody))
                 .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().isLoggedIn();
         then(mockCookie).should(times(2)).getName();
         then(mockCookie).should(times(3)).getValue();
@@ -212,7 +213,7 @@ public class PostsApiControllerTest {
     }
 
     @Test
-    public void 게시글_등록_실패_로그인상태_에러처리() throws Exception {
+    void 게시글_등록_실패_로그인상태_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts";
         PostsSaveRequestBody postsSaveRequestBody = PostsSaveRequestBody.builder()
@@ -227,18 +228,18 @@ public class PostsApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(postsSaveRequestBody))
                 .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().isLoggedIn();
     }
 
     @Test
-    public void 게시글_조회_아이디_성공() throws Exception {
+    void 게시글_조회_아이디_성공() throws Exception {
         //given
         String url = "/api/v1/posts/1";
         Long id = 1l;
@@ -262,13 +263,13 @@ public class PostsApiControllerTest {
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(apiResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(apiResponse)));
         then(postsService).should().viewCountUpdateById(id, updateCount);
         then(postsService).should().findById(id);
     }
 
     @Test
-    public void 게시글_조회_아이디_findById_실패_에러처리() throws Exception {
+    void 게시글_조회_아이디_findById_실패_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts/1";
         Long id = 1l;
@@ -284,13 +285,13 @@ public class PostsApiControllerTest {
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(postsService).should().viewCountUpdateById(id, updateCount);
         then(postsService).should().findById(id);
     }
 
     @Test
-    public void 게시글_조회_아이디_viewCountUpdateById_실패_에러처리() throws Exception {
+    void 게시글_조회_아이디_viewCountUpdateById_실패_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts/1";
         Long id = 1l;
@@ -306,7 +307,7 @@ public class PostsApiControllerTest {
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(postsService).should().viewCountUpdateById(id, updateCount);
     }
 }
