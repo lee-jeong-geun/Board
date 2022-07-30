@@ -2,7 +2,6 @@ package org.board.springboot.comment;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.BDDAssertions;
 import org.board.springboot.auth.service.AuthService;
 import org.board.springboot.auth.service.JWTService;
 import org.board.springboot.comment.controller.CommentApiController;
@@ -13,8 +12,7 @@ import org.board.springboot.comment.dto.CommentSaveRequestDto;
 import org.board.springboot.comment.service.CommentService;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +20,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockCookie;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -37,31 +35,30 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
 @WebMvcTest(CommentApiController.class)
 public class CommentApiControllerTest {
 
     @MockBean
-    private CommentService commentService;
+    CommentService commentService;
     @MockBean
-    private AuthService authService;
+    AuthService authService;
     @MockBean
-    private JWTService jwtService;
+    JWTService jwtService;
     @Mock
-    private MockCookie mockCookie;
+    MockCookie mockCookie;
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
     @Autowired
-    private ObjectMapper objectMapper;
+    ObjectMapper objectMapper;
 
-    private final String content = "content";
-    private final String userEmail = "jk@jk.com";
-    private final Long postsId = 1l;
-    private final Long commentId = 1L;
+    final String content = "content";
+    final String userEmail = "jk@jk.com";
+    final Long postsId = 1l;
+    final Long commentId = 1L;
 
     @Test
-    public void Comment_save_호출_성공() throws Exception {
+    void Comment_save_호출_성공() throws Exception {
         //given
         String url = "/api/v1/comment";
         String validToken = "valid";
@@ -84,7 +81,7 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(commentSaveRequestBody))
                 .cookie(mockCookie));
 
@@ -96,13 +93,13 @@ public class CommentApiControllerTest {
         then(mockCookie).should(times(3)).getValue();
         then(jwtService).should().getEmail(validToken);
         then(commentService).should().save(argumentCaptor.capture());
-        BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
-        BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
-        BDDAssertions.then(argumentCaptor.getValue().getPostsId()).isEqualTo(postsId);
+        assertEquals(content, argumentCaptor.getValue().getContent());
+        assertEquals(userEmail, argumentCaptor.getValue().getUserEmail());
+        assertEquals(postsId, argumentCaptor.getValue().getPostsId());
     }
 
     @Test
-    public void Comment_save_호출_실패_잘못된_postsId_에러처리() throws Exception {
+    void Comment_save_호출_실패_잘못된_postsId_에러처리() throws Exception {
         //given
         String url = "/api/v1/comment";
         String validToken = "valid";
@@ -125,25 +122,25 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(commentSaveRequestBody))
                 .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().isLoggedIn();
         then(mockCookie).should(times(2)).getName();
         then(mockCookie).should(times(3)).getValue();
         then(jwtService).should().getEmail(validToken);
         then(commentService).should().save(argumentCaptor.capture());
-        BDDAssertions.then(argumentCaptor.getValue().getContent()).isEqualTo(content);
-        BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
-        BDDAssertions.then(argumentCaptor.getValue().getPostsId()).isEqualTo(postsId);
+        assertEquals(content, argumentCaptor.getValue().getContent());
+        assertEquals(userEmail, argumentCaptor.getValue().getUserEmail());
+        assertEquals(postsId, argumentCaptor.getValue().getPostsId());
     }
 
     @Test
-    public void Comment_save_호출_로그인_상태_에러처리() throws Exception {
+    void Comment_save_호출_로그인_상태_에러처리() throws Exception {
         //given
         String url = "/api/v1/comment";
 
@@ -160,17 +157,17 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(post(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(commentSaveRequestBody)));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().isLoggedIn();
     }
 
     @Test
-    public void getComments_호출_성공() throws Exception {
+    void getComments_호출_성공() throws Exception {
         //given
         String url = "/api/v1/comment/" + postsId;
         CommentFindResponseDto commentFindResponseDto = CommentFindResponseDto.builder()
@@ -190,7 +187,7 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(get(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8));
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         resultActions.andExpect(status().isOk())
@@ -199,7 +196,7 @@ public class CommentApiControllerTest {
     }
 
     @Test
-    public void getComments_호출_실패_게시글_조회_실패_에러처리() throws Exception {
+    void getComments_호출_실패_게시글_조회_실패_에러처리() throws Exception {
         //given
         String url = "/api/v1/comment/" + postsId;
 
@@ -212,15 +209,15 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(get(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8));
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
     }
 
     @Test
-    public void deleteComment_호출_성공() throws Exception {
+    void deleteComment_호출_성공() throws Exception {
         //given
         String url = "/api/v1/comment/" + commentId;
         String validToken = "valid";
@@ -239,7 +236,7 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(delete(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .cookie(mockCookie));
 
         //then
@@ -250,12 +247,12 @@ public class CommentApiControllerTest {
         then(mockCookie).should(times(3)).getValue();
         then(jwtService).should().getEmail(validToken);
         then(commentService).should().deleteById(argumentCaptor.capture());
-        BDDAssertions.then(argumentCaptor.getValue().getCommentId()).isEqualTo(commentId);
-        BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
+        assertEquals(commentId, argumentCaptor.getValue().getCommentId());
+        assertEquals(userEmail, argumentCaptor.getValue().getUserEmail());
     }
 
     @Test
-    public void deleteComment_호출_실패_댓글_조회_실패_에러처리() throws Exception {
+    void deleteComment_호출_실패_댓글_조회_실패_에러처리() throws Exception {
         //given
         String url = "/api/v1/comment/" + commentId;
         String validToken = "valid";
@@ -274,23 +271,23 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(delete(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().isLoggedIn();
         then(mockCookie).should(times(2)).getName();
         then(mockCookie).should(times(3)).getValue();
         then(jwtService).should().getEmail(validToken);
         then(commentService).should().deleteById(argumentCaptor.capture());
-        BDDAssertions.then(argumentCaptor.getValue().getCommentId()).isEqualTo(commentId);
-        BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
+        assertEquals(commentId, argumentCaptor.getValue().getCommentId());
+        assertEquals(userEmail, argumentCaptor.getValue().getUserEmail());
     }
 
     @Test
-    public void deleteComment_호출_실패_타_작성자_에러처리() throws Exception {
+    void deleteComment_호출_실패_타_작성자_에러처리() throws Exception {
         //given
         String url = "/api/v1/comment/" + commentId;
         String validToken = "valid";
@@ -309,23 +306,23 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(delete(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .contentType(MediaType.APPLICATION_JSON)
                 .cookie(mockCookie));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().isLoggedIn();
         then(mockCookie).should(times(2)).getName();
         then(mockCookie).should(times(3)).getValue();
         then(jwtService).should().getEmail(validToken);
         then(commentService).should().deleteById(argumentCaptor.capture());
-        BDDAssertions.then(argumentCaptor.getValue().getUserEmail()).isEqualTo(userEmail);
-        BDDAssertions.then(argumentCaptor.getValue().getCommentId()).isEqualTo(commentId);
+        assertEquals(userEmail, argumentCaptor.getValue().getUserEmail());
+        assertEquals(commentId, argumentCaptor.getValue().getCommentId());
     }
 
     @Test
-    public void deleteComment_호출_로그인_상태_에러처리() throws Exception {
+    void deleteComment_호출_로그인_상태_에러처리() throws Exception {
         //given
         String url = "/api/v1/comment/" + commentId;
 
@@ -338,11 +335,11 @@ public class CommentApiControllerTest {
 
         //when
         ResultActions resultActions = mockMvc.perform(delete(url)
-                .contentType(MediaType.APPLICATION_JSON_UTF8));
+                .contentType(MediaType.APPLICATION_JSON));
 
         //then
         resultActions.andExpect(status().isOk())
-                .andExpect(content().string(objectMapper.writeValueAsString(exceptionResponse)));
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(authService).should().isLoggedIn();
     }
 }

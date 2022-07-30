@@ -82,7 +82,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void save_호출_실패_user_에러처리() {
+    void save_호출_실패_user_에러처리() {
         //given
         Long postsId = 1l;
 
@@ -102,7 +102,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void save_호출_실패_posts_에러처리() {
+    void save_호출_실패_posts_에러처리() {
         //given
         Long postsId = 1l;
         User user = User.builder().build();
@@ -124,7 +124,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void findByPostsId_호출_성공() throws Exception {
+    void findByPostsId_호출_성공() throws Exception {
         //given
         User user = User.builder()
                 .email(userEmail)
@@ -157,7 +157,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void findByPostsId_호출_실패_게시글_조회_실패_에러처리() {
+    void findByPostsId_호출_실패_게시글_조회_실패_에러처리() {
         //given
         Long postsId = 1l;
 
@@ -172,7 +172,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void deleteById_호출_성공() {
+    void deleteById_호출_성공() {
         //given
         Long commentId = 1L;
         User user = User.builder()
@@ -202,7 +202,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void deleteById_호출_실패_조회_실패_에러처리() {
+    void deleteById_호출_실패_조회_실패_에러처리() {
         //given
         Long commentId = 1L;
         CommentDeleteRequestDto commentDeleteRequestDto = CommentDeleteRequestDto.builder()
@@ -221,7 +221,7 @@ public class CommentServiceTest {
     }
 
     @Test
-    public void deleteById_호출_실패_타_작성자_에러처리() {
+    void deleteById_호출_실패_타_작성자_에러처리() {
         //given
         Long commentId = 1L;
         String inValidEmail = "invalidEmail";
