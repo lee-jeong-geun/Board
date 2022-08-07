@@ -3,10 +3,7 @@ package org.board.springboot.user;
 import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
-import org.board.springboot.user.dto.UserFindPostsListResponseDto;
-import org.board.springboot.user.dto.UserFindRequestDto;
-import org.board.springboot.user.dto.UserFindResponseDto;
-import org.board.springboot.user.dto.UserSaveRequestDto;
+import org.board.springboot.user.dto.*;
 import org.board.springboot.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,6 +30,7 @@ public class UserServiceTest {
     @InjectMocks
     UserService userService;
 
+    final String name = "jkjk";
     final String email = "jk@jk.com";
     final String password = "jkjk";
 
@@ -213,5 +211,34 @@ public class UserServiceTest {
 
         //then
         assertEquals("해당 유저가 없습니다.", exception.getMessage());
+    }
+
+    @Test
+    void 유저_정보_업데이트_호출_성공() {
+        //given
+        String updateName = "jkjk2";
+        String updatePassword = "jkjk2";
+
+        User user = User.builder()
+                .name(name)
+                .email(email)
+                .password(password)
+                .build();
+
+        UserUpdateModel userUpdateModel = UserUpdateModel.builder()
+                .name(updateName)
+                .email(email)
+                .password(updatePassword)
+                .build();
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+
+        //when
+        userService.updateUser(userUpdateModel);
+
+        //then
+        then(userRepository).should().findByEmail(email);
+        assertEquals(updateName, user.getName());
+        assertEquals(updatePassword, user.getPassword());
     }
 }
