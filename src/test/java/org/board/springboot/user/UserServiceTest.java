@@ -241,4 +241,27 @@ public class UserServiceTest {
         assertEquals(updateName, user.getName());
         assertEquals(updatePassword, user.getPassword());
     }
+
+    @Test
+    void 유저_정보_업데이트_호출_실패_에러() {
+        //given
+        String updateName = "jkjk2";
+        String updatePassword = "jkjk2";
+
+        UserUpdateModel userUpdateModel = UserUpdateModel.builder()
+                .name(updateName)
+                .email(email)
+                .password(updatePassword)
+                .build();
+
+        given(userRepository.findByEmail(email)).willReturn(Optional.empty());
+
+        //when
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.updateUser(userUpdateModel));
+
+        //then
+        then(userRepository).should().findByEmail(email);
+        assertEquals("해당 유저가 없습니다.", exception.getMessage());
+    }
 }
