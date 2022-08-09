@@ -3,10 +3,7 @@ package org.board.springboot.user.service;
 import lombok.RequiredArgsConstructor;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.domain.UserRepository;
-import org.board.springboot.user.dto.UserFindPostsListResponseDto;
-import org.board.springboot.user.dto.UserFindRequestDto;
-import org.board.springboot.user.dto.UserFindResponseDto;
-import org.board.springboot.user.dto.UserSaveRequestDto;
+import org.board.springboot.user.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,9 +59,17 @@ public class UserService {
 
     @Transactional
     public void updateLastLoginTime(String email) {
-        User user =  userRepository.findByEmail(email)
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
 
         user.updateLastLogIn(LocalDateTime.now());
+    }
+
+    @Transactional
+    public void updateUser(UserUpdateModel userUpdateModel) {
+        User user = userRepository.findByEmail(userUpdateModel.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
+
+        user.update(userUpdateModel.getName(), userUpdateModel.getEmail(), userUpdateModel.getPassword());
     }
 }
