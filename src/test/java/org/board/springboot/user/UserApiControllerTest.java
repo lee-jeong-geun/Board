@@ -10,8 +10,11 @@ import org.board.springboot.user.controller.UserApiController;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.dto.UserAndPostsFindResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
+import org.board.springboot.user.dto.UserUpdateModel;
+import org.board.springboot.user.dto.UserUpdateRequestDto;
 import org.board.springboot.user.service.UserService;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,10 +22,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.BDDMockito.then;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -119,5 +123,37 @@ public class UserApiControllerTest {
                         .success(false)
                         .message(message)
                         .build())));
+    }
+
+    @Test
+    void 유저_정보_업데이트_성공_호출() throws Exception {
+        //given
+        String url = "http://localhost:8080/api/v1/users/" + email;
+        String name = "jkjk";
+        String password = "jkjk";
+
+        UserUpdateRequestDto userUpdateRequestDto = UserUpdateRequestDto.builder()
+                .name(name)
+                .password(password)
+                .build();
+        ApiResponse<String> result = ApiResponse.<String>builder()
+                .success(true)
+                .response("업데이트 성공하였습니다.")
+                .build();
+
+        ArgumentCaptor<UserUpdateModel> argumentCaptor = ArgumentCaptor.forClass(UserUpdateModel.class);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(put(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userUpdateRequestDto)));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(result)));
+        then(userService).should().updateUser(argumentCaptor.capture());
+        assertEquals(email, argumentCaptor.getValue().getEmail());
+        assertEquals(name, argumentCaptor.getValue().getName());
+        assertEquals(password, argumentCaptor.getValue().getPassword());
     }
 }
