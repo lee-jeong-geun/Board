@@ -4,12 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.board.springboot.common.dto.ApiResponse;
 import org.board.springboot.common.dto.ExceptionResponse;
 import org.board.springboot.user.dto.UserAndPostsFindResponseDto;
-import org.board.springboot.user.dto.UserFindPostsListResponseDto;
 import org.board.springboot.user.dto.UserSaveRequestDto;
+import org.board.springboot.user.dto.UserUpdateModel;
+import org.board.springboot.user.dto.UserUpdateRequestDto;
 import org.board.springboot.user.service.UserService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -33,6 +32,20 @@ public class UserApiController {
                 .response(UserAndPostsFindResponseDto.builder()
                         .user(userService.findByEmail(email))
                         .build())
+                .build();
+    }
+
+    @PutMapping("/api/v1/users/{email}")
+    public ApiResponse<String> update(@PathVariable String email, @RequestBody UserUpdateRequestDto requestDto) {
+        UserUpdateModel userUpdateModel = UserUpdateModel.builder()
+                .email(email)
+                .name(requestDto.getName())
+                .password(requestDto.getPassword())
+                .build();
+        userService.updateUser(userUpdateModel);
+        return ApiResponse.<String>builder()
+                .success(true)
+                .response("업데이트 성공하였습니다.")
                 .build();
     }
 
