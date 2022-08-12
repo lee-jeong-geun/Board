@@ -8,6 +8,7 @@ import org.board.springboot.user.dto.UserSaveRequestDto;
 import org.board.springboot.user.dto.UserUpdateModel;
 import org.board.springboot.user.dto.UserUpdateRequestDto;
 import org.board.springboot.user.service.UserService;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -37,6 +38,8 @@ public class UserApiController {
 
     @PutMapping("/api/v1/users/{email}")
     public ApiResponse<String> update(@PathVariable String email, @RequestBody UserUpdateRequestDto requestDto) {
+        validateUpdateDto(requestDto);
+
         UserUpdateModel userUpdateModel = UserUpdateModel.builder()
                 .email(email)
                 .name(requestDto.getName())
@@ -55,5 +58,14 @@ public class UserApiController {
                 .success(false)
                 .message(exception.getMessage())
                 .build();
+    }
+
+    private void validateUpdateDto(UserUpdateRequestDto requestDto) {
+        if (!StringUtils.hasText(requestDto.getName())) {
+            throw new IllegalArgumentException("이름이 비어있습니다.");
+        }
+        if (!StringUtils.hasText(requestDto.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 비어있습니다.");
+        }
     }
 }
