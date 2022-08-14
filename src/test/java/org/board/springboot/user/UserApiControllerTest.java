@@ -183,4 +183,31 @@ public class UserApiControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(content().bytes(objectMapper.writeValueAsBytes(result)));
     }
+
+    @Test
+    void 유저_정보_업데이트_실패_비밀번호_공백_에러처리() throws Exception {
+        //given
+        String url = "http://localhost:8080/api/v1/users/" + email;
+        String name = "jk";
+        String password = "";
+
+        UserUpdateRequestDto userUpdateRequestDto = UserUpdateRequestDto.builder()
+                .name(name)
+                .password(password)
+                .build();
+
+        ExceptionResponse result = ExceptionResponse.builder()
+                .success(false)
+                .message("비밀번호가 비어있습니다.")
+                .build();
+
+        //when
+        ResultActions resultActions = mockMvc.perform(put(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(userUpdateRequestDto)));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(result)));
+    }
 }
