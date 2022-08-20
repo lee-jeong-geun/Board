@@ -27,6 +27,11 @@ public class IndexController {
         return "user/inform";
     }
 
+    @GetMapping("/users/{email}/edit")
+    public String userEdit(@PathVariable String email) {
+        return "user/edit";
+    }
+
     @GetMapping("/posts/{id}")
     public String postsDetail(@PathVariable Long id) {
         return "posts/detail";
