@@ -27,6 +27,7 @@
                 if (body.success === true) {
                     alert('로그인에 성공하셨습니다.')
                     document.cookie = 'name=' + body.response.name
+                    document.cookie = 'email=' + body.response.email
                     makeAfterLoginTemplate(body.response.name)
                 } else {
                     alert(body.message)
