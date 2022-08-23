@@ -5,9 +5,10 @@
         document.querySelector("#login").addEventListener('click', () => loginButtonEvent())
     }
 
-    const makeAfterLoginTemplate = (name) => {
+    const makeAfterLoginTemplate = (name, email) => {
         let template = document.getElementById('afterLoginTemplate').innerHTML
         template = template.replace('{name}', name)
+        template = template.replace('{email}', email)
         document.getElementById('loginContainer').innerHTML = template
         document.querySelector("#logout").addEventListener('click', () => logoutButtonEvent())
     }
@@ -28,7 +29,7 @@
                     alert('로그인에 성공하셨습니다.')
                     document.cookie = 'name=' + body.response.name
                     document.cookie = 'email=' + body.response.email
-                    makeAfterLoginTemplate(body.response.name)
+                    makeAfterLoginTemplate(body.response.name, body.response.email)
                 } else {
                     alert(body.message)
                 }
@@ -104,7 +105,8 @@
             if (body.success) {
                 if (body.response) {
                     const name = document.cookie.split('; ').find(s => s.startsWith('name'))
-                    makeAfterLoginTemplate(name.split('=')[1])
+                    const email = document.cookie.split('; ').find(s => s.startsWith('email'))
+                    makeAfterLoginTemplate(name.split('=')[1], email.split('=')[1])
                 } else {
                     makeBeforeLoginTemplate()
                 }
