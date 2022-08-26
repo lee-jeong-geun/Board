@@ -56,6 +56,15 @@ public class PostsApiController {
                 .build();
     }
 
+    @DeleteMapping("/api/v1/posts/{id}")
+    public ApiResponse<Long> postsDelete(@PathVariable Long id) {
+
+        return ApiResponse.<Long>builder()
+                .success(true)
+                .response(id)
+                .build();
+    }
+
     @GetMapping("/api/v1/posts/{id}")
     public ApiResponse<PostsFindResponseDto> findById(@PathVariable Long id) {
         postsService.viewCountUpdateById(id, 1);
