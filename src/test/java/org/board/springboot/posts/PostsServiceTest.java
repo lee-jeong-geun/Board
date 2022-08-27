@@ -198,4 +198,26 @@ public class PostsServiceTest {
         //then
         assertEquals("해당 게시글이 없습니다.", exception.getMessage());
     }
+
+    @Test
+    void delete_호출_성공() {
+        //given
+        Long id = 1L;
+        User user = User.builder()
+                .build();
+        Posts posts = Posts.builder()
+                .title(title)
+                .content(content)
+                .user(user)
+                .build();
+
+        given(postsRepository.findById(id)).willReturn(Optional.of(posts));
+
+        //when
+        postsService.delete(id);
+
+        //then
+        then(postsRepository).should().findById(id);
+        then(postsRepository).should().delete(posts);
+    }
 }
