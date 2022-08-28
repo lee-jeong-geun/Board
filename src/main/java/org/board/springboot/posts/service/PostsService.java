@@ -31,6 +31,14 @@ public class PostsService {
         return postsRepository.save(posts).getId();
     }
 
+    @Transactional
+    public Long delete(Long id) {
+        Posts posts = postsRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("해당 게시글이 존재하지 않습니다."));
+        postsRepository.delete(posts);
+        return id;
+    }
+
     @Transactional(readOnly = true)
     public List<PostsFindResponseDto> findAll() {
         return postsRepository.findAll()
