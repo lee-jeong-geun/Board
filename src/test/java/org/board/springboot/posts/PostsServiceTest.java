@@ -220,4 +220,19 @@ public class PostsServiceTest {
         then(postsRepository).should().findById(id);
         then(postsRepository).should().delete(posts);
     }
+
+    @Test
+    void delete_호출_실패_게시글_미존재_에러처리() {
+        //given
+        Long id = 1L;
+        given(postsRepository.findById(id)).willReturn(Optional.empty());
+
+        //when
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> postsService.delete(id));
+
+        //then
+        then(postsRepository).should().findById(id);
+        assertEquals("해당 게시글이 존재하지 않습니다.", exception.getMessage());
+    }
 }
