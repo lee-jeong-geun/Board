@@ -58,10 +58,9 @@ public class PostsApiController {
 
     @DeleteMapping("/api/v1/posts/{id}")
     public ApiResponse<Long> postsDelete(@PathVariable Long id) {
-
         return ApiResponse.<Long>builder()
                 .success(true)
-                .response(id)
+                .response(postsService.delete(id))
                 .build();
     }
 
