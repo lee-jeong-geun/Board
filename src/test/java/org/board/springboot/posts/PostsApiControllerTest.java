@@ -29,8 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.*;
 import static org.mockito.Mockito.times;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -305,5 +304,25 @@ public class PostsApiControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
         then(postsService).should().viewCountUpdateById(id, updateCount);
+    }
+
+    @Test
+    void 게시글_삭제_아이디_성공() throws Exception {
+        //given
+        String url = "/api/v1/posts/1";
+        Long id = 1l;
+        ApiResponse<Long> apiResponse = ApiResponse.<Long>builder()
+                .success(true)
+                .response(id)
+                .build();
+        given(postsService.delete(id)).willReturn(id);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(delete(url));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(apiResponse)));
+        then(postsService).should().delete(id);
     }
 }
