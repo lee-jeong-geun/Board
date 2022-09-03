@@ -325,4 +325,24 @@ public class PostsApiControllerTest {
                 .andExpect(content().bytes(objectMapper.writeValueAsBytes(apiResponse)));
         then(postsService).should().delete(id);
     }
+
+    @Test
+    void 게시글_삭제_아이디_실패_에러처리() throws Exception {
+        //given
+        String url = "/api/v1/posts/1";
+        Long id = 1l;
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("해당 게시글이 존재하지 않습니다.")
+                .build();
+        given(postsService.delete(id)).willThrow(new IllegalStateException("해당 게시글이 존재하지 않습니다."));
+
+        //when
+        ResultActions resultActions = mockMvc.perform(delete(url));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
+        then(postsService).should().delete(id);
+    }
 }
