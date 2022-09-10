@@ -4,7 +4,7 @@
 
         fetch('/api/v1/comment', {
             method: 'POST',
-                headers: {
+            headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
@@ -15,6 +15,24 @@
             response.json().then((body) => {
                 if (body.success === true) {
                     alert('댓글 작성 성공하셨습니다.')
+                    location.reload()
+                } else {
+                    alert(body.message)
+                }
+            })
+        }).catch(error => console.log(error))
+    })
+
+    document.getElementById('posts-delete').addEventListener('click', () => {
+        const urlArray = window.location.href.split('/')
+        const postsId = urlArray[urlArray.length - 1]
+
+        fetch('/api/v1/posts/' + postsId, {
+            method: 'DELETE'
+        }).then((response) => {
+            response.json().then((body) => {
+                if (body.success === true) {
+                    alert('글 삭제 성공하셨습니다.')
                     location.reload()
                 } else {
                     alert(body.message)
