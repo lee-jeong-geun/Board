@@ -33,7 +33,7 @@
             response.json().then((body) => {
                 if (body.success === true) {
                     alert('글 삭제 성공하셨습니다.')
-                    location.reload()
+                    window.location.href = '/'
                 } else {
                     alert(body.message)
                 }
