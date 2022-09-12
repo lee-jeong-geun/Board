@@ -7,6 +7,7 @@ import org.board.springboot.user.dto.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final Clock clock;
 
     @Transactional
     public Long save(UserSaveRequestDto userSaveRequestDto) {
@@ -62,7 +64,7 @@ public class UserService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("해당 유저가 없습니다."));
 
-        user.updateLastLogIn(LocalDateTime.now());
+        user.updateLastLogIn(LocalDateTime.now(clock));
     }
 
     @Transactional
