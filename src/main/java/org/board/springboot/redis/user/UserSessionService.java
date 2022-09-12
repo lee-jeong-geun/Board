@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -13,6 +14,7 @@ import java.time.temporal.ChronoUnit;
 public class UserSessionService {
 
     private final RedisTemplate<String, Object> redisTemplate;
+    private final Clock clock;
     private static final int TODAY_POSTS_COUNT_MAX = 10;
     private static final int POSTS_SAVE_INTERVAL_TIME = 5;
     private static final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
@@ -22,11 +24,11 @@ public class UserSessionService {
 
     public void checkTodayRemainPostsCountUpdate(String email) {
         if (!redisTemplate.opsForHash().hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)) {
-            redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(LocalDate.now()));
+            redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(LocalDate.now(clock)));
         }
         LocalDate lastUpdateDate = LocalDate.parse(redisTemplate.opsForHash().get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE).toString());
-        if (lastUpdateDate.isBefore(LocalDate.now())) {
-            redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(LocalDate.now()));
+        if (lastUpdateDate.isBefore(LocalDate.now(clock))) {
+            redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(LocalDate.now(clock)));
             redisTemplate.opsForHash().put(email, TODAY_REMAIN_POSTS_COUNT, String.valueOf(TODAY_POSTS_COUNT_MAX));
         }
     }
@@ -46,7 +48,7 @@ public class UserSessionService {
             return;
         }
         LocalDateTime lastSaveTime = LocalDateTime.parse(redisTemplate.opsForHash().get(email, LAST_POSTS_SAVE_TIME).toString());
-        long intervalTime = ChronoUnit.SECONDS.between(lastSaveTime, LocalDateTime.now());
+        long intervalTime = ChronoUnit.SECONDS.between(lastSaveTime, LocalDateTime.now(clock));
         if (intervalTime < POSTS_SAVE_INTERVAL_TIME) {
             throw new IllegalStateException(String.format("게시글은 %d초 뒤에 작성 가능합니다.", POSTS_SAVE_INTERVAL_TIME - intervalTime));
         }
@@ -61,7 +63,7 @@ public class UserSessionService {
     }
 
     public void updateLastPostsSaveTime(String email) {
-        redisTemplate.opsForHash().put(email, LAST_POSTS_SAVE_TIME, String.valueOf(LocalDateTime.now()));
+        redisTemplate.opsForHash().put(email, LAST_POSTS_SAVE_TIME, String.valueOf(LocalDateTime.now(clock)));
     }
 
     public void validateLoginEmailState(String email) {
@@ -69,7 +71,7 @@ public class UserSessionService {
         if (containsKey == null || !containsKey) {
             return;
         }
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
         LocalDateTime expiredTime = LocalDateTime.parse(redisTemplate.opsForHash().get(email, "login").toString());
         if (now.isBefore(expiredTime)) {
             throw new IllegalArgumentException("해당 아이디는 다른곳에서 로그인 중입니다.");
@@ -77,7 +79,7 @@ public class UserSessionService {
     }
 
     public void createLoginState(String email) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock);
         redisTemplate.opsForHash().put(email, "login", String.valueOf(now.plusMinutes(LOGIN_SESSION_TIME)));
     }
 
