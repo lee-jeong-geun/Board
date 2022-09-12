@@ -12,6 +12,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.lang.reflect.Field;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +30,8 @@ public class UserServiceTest {
 
     @Mock
     UserRepository userRepository;
+    @Mock
+    Clock clock;
 
     @InjectMocks
     UserService userService;
@@ -33,6 +39,8 @@ public class UserServiceTest {
     final String name = "jkjk";
     final String email = "jk@jk.com";
     final String password = "jkjk";
+    final LocalDateTime NOW = LocalDateTime.of(1993, 4, 11, 0, 0, 0);
+    final Clock fixedClock = Clock.fixed(NOW.atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
 
     @Test
     void 유저저장_호출_성공() throws Exception {
@@ -191,6 +199,8 @@ public class UserServiceTest {
                 .build();
 
         given(userRepository.findByEmail(email)).willReturn(Optional.of(user));
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
         userService.updateLastLoginTime(email);
@@ -198,6 +208,8 @@ public class UserServiceTest {
         //then
         then(userRepository).should().findByEmail(email);
         assertNotNull(user.getLastLogIn());
+        then(clock).should().instant();
+        then(clock).should().getZone();
     }
 
     @Test
