@@ -1,42 +1,45 @@
 package org.board.springboot.redis;
 
 import org.board.springboot.redis.user.UserSessionService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.HashOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({UserSessionService.class})
+@ExtendWith(MockitoExtension.class)
 public class UserSessionServiceTest {
 
     @Mock
-    private HashOperations<String, Object, Object> hashOperations;
+    HashOperations<String, Object, Object> hashOperations;
 
     @Mock
-    private RedisTemplate<String, Object> redisTemplate;
+    RedisTemplate<String, Object> redisTemplate;
+
+    @Mock
+    Clock clock;
 
     @InjectMocks
-    private UserSessionService userSessionService;
+    UserSessionService userSessionService;
 
-    private final int TODAY_POSTS_COUNT_MAX = 10;
-    private final int POSTS_SAVE_INTERVAL_TIME = 5;
-    private final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
-    private final String TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE = "todayRemainPostsCountLastUpdateDate";
-    private final String LAST_POSTS_SAVE_TIME = "lastPostsSaveTime";
-    private final String email = "jk@jk.com";
+    final int TODAY_POSTS_COUNT_MAX = 10;
+    final int POSTS_SAVE_INTERVAL_TIME = 5;
+    final String TODAY_REMAIN_POSTS_COUNT = "todayRemainPostsCount";
+    final String TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE = "todayRemainPostsCountLastUpdateDate";
+    final String LAST_POSTS_SAVE_TIME = "lastPostsSaveTime";
+    final String email = "jk@jk.com";
+    final LocalDateTime NOW = LocalDateTime.of(1993, 4, 11, 0, 0, 0);
+    final Clock fixedClock = Clock.fixed(NOW.atZone(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault());
 
     @Test
     public void checkTodayRemainPostsCount_호출_성공() {
@@ -68,7 +71,7 @@ public class UserSessionServiceTest {
         then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void checkTodayRemainPostsCount_호출_실패_에러처리() {
         //given
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
@@ -76,7 +79,14 @@ public class UserSessionServiceTest {
         given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT)).willReturn(0);
 
         //when
-        userSessionService.checkTodayRemainPostsCount(email);
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> userSessionService.checkTodayRemainPostsCount(email));
+
+        //then
+        assertEquals("오늘은 더이상 게시글을 올릴 수 없습니다.", exception.getMessage());
+        then(redisTemplate).should(times(2)).opsForHash();
+        then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT);
+        then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT);
     }
 
     @Test
@@ -163,14 +173,12 @@ public class UserSessionServiceTest {
     @Test
     public void validateLoginEmailState_호출_성공_hasKey_값_true_isBefore_false_값() {
         //given
-        LocalDateTime current = LocalDateTime.now();
-        LocalDateTime expiredTime = current.minusMinutes(30);
-        PowerMockito.mockStatic(LocalDateTime.class);
-        given(LocalDateTime.now()).willReturn(current);
-        given(LocalDateTime.parse(expiredTime.toString())).willReturn(expiredTime);
+        LocalDateTime expiredTime = NOW.minusMinutes(30);
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, "login")).willReturn(true);
         given(hashOperations.get(email, "login")).willReturn(expiredTime);
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
         userSessionService.validateLoginEmailState(email);
@@ -179,39 +187,49 @@ public class UserSessionServiceTest {
         then(redisTemplate).should(times(2)).opsForHash();
         then(hashOperations).should().hasKey(email, "login");
         then(hashOperations).should().get(email, "login");
+        then(clock).should().instant();
+        then(clock).should().getZone();
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void validateLoginEmailState_호출_실패_hasKey_값_true_isBefore_true_값_에러처리() {
         //given
-        LocalDateTime current = LocalDateTime.now();
-        LocalDateTime expiredTime = current.plusMinutes(30);
-        PowerMockito.mockStatic(LocalDateTime.class);
-        given(LocalDateTime.now()).willReturn(current);
-        given(LocalDateTime.parse(expiredTime.toString())).willReturn(expiredTime);
+        LocalDateTime expiredTime = NOW.plusMinutes(30);
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, "login")).willReturn(true);
         given(hashOperations.get(email, "login")).willReturn(expiredTime);
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
-        userSessionService.validateLoginEmailState(email);
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userSessionService.validateLoginEmailState(email));
+
+        //then
+        assertEquals("해당 아이디는 다른곳에서 로그인 중입니다.", exception.getMessage());
+        then(redisTemplate).should(times(2)).opsForHash();
+        then(hashOperations).should().hasKey(email, "login");
+        then(hashOperations).should().get(email, "login");
+        then(clock).should().instant();
+        then(clock).should().getZone();
     }
 
     @Test
     public void createLoginState_호출_성공() {
         //given
         int loginSessionTime = 30;
-        LocalDateTime current = LocalDateTime.now();
-        PowerMockito.mockStatic(LocalDateTime.class);
-        given(LocalDateTime.now()).willReturn(current);
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
         userSessionService.createLoginState(email);
 
         //then
         then(redisTemplate).should().opsForHash();
-        then(hashOperations).should().put(email, "login", String.valueOf(current.plusMinutes(loginSessionTime)));
+        then(hashOperations).should().put(email, "login", String.valueOf(NOW.plusMinutes(loginSessionTime)));
+        then(clock).should().instant();
+        then(clock).should().getZone();
     }
 
     @Test
@@ -232,7 +250,9 @@ public class UserSessionServiceTest {
         //given
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, LAST_POSTS_SAVE_TIME)).willReturn(true);
-        given(hashOperations.get(email, LAST_POSTS_SAVE_TIME)).willReturn(LocalDateTime.now().minusSeconds(POSTS_SAVE_INTERVAL_TIME));
+        given(hashOperations.get(email, LAST_POSTS_SAVE_TIME)).willReturn(NOW.minusSeconds(POSTS_SAVE_INTERVAL_TIME));
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
         userSessionService.checkLastPostsSaveTime(email);
@@ -241,17 +261,31 @@ public class UserSessionServiceTest {
         then(redisTemplate).should(times(2)).opsForHash();
         then(hashOperations).should().hasKey(email, LAST_POSTS_SAVE_TIME);
         then(hashOperations).should().get(email, LAST_POSTS_SAVE_TIME);
+        then(clock).should().instant();
+        then(clock).should().getZone();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void checkLastPostsSaveTime_호출_실패_POSTS_SAVE_INTERVAL_TIME_미만값_에러처리() {
         //given
+        int minusSecond = 1;
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
         given(hashOperations.hasKey(email, LAST_POSTS_SAVE_TIME)).willReturn(true);
-        given(hashOperations.get(email, LAST_POSTS_SAVE_TIME)).willReturn(LocalDateTime.now().minusSeconds(POSTS_SAVE_INTERVAL_TIME - 1));
+        given(hashOperations.get(email, LAST_POSTS_SAVE_TIME)).willReturn(NOW.minusSeconds(POSTS_SAVE_INTERVAL_TIME - minusSecond));
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
-        userSessionService.checkLastPostsSaveTime(email);
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                () -> userSessionService.checkLastPostsSaveTime(email));
+
+        //then
+        assertEquals(String.format("게시글은 %d초 뒤에 작성 가능합니다.", minusSecond), exception.getMessage());
+        then(redisTemplate).should(times(2)).opsForHash();
+        then(hashOperations).should().hasKey(email, LAST_POSTS_SAVE_TIME);
+        then(hashOperations).should().get(email, LAST_POSTS_SAVE_TIME);
+        then(clock).should().instant();
+        then(clock).should().getZone();
     }
 
     @Test
@@ -271,29 +305,28 @@ public class UserSessionServiceTest {
     @Test
     public void updateLastPostsSaveTime_호출_성공() {
         //given
-        LocalDateTime current = LocalDateTime.now();
-        PowerMockito.mockStatic(LocalDateTime.class);
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
-        given(LocalDateTime.now()).willReturn(current);
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
         userSessionService.updateLastPostsSaveTime(email);
 
         //then
         then(redisTemplate).should().opsForHash();
-        then(hashOperations).should().put(email, LAST_POSTS_SAVE_TIME, String.valueOf(current));
+        then(hashOperations).should().put(email, LAST_POSTS_SAVE_TIME, String.valueOf(NOW));
+        then(clock).should().instant();
+        then(clock).should().getZone();
     }
 
     @Test
     public void checkTodayRemainPostsCountUpdate_호출_성공_키_값_없는_상태() {
         //given
-        LocalDate current = LocalDate.now();
-        PowerMockito.mockStatic(LocalDate.class);
-
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
-        given(LocalDate.now()).willReturn(current);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(false);
-        given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(current);
+        given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(NOW.toLocalDate());
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
         userSessionService.checkTodayRemainPostsCountUpdate(email);
@@ -301,22 +334,22 @@ public class UserSessionServiceTest {
         //then
         then(redisTemplate).should(times(3)).opsForHash();
         then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
-        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(current));
+        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(NOW.toLocalDate()));
         then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
+        then(clock).should(times(2)).instant();
+        then(clock).should(times(2)).getZone();
     }
 
     @Test
     public void checkTodayRemainPostsCountUpdate_호출_성공_키_값_존재_갱신() {
         //given
-        LocalDate lastUpdateDate = LocalDate.now().minusDays(1);
-        LocalDate current = LocalDate.now();
-        PowerMockito.mockStatic(LocalDate.class);
+        LocalDate lastUpdateDate = NOW.toLocalDate().minusDays(1);
 
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
-        given(LocalDate.now()).willReturn(current);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(true);
         given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(lastUpdateDate);
-        given(LocalDate.parse(lastUpdateDate.toString())).willReturn(lastUpdateDate);
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
         userSessionService.checkTodayRemainPostsCountUpdate(email);
@@ -325,22 +358,22 @@ public class UserSessionServiceTest {
         then(redisTemplate).should(times(4)).opsForHash();
         then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
         then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
-        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(LocalDate.now()));
+        then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE, String.valueOf(NOW.toLocalDate()));
         then(hashOperations).should().put(email, TODAY_REMAIN_POSTS_COUNT, String.valueOf(TODAY_POSTS_COUNT_MAX));
+        then(clock).should(times(2)).instant();
+        then(clock).should(times(2)).getZone();
     }
 
     @Test
     public void checkTodayRemainPostsCountUpdate_호출_성공_키_값_존재_미갱신() {
         //given
-        LocalDate lastUpdateDate = LocalDate.now();
-        LocalDate current = LocalDate.now();
-        PowerMockito.mockStatic(LocalDate.class);
+        LocalDate lastUpdateDate = NOW.toLocalDate();
 
         given(redisTemplate.opsForHash()).willReturn(hashOperations);
-        given(LocalDate.now()).willReturn(current);
         given(hashOperations.hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(true);
         given(hashOperations.get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE)).willReturn(lastUpdateDate);
-        given(LocalDate.parse(lastUpdateDate.toString())).willReturn(lastUpdateDate);
+        given(clock.instant()).willReturn(Instant.now(fixedClock));
+        given(clock.getZone()).willReturn(fixedClock.getZone());
 
         //when
         userSessionService.checkTodayRemainPostsCountUpdate(email);
@@ -349,5 +382,7 @@ public class UserSessionServiceTest {
         then(redisTemplate).should(times(2)).opsForHash();
         then(hashOperations).should().hasKey(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
         then(hashOperations).should().get(email, TODAY_REMAIN_POSTS_COUNT_LAST_UPDATE_DATE);
+        then(clock).should().instant();
+        then(clock).should().getZone();
     }
 }
