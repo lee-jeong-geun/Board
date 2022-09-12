@@ -25,6 +25,7 @@ public class UserRepositoryTest {
     final String name = "jk";
     final String email = "jk@jk.com";
     final String password = "jkjk";
+    final LocalDateTime NOW = LocalDateTime.of(1993, 4, 11, 0, 0, 0);
 
     @Test
     void 유저저장_성공() {
@@ -114,7 +115,7 @@ public class UserRepositoryTest {
     @Test
     void 유저_로그인_시간_업데이트_성공() {
         //given
-        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime current = NOW;
         User user = User.builder()
                 .name(name)
                 .email(email)

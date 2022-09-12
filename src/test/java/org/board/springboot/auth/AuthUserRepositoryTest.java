@@ -20,6 +20,8 @@ public class AuthUserRepositoryTest {
     @Autowired
     UserRepository userRepository;
 
+    final LocalDateTime NOW = LocalDateTime.of(1993, 4, 11, 0, 0, 0);
+
     @Test
     void authUser_저장_성공() {
         //given
@@ -31,7 +33,7 @@ public class AuthUserRepositoryTest {
                 .email(email)
                 .password(password)
                 .build();
-        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime current = NOW;
 
         AuthUser authUser = AuthUser.builder()
                 .lastLoggedIn(current)
