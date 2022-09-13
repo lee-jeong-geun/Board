@@ -58,6 +58,8 @@ public class PostsApiController {
 
     @DeleteMapping("/api/v1/posts/{id}")
     public ApiResponse<Long> postsDelete(@PathVariable Long id) {
+        validateLoginState();
+
         return ApiResponse.<Long>builder()
                 .success(true)
                 .response(postsService.delete(id))
