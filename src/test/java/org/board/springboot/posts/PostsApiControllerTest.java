@@ -316,6 +316,7 @@ public class PostsApiControllerTest {
                 .response(id)
                 .build();
         given(postsService.delete(id)).willReturn(id);
+        given(authService.isLoggedIn()).willReturn(true);
 
         //when
         ResultActions resultActions = mockMvc.perform(delete(url));
@@ -324,6 +325,7 @@ public class PostsApiControllerTest {
         resultActions.andExpect(status().isOk())
                 .andExpect(content().bytes(objectMapper.writeValueAsBytes(apiResponse)));
         then(postsService).should().delete(id);
+        then(authService).should().isLoggedIn();
     }
 
     @Test
