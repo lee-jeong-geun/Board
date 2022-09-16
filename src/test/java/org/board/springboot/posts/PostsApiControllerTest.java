@@ -315,8 +315,8 @@ public class PostsApiControllerTest {
                 .success(true)
                 .response(id)
                 .build();
-        given(postsService.delete(id)).willReturn(id);
         given(authService.isLoggedIn()).willReturn(true);
+        given(postsService.delete(id)).willReturn(id);
 
         //when
         ResultActions resultActions = mockMvc.perform(delete(url));
@@ -324,8 +324,8 @@ public class PostsApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().bytes(objectMapper.writeValueAsBytes(apiResponse)));
-        then(postsService).should().delete(id);
         then(authService).should().isLoggedIn();
+        then(postsService).should().delete(id);
     }
 
     @Test
@@ -337,6 +337,7 @@ public class PostsApiControllerTest {
                 .success(false)
                 .message("해당 게시글이 존재하지 않습니다.")
                 .build();
+        given(authService.isLoggedIn()).willReturn(true);
         given(postsService.delete(id)).willThrow(new IllegalStateException("해당 게시글이 존재하지 않습니다."));
 
         //when
@@ -345,6 +346,7 @@ public class PostsApiControllerTest {
         //then
         resultActions.andExpect(status().isOk())
                 .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
+        then(authService).should().isLoggedIn();
         then(postsService).should().delete(id);
     }
 }
