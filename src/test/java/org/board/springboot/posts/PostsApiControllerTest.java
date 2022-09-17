@@ -329,7 +329,26 @@ public class PostsApiControllerTest {
     }
 
     @Test
-    void 게시글_삭제_아이디_실패_에러처리() throws Exception {
+    void 게시글_삭제_아이디_실패_로그인상태_에러처리() throws Exception {
+        //given
+        String url = "/api/v1/posts/1";
+        ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+                .success(false)
+                .message("로그인 상태가 아닙니다.")
+                .build();
+        given(authService.isLoggedIn()).willReturn(false);
+
+        //when
+        ResultActions resultActions = mockMvc.perform(delete(url));
+
+        //then
+        resultActions.andExpect(status().isOk())
+                .andExpect(content().bytes(objectMapper.writeValueAsBytes(exceptionResponse)));
+        then(authService).should().isLoggedIn();
+    }
+
+    @Test
+    void 게시글_삭제_아이디_실패_게시글_미존재_에러처리() throws Exception {
         //given
         String url = "/api/v1/posts/1";
         Long id = 1l;
