@@ -5,6 +5,7 @@ import org.board.springboot.posts.domain.PostsRepository;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
 import org.board.springboot.posts.service.PostsService;
+import org.board.springboot.redis.posts.PostsCacheService;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.service.UserService;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,8 @@ public class PostsServiceTest {
 
     @Mock
     UserService userService;
-
+    @Mock
+    PostsCacheService postsCacheService;
     @Mock
     PostsRepository postsRepository;
 
@@ -160,42 +162,69 @@ public class PostsServiceTest {
     }
 
     @Test
-    void viewCountUpdateById_호출_성공() throws Exception {
+    void viewCountUpdateById_호출_성공_postsKey_존재() {
         //given
         Long id = 1l;
-        int viewCount = 3;
         int updateCount = 1;
-        User user = User.builder()
-                .build();
-        Posts posts = Posts.builder()
-                .viewCount(viewCount)
-                .user(user)
-                .build();
-        Field field = posts.getClass().getDeclaredField("id");
-        field.setAccessible(true);
-        field.set(posts, id);
-        given(postsRepository.findByIdForUpdate(id)).willReturn(Optional.of(posts));
+
+        given(postsCacheService.hasPostsViewCountKey(id)).willReturn(true);
+        given(postsCacheService.incrementPostsViewCount(id, updateCount)).willReturn(updateCount);
 
         //when
         int result = postsService.viewCountUpdateById(id, updateCount);
 
         //then
-        then(postsRepository).should().findByIdForUpdate(id);
+        then(postsCacheService).should().hasPostsViewCountKey(id);
+        then(postsCacheService).should().incrementPostsViewCount(id, updateCount);
+        assertEquals(updateCount, result);
+    }
+
+    @Test
+    void viewCountUpdateById_호출_성공_postsKey_미존재_posts_존재() {
+        //given
+        Long id = 1l;
+        int updateCount = 1;
+        int viewCount = 10;
+
+        User user = User.builder()
+                .build();
+
+        Posts posts = Posts.builder()
+                .viewCount(viewCount)
+                .user(user)
+                .build();
+
+        given(postsCacheService.hasPostsViewCountKey(id)).willReturn(false);
+        given(postsRepository.findById(id)).willReturn(Optional.of(posts));
+        given(postsCacheService.incrementPostsViewCount(id, updateCount)).willReturn(posts.getViewCount() + updateCount);
+
+        //when
+        int result = postsService.viewCountUpdateById(id, updateCount);
+
+        //then
+        then(postsCacheService).should().hasPostsViewCountKey(id);
+        then(postsRepository).should().findById(id);
+        then(postsCacheService).should().setPostsViewCount(id, posts.getViewCount());
+        then(postsCacheService).should().incrementPostsViewCount(id, updateCount);
         assertEquals(viewCount + updateCount, result);
     }
 
     @Test
-    void viewCountUpdateById_호출_실패_에러처리() {
+    void viewCountUpdateById_호출_실패_postsKey_미존재_posts_미존재() {
         //given
         Long id = 1l;
         int updateCount = 1;
-        given(postsRepository.findByIdForUpdate(id)).willReturn(Optional.empty());
+
+        given(postsCacheService.hasPostsViewCountKey(id)).willReturn(false);
+        given(postsRepository.findById(id)).willReturn(Optional.empty());
 
         //when
         IllegalStateException exception = assertThrows(IllegalStateException.class,
                 () -> postsService.viewCountUpdateById(id, updateCount));
 
         //then
+        then(postsCacheService).should().hasPostsViewCountKey(id);
+        then(postsRepository).should().findById(id);
         assertEquals("해당 게시글이 없습니다.", exception.getMessage());
     }
 
