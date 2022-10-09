@@ -65,7 +65,7 @@ public class PostsCacheServiceTest {
         Long postsId = 1L;
         int viewCount = 0;
         String key = VIEW_COUNT + ":" + postsId;
-        Object value = viewCount;
+        Object value = String.valueOf(viewCount);
 
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
 
