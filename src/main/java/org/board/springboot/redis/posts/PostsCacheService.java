@@ -22,9 +22,9 @@ public class PostsCacheService {
         redisTemplate.opsForValue().set(key, value);
     }
 
-    public void incrementPostsViewCount(Long postsId, int updateCount) {
+    public int incrementPostsViewCount(Long postsId, int updateCount) {
         String key = getPostsViewCount(postsId);
-        redisTemplate.opsForValue().increment(key, updateCount);
+        return redisTemplate.opsForValue().increment(key, updateCount).intValue();
     }
 
     private String getPostsViewCount(Long postsId) {
