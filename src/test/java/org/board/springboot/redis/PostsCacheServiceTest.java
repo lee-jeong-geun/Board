@@ -9,8 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -85,11 +84,13 @@ public class PostsCacheServiceTest {
         String key = VIEW_COUNT + ":" + postsId;
 
         given(redisTemplate.opsForValue()).willReturn(valueOperations);
+        given(valueOperations.increment(key, updateCount)).willReturn(1L);
 
         //when
-        postsCacheService.incrementPostsViewCount(postsId, updateCount);
+        int result = postsCacheService.incrementPostsViewCount(postsId, updateCount);
 
         //then
+        assertEquals(1, result);
         then(redisTemplate).should().opsForValue();
         then(valueOperations).should().increment(key, updateCount);
     }
