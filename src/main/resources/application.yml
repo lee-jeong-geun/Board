@@ -8,3 +8,9 @@ spring:
   redis:
     host: host.docker.internal
     port: 6379
+
+server:
+  tomcat:
+    threads:
+      max: 1024
+    connection-timeout: 30000
