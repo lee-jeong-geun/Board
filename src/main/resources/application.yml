@@ -12,5 +12,5 @@ spring:
 server:
   tomcat:
     threads:
-      max: 1024
-    connection-timeout: 30000
+      max: 2000
+    connection-timeout: 60000
