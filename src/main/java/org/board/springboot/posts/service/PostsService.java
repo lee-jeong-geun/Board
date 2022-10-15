@@ -5,6 +5,7 @@ import org.board.springboot.posts.domain.Posts;
 import org.board.springboot.posts.domain.PostsRepository;
 import org.board.springboot.posts.dto.PostsFindResponseDto;
 import org.board.springboot.posts.dto.PostsSaveRequestDto;
+import org.board.springboot.redis.posts.PostsCacheService;
 import org.board.springboot.user.domain.User;
 import org.board.springboot.user.service.UserService;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class PostsService {
 
     private final PostsRepository postsRepository;
     private final UserService userService;
+    private final PostsCacheService postsCacheService;
 
     @Transactional
     public Long save(PostsSaveRequestDto postsSaveRequestDto) {
@@ -66,12 +68,12 @@ public class PostsService {
                 .build();
     }
 
-    @Transactional
     public int viewCountUpdateById(Long id, int updateCount) {
-        Posts posts = postsRepository.findByIdForUpdate(id)
-                .orElseThrow(() -> new IllegalStateException("해당 게시글이 없습니다."));
-        int viewCount = posts.getViewCount() + updateCount;
-        posts.viewCountUpdate(viewCount);
-        return viewCount;
+        if (!postsCacheService.hasPostsViewCountKey(id)) {
+            Posts posts = postsRepository.findById(id)
+                    .orElseThrow(() -> new IllegalStateException("해당 게시글이 없습니다."));
+            postsCacheService.setPostsViewCount(id, posts.getViewCount());
+        }
+        return postsCacheService.incrementPostsViewCount(id, updateCount);
     }
 }
