@@ -15,3 +15,9 @@ logging:
         type:
           descriptor:
             sql: TRACE
+
+server:
+  tomcat:
+    threads:
+      max: 1000
+      min-spare: 100
